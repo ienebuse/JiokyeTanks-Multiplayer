@@ -1,0 +1,28 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.android.application' version '7.2.2' apply false
+    id 'com.android.library' version '7.2.2' apply false
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+//android {
+//    buildTypes {
+//        release {
+//            // Enables code shrinking, obfuscation, and optimization for only
+//            // your project's release build type.
+//            minifyEnabled true
+//// Enables resource shrinking, which is performed by the
+//            // Android Gradle plugin.
+//            shrinkResources true
+//// Includes the default ProGuard rules files that are packaged with
+//            // the Android Gradle plugin. To learn more, go to the section about
+//            // R8 configuration files.
+//            proguardFiles getDefaultProguardFile(
+//                    'proguard-android.txt'),
+//                    'proguard-rules.pro'
+//        }
+//    }
+//}

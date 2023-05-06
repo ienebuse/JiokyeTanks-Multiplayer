@@ -1,0 +1,77 @@
+<resources>
+    <string name="app_name">Jiokye Tanks - Multiplayer</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="game_over">GAME\nOVER</string>
+    <string name="hi_score_txt">HI-SCORE</string>
+    <string name="player2_txt">II-PLAYER</string>
+    <string name="player1_txt">I-PLAYER</string>
+    <string name="pts">PTS</string>
+
+    <string name="obj1">Finish without getting a hit</string>
+    <string name="obj2">Shoot down 3 enemies in 10 seconds</string>
+    <string name="obj3">Shoot down 5 enemies in 10 seconds</string>
+    <string name="obj4">Finish without collecting bonus</string>
+    <string name="obj5">Finish within 2 minutes</string>
+    <string name="obj6">Destroy all bricks, stones and bushes</string>
+    <string name="obj7">Find the gold</string>
+    <string name="obj8">Intercept 30 bullets from enemy</string>
+    <string name="obj9">Avoid a hit on your castle</string>
+    <string name="obj10">Finish with 50% shot accuracy</string>
+    <string name="obj11">Earn 6000 points</string>
+
+    <string name="starboat_gold">x5</string>
+    <string name="clockshovel_gold">x5</string>
+    <string name="gunhelmet_gold">x5</string>
+    <string name="tankgrenade_gold">x5</string>
+    <string name="mine_gold">x5</string>
+    <string name="game_gold">x10</string>
+    <string name="game3_gold">x20</string>
+    <string name="game6h_gold">x30</string>
+    <string name="adCoin">x20</string>
+    <string name="vidGold">2</string>
+    <string name="adCoin_bonus">3</string>
+
+
+    <string name="starboat_count">x2</string>
+    <string name="clockshovel_count">x2</string>
+    <string name="gunhelmet_count">x2</string>
+    <string name="tankgrenade_count">x2</string>
+    <string name="mine_count">x2</string>
+    <string name="game_count">x1</string>
+    <string name="game6h_count">x1</string>
+    <string name="adGold_count">x10</string>
+
+    <string name="gold_cost">$0.99</string>
+    <string name="goldbar_count">x200</string>
+    <string name="retryGoldAmnt">x2</string>
+    <string name="retryWatchAmnt">x2</string>
+    <string name="playOnGoldCost">x10</string>
+
+    <string name="more_coins_text" translatable="false">Watch Ad for %d %s.</string>
+<!--    <string name="video_starting_in_text" translatable="false">Ad starts in %d…</string>-->
+    <string name="video_starting_in_text" translatable="false">%d</string>
+    <string name="negative_button_text" translatable="false">No, thanks</string>
+
+    <string name="save_txt">Save</string>
+    <string name="cancel_txt">Cancel</string>
+    <string name="enable_sound_txt">Enable Sound</string>
+    <string name="enable_vibration_txt">Enable Vibration</string>
+
+    <string name="uncompleted">UNCOMPLETED</string>
+    <string name="completed">COMPLETED</string>
+    <string name="wifi_notice">Wifi for both players\' device must be turned on. \nThis does not incure data usage. \n\nLocation permission must also be granted for two player functionality to work. However, note that your location or any data is not shared or transferred at anytime.</string>
+    <string name="day_1">Day 1</string>
+    <string name="day_2">Day 2</string>
+    <string name="day_3">Day 3</string>
+    <string name="day_4">Day 4</string>
+    <string name="day_8">Day 8</string>
+    <string name="day_7">Day 7</string>
+    <string name="day_6">Day 6</string>
+    <string name="classic_mode">classic mode</string>
+    <string name="campaign_mode">campaign mode</string>
+    <string name="info_adcoin">Indicates the amount of Acoins you have. You can use Adcoins to purchase golds. Adcoins can be acquired by watching some Ads which will begin with a prompt allowing you to opt-in.</string>
+    <string name="info_gold">Indicates the amount of golds you have in stock. You can use gold to purchase items from the store to boost your tank and game play, as well as controller to have more game time. Gold can be acquied with either Adcoin or with real currency from the store</string>
+    <string name="info_game">Indicates the amount of games you have left. Its value decreases each time you lose, restart or end a game. The number of games increases by one ever 1 hour to a maximum of 5. You can purchase more games with gold or Adcoin</string>
+</resources>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:layout_width="350dp"
+        android:layout_height="250dp"
+        android:layout_centerInParent="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/bgdlg">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/dialogheader"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/exchange1">
+
+                <ImageView
+                    android:id="@+id/closeBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    android:background="@drawable/xclose1" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="5"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="4">
+
+                    <TextView
+                        android:id="@+id/itemQty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@+id/exchangeItem1"
+                        android:layout_centerHorizontal="true"
+                        android:layout_marginBottom="5dp"
+                        android:text="x2"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:textSize="10sp" />
+
+                    <ImageView
+                        android:id="@+id/exchangeItem1"
+                        android:layout_width="100dp"
+                        android:layout_height="50dp"
+                        android:layout_centerInParent="true"
+                        android:background="@drawable/itemclockshovel"
+                        android:visibility="invisible" />
+
+                    <ImageView
+                        android:id="@+id/exchangeItem2"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_centerInParent="true"
+                        android:background="@drawable/bonus_mine"
+                        android:visibility="visible" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/exchangeTextField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_weight="1"
+                    android:visibility="visible">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true">
+
+                        <TextView
+                            android:id="@+id/text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:text="Exchange with: "
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:id="@+id/exchangeValue"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_toEndOf="@id/text"
+                            android:background="@drawable/gold" />
+
+                        <TextView
+                            android:id="@+id/exchangeQty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginLeft="5dp"
+                            android:layout_toEndOf="@id/exchangeValue"
+                            android:text="20"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textSize="15sp" />
+                    </RelativeLayout>
+
+
+                </RelativeLayout>
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/confirmBtn"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/confirmbtn" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

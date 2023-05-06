@@ -1,0 +1,17 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+//rootProject.name = "TankBattle-Multiplayer"
+rootProject.name = "Jiokye Tanks - Multiplayer"
+include ':app'
