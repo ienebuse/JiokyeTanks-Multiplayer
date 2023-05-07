@@ -288,6 +288,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
     private void startUpdate(AppUpdateInfo info, int AppUpdateType) {
 
         try {
+            UPDATE_REQUEST_CODE = (int)(Math.random()*1000) + 100;
             appUpdateManager.startUpdateFlowForResult(
                     // Pass the intent that is returned by 'getAppUpdateInfo()'.
                     info,
