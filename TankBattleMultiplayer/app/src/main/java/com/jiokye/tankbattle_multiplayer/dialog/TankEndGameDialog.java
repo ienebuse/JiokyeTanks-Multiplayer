@@ -188,7 +188,7 @@ public class TankEndGameDialog extends Dialog implements View.OnTouchListener{
                     editor.putInt(TankActivity.GOLD, golds);
                     editor.commit();
                     ((TankActivity) activity).updateBonusStack();
-                    TankToast.showTankToast(activity,"You got " + lives + "more lives",500);
+                    TankToast.showTankToast(activity,"You got " + lives + " more lives",500);
                     SoundManager.playSound(Sounds.TANK.BONUS1UP);
                     dismiss();
                 } else {
@@ -320,7 +320,7 @@ public class TankEndGameDialog extends Dialog implements View.OnTouchListener{
 //                                mTankView.updateP1Lives(1);
                             String lives = TankEndGameDialog.this.getContext().getString(R.string.retryWatchAmnt).replace("x","");
                             mTankView.updateP1Lives(Integer.parseInt(lives));
-                            TankToast.showTankToast(activity,"You got " + lives + "more lives",500);
+                            TankToast.showTankToast(activity,"You got " + lives + " more lives",500);
 //
 //                            SoundManager.playSound(Sounds.TANK.EARN_GOLD);
                             SoundManager.playSound(Sounds.TANK.BONUS1UP);

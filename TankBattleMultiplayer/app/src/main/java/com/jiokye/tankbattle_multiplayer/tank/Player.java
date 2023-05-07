@@ -45,6 +45,8 @@ public class Player extends Tank{
     private boolean stop_shooting = true;
     int bombID = -1;
     int bombID2 = -1;
+    int hit;
+    int bulletCount;
 
 
 
@@ -80,6 +82,8 @@ public class Player extends Tank{
         stageScore = 0;
         totalKills = 0;
         frame = 0;
+        hit = 0;
+        bulletCount = 0;
     }
 
     public void move() {
@@ -128,6 +132,19 @@ public class Player extends Tank{
             }
 
         }
+    }
+
+    public void updateHit() {
+        hit++;
+    }
+
+    public float getHitRate() {
+        return (float)hit/bulletCount;
+    }
+
+    public void resetHit() {
+        hit = 0;
+        bulletCount = 0;
     }
 
     public boolean canClearBush() {
@@ -283,6 +300,7 @@ public class Player extends Tank{
         bullet.id = bId;
         //todo add player bullet  to tank game bullets
         bullets.add((new Bullet(bullet,bx,by)));
+        bulletCount++;
 //        activeGameBullets.add(new Bullet(bullet,bx,by));
         SoundManager.playSound(Sounds.TANK.FIRE);
         if(MaxBullet > 1){

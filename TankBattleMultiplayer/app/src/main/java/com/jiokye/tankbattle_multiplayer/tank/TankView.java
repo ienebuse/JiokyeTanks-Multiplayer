@@ -860,8 +860,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
 //        Enemies = new Enemy[CONST.Tank.NUM_ENEMIES];
         bonus = new Bonus();
-
-        TankView.GOLD_LEVEL = ((TankActivity)context).settings.getInt(SettingsManager.GOLD_LEVEL,0);
+        // todo change gold level
+//        TankView.GOLD_LEVEL = ((TankActivity)context).settings.getInt(SettingsManager.GOLD_LEVEL,0);
+        TankView.GOLD_LEVEL = -1; //gold always available
 
         gameover = false;
         stageComplete = false;
@@ -948,6 +949,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         P1.bulletIntercept = 0;
         P1.killTime.clear();
         numStars = 1;
+        P1.resetHit();
 
         ((TankActivity)context).scoreView.setVisibility(View.INVISIBLE);
         ((TankActivity)context).gameStars.setVisibility(View.INVISIBLE);
@@ -2117,7 +2119,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             P1.stageScore += 800;
 //            ((TankActivity)context).updateGold(1);
             gold.setTaken();
-            TankView.GOLD_LEVEL = level;
+            // todo change gold level
+//            TankView.GOLD_LEVEL = level;
+            TankView.GOLD_LEVEL = -1;
             ((TankActivity)context).saveInt(SettingsManager.GOLD_LEVEL,level);
             SoundManager.playSound(Sounds.TANK.FIND_GOLD);
         }
@@ -2126,6 +2130,10 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
     public void updateP1Lives(int life) {
         P1.lives += life;
         P1.updateLifeView();
+    }
+
+    public void updateP1Hit() {
+        P1.updateHit();
     }
 
     public void giftLife() {
@@ -2523,6 +2531,8 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             }
         }
 
+        currentObj[9] = P1.getHitRate() >= 0.5;
+
         if(P1.stageScore >= 6000) {
             currentObj[10] = true;
         }
@@ -2630,6 +2640,8 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         if(P1.bulletIntercept >= 30) {
             currentObj[7] = true;
         }
+
+        currentObj[9] = P1.getHitRate() >= 0.5;
 
         if(P1.stageScore >= 6000) {
             currentObj[10] = true;

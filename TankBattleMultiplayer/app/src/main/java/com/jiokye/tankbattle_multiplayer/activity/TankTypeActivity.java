@@ -1,16 +1,29 @@
 package com.jiokye.tankbattle_multiplayer.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallState;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
+import com.google.android.play.core.install.model.UpdateAvailability;
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
@@ -30,10 +43,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class TankTypeActivity extends AppCompatActivity implements AppManager.OnAppManagerSignal {
+public class TankTypeActivity extends AppCompatActivity implements AppManager.OnAppManagerSignal, InstallStateUpdatedListener {
 
-    ImageView classicMode, campaignMode;
+    ImageView classicMode, campaignMode, updateBtn;
+    TextView verName;
     static final String TANK_TYPE = "TANK_TYPE";
+    public static AppUpdateManager appUpdateManager;
+    public static int UPDATE_REQUEST_CODE = 107;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +57,8 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_tank_type);
 
+
+        appUpdateManager = AppUpdateManagerFactory.create(this);
         AppManager.setAppManagerListener(this);
 
 
@@ -50,6 +68,32 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
         campaignMode = findViewById(R.id.campaign);
         campaignMode.setOnClickListener(modeClickListener);
+
+        updateBtn = findViewById(R.id.updatebtn);
+        updateBtn.setVisibility(View.INVISIBLE);
+        updateBtn.setEnabled(false);
+        Utils.Effects.zoom(updateBtn,0.9f,0);
+
+        updateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(view.getId() == R.id.updatebtn) {
+                    appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+                        if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                                // This example applies an immediate update. To apply a flexible update
+                                // instead, pass in AppUpdateType.FLEXIBLE
+                                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                            // Request the update.
+                            startUpdate(appUpdateInfo, AppUpdateType.FLEXIBLE);
+                        }
+                    });
+
+                }
+            }
+        });
+
+        verName = findViewById(R.id.verName);
+        verName.setText(String.format("v%s", getVersionName()));
 
         TimerBroadcastService.settings = getSharedPreferences("TankSettings", 0);
 
@@ -93,6 +137,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
         startService(new Intent(TankTypeActivity.this, TimerBroadcastService.class));
         campaignMode.setEnabled(false);
+        checkUpdate();
     }
 
 
@@ -160,6 +205,12 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
         AppManager.checkDebugger();
         AppManager.verifyInstaller(this);
         AppManager.verifySignature(this, AppManager.getAppString());
+        checkUpdating();
+    }
+
+    protected void onDestroy() {
+        appUpdateManager.unregisterListener(this);
+        super.onDestroy();
     }
 
     public void onWindowFocusChanged (boolean hasFocus) {
@@ -171,6 +222,106 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
+    }
+
+    private String getVersionName() {
+        String versionName;
+        try{
+            versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return versionName;
+    }
+
+    private void checkUpdate() {
+        // Returns an intent object that you use to check for an update.
+        appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    // This example applies an immediate update. To apply a flexible update
+                    // instead, pass in AppUpdateType.FLEXIBLE
+                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                // Request the update.
+                updateBtn.setVisibility(View.VISIBLE);
+                updateBtn.setEnabled(true);
+            }
+        });
+
+        appUpdateManager.registerListener(this);
+
+    }
+
+    private void checkUpdating() {
+        appUpdateManager
+                .getAppUpdateInfo()
+                .addOnSuccessListener(appUpdateInfo -> {
+
+                    // If the update is downloaded but not installed,
+                    // notify the user to complete the update.
+                    if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                        popupSnackbarForCompleteUpdate();
+                    }
+                });
+    }
+
+    private void popupSnackbarForCompleteUpdate() {
+        updateBtn.setEnabled(false);
+        updateBtn.setVisibility(View.INVISIBLE);
+        Snackbar snackbar =
+                Snackbar.make(
+                        findViewById(R.id.activity_tank_type),
+                        "An update has just been downloaded.",
+                        Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("RESTART", view -> {
+            appUpdateManager.completeUpdate();
+//            TankMenuActivity.this.finish();
+//            System.exit(0);
+//            restartApp();
+        });
+        snackbar.setActionTextColor(
+                getResources().getColor(android.R.color.white));
+        snackbar.show();
+    }
+
+    private void startUpdate(AppUpdateInfo info, int AppUpdateType) {
+
+        try {
+            appUpdateManager.startUpdateFlowForResult(
+                    // Pass the intent that is returned by 'getAppUpdateInfo()'.
+                    info,
+                    // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
+                    AppUpdateType,
+                    // The current activity making the update request.
+                    this,
+                    // Include a request code to later monitor this update request.
+                    UPDATE_REQUEST_CODE);
+        } catch (IntentSender.SendIntentException e) {
+            e.printStackTrace();
+//            Log.d("UPATE", "Update failed");
+        }
+    }
+
+    @Override
+    public void onStateUpdate(@NonNull InstallState installState) {
+//        downloaded = true;
+
+        if (installState.installStatus() == InstallStatus.DOWNLOADED) {
+            popupSnackbarForCompleteUpdate();
+        }
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+//                Log.d("UPDATE","Update flow failed! Result code: " + resultCode);
+                // If the update is cancelled or fails,
+                // you can request to start the update again.
+            }
+        }
     }
 
 

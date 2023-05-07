@@ -83,8 +83,7 @@ import java.util.TimeZone;
 
 public class TankMenuActivity extends AppCompatActivity implements ServiceListener, AppManager.OnAppManagerSignal, InstallStateUpdatedListener {
 
-    static AppUpdateManager appUpdateManager;
-    int UPDATE_REQUEST_CODE = 1;
+
     static boolean downloaded = false;
     static Intent intent = null;
     ImageView p1Btn, p2Btn, cnstBtn, setBtn, infoBtn;
@@ -131,7 +130,6 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         setContentView(R.layout.activity_tank_menu);
         AppManager.setAppManagerListener(this);
         TransactionManager.getInstnce().billingSetup(this);
-        appUpdateManager = AppUpdateManagerFactory.create(this);
         settings = getSharedPreferences("TankSettings", 0);
 
         bannerAdView = findViewById(R.id.adView);
@@ -222,7 +220,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
             showDailyReward();
         }
 
-        checkUpdate();
+        TankTypeActivity.appUpdateManager.registerListener(this);
     }
 
     View.OnClickListener buttonListener = new View.OnClickListener() {
@@ -230,7 +228,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         public void onClick(View view) {
             int id = view.getId();
             Animation animation;
-            if(id == R.id.backbtn || id == R.id.ratebtn|| id == R.id.infobtn) {
+            if(id == R.id.backbtn || id == R.id.ratebtn|| id == R.id.infobtn || id == R.id.updatebtn) {
                 SoundManager.playSound(Sounds.TANK.CLICK);
                 animation = Utils.Effects.blink(view, 2);
             }
@@ -429,25 +427,8 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
 //        infoBtn.setEnabled(true);
     }
 
-    private void checkUpdate() {
-
-
-
-        // Returns an intent object that you use to check for an update.
-        appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    // This example applies an immediate update. To apply a flexible update
-                    // instead, pass in AppUpdateType.FLEXIBLE
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                // Request the update.
-                startUpdate(appUpdateInfo, AppUpdateType.FLEXIBLE);
-            }
-        });
-
-    }
-
     private void checkUpdating() {
-        appUpdateManager
+        TankTypeActivity.appUpdateManager
                 .getAppUpdateInfo()
                 .addOnSuccessListener(appUpdateInfo -> {
 
@@ -466,51 +447,20 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                         "An update has just been downloaded.",
                         Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction("RESTART", view -> {
-            appUpdateManager.completeUpdate();
+            TankTypeActivity.appUpdateManager.completeUpdate();
 //            TankMenuActivity.this.finish();
 //            System.exit(0);
-            restartApp();
+//            restartApp();
         });
         snackbar.setActionTextColor(
                 getResources().getColor(android.R.color.white));
         snackbar.show();
     }
 
-    private void startUpdate(AppUpdateInfo info, int AppUpdateType) {
-        appUpdateManager.registerListener(this);
-
-        try {
-            appUpdateManager.startUpdateFlowForResult(
-                    // Pass the intent that is returned by 'getAppUpdateInfo()'.
-                    info,
-                    // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
-                    AppUpdateType,
-                    // The current activity making the update request.
-                    this,
-                    // Include a request code to later monitor this update request.
-                    UPDATE_REQUEST_CODE);
-        } catch (IntentSender.SendIntentException e) {
-            e.printStackTrace();
-//            Log.d("UPATE", "Update failed");
-        }
-    }
-
     @Override
     public void onStateUpdate(@NonNull InstallState installState) {
-        downloaded = true;
-        popupSnackbarForCompleteUpdate();
-    }
-
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == UPDATE_REQUEST_CODE) {
-            if (resultCode != RESULT_OK) {
-//                Log.d("UPDATE","Update flow failed! Result code: " + resultCode);
-                // If the update is cancelled or fails,
-                // you can request to start the update again.
-            }
+        if (installState.installStatus() == InstallStatus.DOWNLOADED) {
+            popupSnackbarForCompleteUpdate();
         }
     }
 
@@ -561,7 +511,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
     @Override
     protected void onDestroy() {
         opened = false;
-        appUpdateManager.unregisterListener(this);
+        TankTypeActivity.appUpdateManager.unregisterListener(this);
         super.onDestroy();
     }
 
@@ -1022,6 +972,5 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
 
         return true;
     }
-
 
 }

@@ -174,6 +174,7 @@ public class HVE extends Enemy{
             return false;
         }
         if(super.collides_with(bullet)) {
+            TankView.getInstance().updateP1Hit();
             if(boat && TankView.ENEMY_BOOST) {
                 boat = false;
                 bullet.setDestroyed(false);

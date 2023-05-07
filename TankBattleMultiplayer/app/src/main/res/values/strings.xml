@@ -18,7 +18,7 @@
     <string name="obj7">Find the gold</string>
     <string name="obj8">Intercept 30 bullets from enemy</string>
     <string name="obj9">Avoid a hit on your castle</string>
-    <string name="obj10">Finish with 50% shot accuracy</string>
+    <string name="obj10">Finish with 50% enemy hit rate</string>
     <string name="obj11">Earn 6000 points</string>
 
     <string name="starboat_gold">x5</string>
