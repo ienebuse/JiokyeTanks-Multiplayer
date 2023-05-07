@@ -275,6 +275,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
                         Snackbar.LENGTH_INDEFINITE);
         snackbar.setAction("RESTART", view -> {
             appUpdateManager.completeUpdate();
+            UPDATE_REQUEST_CODE++;
 //            TankMenuActivity.this.finish();
 //            System.exit(0);
 //            restartApp();
@@ -287,6 +288,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
     private void startUpdate(AppUpdateInfo info, int AppUpdateType) {
 
         try {
+            UPDATE_REQUEST_CODE = (int)(Math.random()*1000) + 100;
             appUpdateManager.startUpdateFlowForResult(
                     // Pass the intent that is returned by 'getAppUpdateInfo()'.
                     info,
