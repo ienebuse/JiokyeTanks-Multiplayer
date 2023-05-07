@@ -370,7 +370,7 @@ public class Tank extends GameObjects {
     protected int[] setCollissionRect(int dir) {
         getRect();
         int rl,rt,rr,rb;
-        int offset = Math.max(1,TankView.tile_dim/16);
+        int offset = Math.max(1,TankView.tile_dim/8);
 //        switch (dir) {
 //            case CONST.Direction.UP:
 //                rl = rect.left+2;
@@ -403,7 +403,7 @@ public class Tank extends GameObjects {
         switch (dir) {
             case CONST.Direction.UP:
                 rl = rect.left+offset;
-                rt = rect.top-offset;
+                rt = rect.top-offset*2;
                 rr = rect.right-offset;
                 rb = rect.top-offset;
                 break;
@@ -411,10 +411,10 @@ public class Tank extends GameObjects {
                 rl = rect.left+offset;
                 rt = rect.bottom+offset;
                 rr = rect.right-offset;
-                rb = rect.bottom+offset;
+                rb = rect.bottom+offset*2;
                 break;
             case CONST.Direction.LEFT:
-                rl = rect.left-offset;
+                rl = rect.left-offset*2;
                 rt = rect.top+offset;
                 rr = rect.left-offset;
                 rb = rect.bottom-offset;
@@ -422,7 +422,7 @@ public class Tank extends GameObjects {
             case CONST.Direction.RIGHT:
                 rl = rect.right+offset;
                 rt = rect.top+offset;
-                rr = rect.right+offset;
+                rr = rect.right+offset*2;
                 rb = rect.bottom-offset;
                 break;
             default:
