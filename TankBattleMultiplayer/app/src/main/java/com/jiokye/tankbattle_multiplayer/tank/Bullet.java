@@ -146,32 +146,29 @@ public class Bullet extends GameObjects {
 
     protected boolean collides_with(GameObjects targ) {
         rect = getRect();
-        Rect r = new Rect();
-        r.left = rect.left;
-        r.right = rect.right;
-        r.top = rect.top;
-        r.bottom = rect.bottom;
+        Rect r = new Rect(rect);
+        int offset = Math.max(1,TankView.tile_dim/4);
+//        r.left = rect.left;
+//        r.right = rect.right;
+//        r.top = rect.top;
+//        r.bottom = rect.bottom;
 //        if(!(targ instanceof Enemy)) {
             switch (direction) {
                 case CONST.Direction.UP:
-                    r.left -= TankView.tile_dim/2;
-                    r.right += TankView.tile_dim/2;
-//                    r.bottom += TankView.tile_dim/2;
+                    r.left -= offset;
+                    r.right += offset;
                     break;
                 case CONST.Direction.DOWN:
-                    r.left -= TankView.tile_dim/2;
-                    r.right += TankView.tile_dim/2;
-//                    r.top -= TankView.tile_dim/2;
+                    r.left -= offset;
+                    r.right += offset;
                     break;
                 case CONST.Direction.LEFT:
-                    r.bottom += TankView.tile_dim/2;
-                    r.top -= TankView.tile_dim/2;
-//                    r.right += TankView.tile_dim/2;
+                    r.bottom += offset;
+                    r.top -= offset;
                     break;
                 case CONST.Direction.RIGHT:
-                    r.bottom += TankView.tile_dim/2;
-                    r.top -= TankView.tile_dim/2;
-//                    r.left -= TankView.tile_dim/2;
+                    r.bottom += offset;
+                    r.top -= offset;
                     break;
             }
 

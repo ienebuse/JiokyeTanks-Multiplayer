@@ -370,30 +370,60 @@ public class Tank extends GameObjects {
     protected int[] setCollissionRect(int dir) {
         getRect();
         int rl,rt,rr,rb;
+        int offset = Math.max(1,TankView.tile_dim/16);
+//        switch (dir) {
+//            case CONST.Direction.UP:
+//                rl = rect.left+2;
+//                rt = rect.top-6;
+//                rr = rect.right-2;
+//                rb = rect.top-2;
+//                break;
+//            case CONST.Direction.DOWN:
+//                rl = rect.left+2;
+//                rt = rect.bottom+2;
+//                rr = rect.right-2;
+//                rb = rect.bottom+6;
+//                break;
+//            case CONST.Direction.LEFT:
+//                rl = rect.left-6;
+//                rt = rect.top+2;
+//                rr = rect.left-2;
+//                rb = rect.bottom-2;
+//                break;
+//            case CONST.Direction.RIGHT:
+//                rl = rect.right+2;
+//                rt = rect.top+2;
+//                rr = rect.right+6;
+//                rb = rect.bottom-2;
+//                break;
+//            default:
+//                rl = 0;rt=0;rr=0;rb=0;
+//        }
+
         switch (dir) {
             case CONST.Direction.UP:
-                rl = rect.left+2;
-                rt = rect.top-6;
-                rr = rect.right-2;
-                rb = rect.top-2;
+                rl = rect.left+offset;
+                rt = rect.top-offset;
+                rr = rect.right-offset;
+                rb = rect.top-offset;
                 break;
             case CONST.Direction.DOWN:
-                rl = rect.left+2;
-                rt = rect.bottom+2;
-                rr = rect.right-2;
-                rb = rect.bottom+6;
+                rl = rect.left+offset;
+                rt = rect.bottom+offset;
+                rr = rect.right-offset;
+                rb = rect.bottom+offset;
                 break;
             case CONST.Direction.LEFT:
-                rl = rect.left-6;
-                rt = rect.top+2;
-                rr = rect.left-2;
-                rb = rect.bottom-2;
+                rl = rect.left-offset;
+                rt = rect.top+offset;
+                rr = rect.left-offset;
+                rb = rect.bottom-offset;
                 break;
             case CONST.Direction.RIGHT:
-                rl = rect.right+2;
-                rt = rect.top+2;
-                rr = rect.right+6;
-                rb = rect.bottom-2;
+                rl = rect.right+offset;
+                rt = rect.top+offset;
+                rr = rect.right+offset;
+                rb = rect.bottom-offset;
                 break;
             default:
                 rl = 0;rt=0;rr=0;rb=0;
