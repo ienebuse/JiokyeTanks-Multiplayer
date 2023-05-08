@@ -1010,6 +1010,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         ((TankActivity)context).StageTxt.setText(String.valueOf(level));
         ((TankActivity)context).bmbText.setText(String.valueOf(P1.getMineCounts()));
+        ((TankActivity)context).buildText.setText(String.valueOf(P1.getBuildersCount()));
 
         closingCurtain = true;
         openingCurtain = false;
@@ -3461,6 +3462,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
     }
 
     private void buttonPressed(int dir) {
+        P1.placeBuild();
         if(dir != P1.getDirection()) {
 //            Log.d("DIRECTION","DIR: " + dir + " P1: " + P1.getDirection());
             TankView.vibrate();
@@ -3618,6 +3620,11 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.dropMine();
             }
 
+            else if(v.getId()== R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build30_btn,null));
+                P1.dropBuild();
+            }
+
             else {
                 P1.stopMoving();
             }
@@ -3631,6 +3638,10 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             else if(v.getId() == R.id.bombBtn) {
                 ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine31_btn,null));
                 P1.activateMine();
+            }
+            else if(v.getId() == R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build31_btn,null));
+                P1.activateBuild();
             }
         }
     }

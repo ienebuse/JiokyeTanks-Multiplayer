@@ -2,6 +2,7 @@ package com.jiokye.tankbattle_multiplayer.tank;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.util.Log;
 
 import com.jiokye.tankbattle_multiplayer.activity.TankActivity;
 import com.jiokye.tankbattle_multiplayer.model.MTank;
@@ -19,6 +20,7 @@ public class Player extends Tank{
     protected int frame_delay;
     public int lives = 3;
     private int mines = 3;
+    private int builders = 3;
     protected int reloadTmr = (int)(0.1*TankView.FPS);
     protected int reload_time = 0;
     protected int MaxBullet = 1;
@@ -511,6 +513,22 @@ public class Player extends Tank{
 
     public int getMineCounts() {
         return mines;
+    }
+
+    public int getBuildersCount() {
+        return builders;
+    }
+
+    public void placeBuild() {
+        Log.d("BUILDER", "Place build");
+    }
+
+    public void dropBuild() {
+        Log.d("BUILDER", "Drop build");
+    }
+
+    public void activateBuild() {
+        Log.d("BUILDER", "Activate build");
     }
 
     public Mine getMine() {

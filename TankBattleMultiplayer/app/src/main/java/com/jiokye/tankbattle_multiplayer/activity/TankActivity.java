@@ -202,7 +202,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
         shtBtn = findViewById(R.id.shootBtn);
         bmbBtn = findViewById(R.id.bombBtn);
-        buildBtn = findViewById(R.id.buiderBtn);
+        buildBtn = findViewById(R.id.builderBtn);
         upBtn = findViewById(R.id.upBtn);
         dwnBtn = findViewById(R.id.downBtn);
         rtBtn = findViewById(R.id.rightBtn);

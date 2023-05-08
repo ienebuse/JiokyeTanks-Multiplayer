@@ -847,7 +847,7 @@
         android:layout_marginEnd="5dp">
 
         <Button
-            android:id="@+id/buiderBtn"
+            android:id="@+id/builderBtn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="1"
