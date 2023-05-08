@@ -46,6 +46,7 @@ public class Bonus extends GameObjects {
             bitmaps.add(bm);
         }
         bitmaps.add(TankView.mineBitmap);
+        bitmaps.add(TankView.buiderBitmap);
     }
 
     public void setBonus() {
@@ -54,7 +55,7 @@ public class Bonus extends GameObjects {
         this.y = (int)(Math.random()*TankView.HEIGHT - bitmaps.get(0).getHeight());
         id++;
         SoundManager.playSound(Sounds.TANK.POWERUP);
-        if(bonus >= 0 && bonus <= 8) {
+        if(bonus >= 0 && bonus <= 9) {
             bonusBm = bitmaps.get(bonus);
             on = true;
             available = true;
@@ -66,32 +67,35 @@ public class Bonus extends GameObjects {
     private int pollBonus(int count) {
         float p = (float)Math.random();
 
-        if(p < 0.18) {
+        if(p < 0.1) {
             return 0;
         }
-        else if(p < 0.36) {
+        else if(p < 0.25) {
             return 1;
         }
-        else if(p < 0.47) {
+        else if(p < 0.35) {
             return 2;
         }
-        else if(p < 0.65) {
+        else if(p < 0.5) {
             return 3;
         }
-        else if(p < 0.72) {
+        else if(p < 0.57) {
             return 4;
         }
-        else if(p < 0.83) {
+        else if(p < 0.67) {
             return 5;
         }
-        else if(p < 0.875) {
+        else if(p < 0.74) {
             return 6;
         }
-        else if(p < 0.975){
+        else if(p < 0.89){
             return 7;
         }
-        else {
+        else if(p < 0.95){
             return 8;
+        }
+        else {
+            return 9;
         }
     }
 
@@ -151,7 +155,7 @@ public class Bonus extends GameObjects {
         if(!available) {
             return;
         }
-        if(bonus >= 0 && bonus <= 8) {
+        if(bonus >= 0 && bonus <= 9) {
             if(blinkTmr > 0) {
                 --blinkTmr;
             }

@@ -149,6 +149,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
     private Eagle eagle;
     public static ArrayList<Bitmap> bombBitmap;
     public static Bitmap mineBitmap;
+    public static Bitmap buiderBitmap;
     public static Sprite bombSprite;
     public static ArrayList<ArrayList<Bitmap>> hveBitmap;
     public static Sprite hveSprite;
@@ -713,7 +714,18 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         int bmbDim = stDim/2;
         bmbLayout.width = bmbDim;
         bmbLayout.height = bmbDim;
+        int bmbL = dimW-bmbDim-bmDim;
+        int bmbT = dimH-bmbDim-stDim-bmDim;
+        ((TankActivity)context).bombAlign.layout(bmbL,bmbT, bmbDim, bmbDim);
+
+        //Builder button
+
+        ViewGroup.LayoutParams buildLayout = ((TankActivity)context).buildAlign.getLayoutParams();
+        int bldDim = stDim/2;
+        buildLayout.width = bmbDim;
+        buildLayout.height = bmbDim;
         ((TankActivity)context).bombAlign.layout(dimW-bmbDim-bmDim,dimH-bmbDim-stDim-bmDim, bmbDim, bmbDim);
+
 
         // Pause button
 
@@ -737,6 +749,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         Bitmap bombBm = BitmapFactory.decodeResource(context.getResources(), R.drawable.bomb);
         Bitmap fireBm = BitmapFactory.decodeResource(context.getResources(), R.drawable.fire);
         mineBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bonus_mine);
+        buiderBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bonus_builder);
         Bitmap hveBm = BitmapFactory.decodeResource(context.getResources(), R.drawable.hve);
 
         Bitmap test = Bitmap.createBitmap(graphics,0,0,32,32);
@@ -767,6 +780,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
 
         mineBitmap = Bitmap.createScaledBitmap(mineBitmap,(int)(RESIZE*mineBitmap.getWidth()/SCALE),(int)(RESIZE*mineBitmap.getHeight()/SCALE),false);
+        buiderBitmap = Bitmap.createScaledBitmap(buiderBitmap,(int)(RESIZE*buiderBitmap.getWidth()/SCALE),(int)(RESIZE*buiderBitmap.getHeight()/SCALE),false);
 
         fireBm = Bitmap.createScaledBitmap(fireBm,(int)(RESIZE*fireBm.getWidth()/SCALE),(int)(RESIZE*fireBm.getHeight()/SCALE),false);
         fireSprite = SpriteObjects.getInstance().getData(ObjectType.ST_FIRE);
