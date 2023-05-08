@@ -1,6 +1,7 @@
 package com.jiokye.tankbattle_multiplayer.tank;
 
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -21,6 +22,7 @@ public class Player extends Tank{
     public int lives = 3;
     private int mines = 3;
     private int builders = 3;
+    private int buildDir = 0;
     protected int reloadTmr = (int)(0.1*TankView.FPS);
     protected int reload_time = 0;
     protected int MaxBullet = 1;
@@ -49,6 +51,12 @@ public class Player extends Tank{
     int bombID2 = -1;
     int hit;
     int bulletCount;
+
+    GameObjects drop1,drop2;
+    GameObjects drop1b,drop2b;
+    Point p1 = new Point(), p2 = new Point();
+    boolean dropActive = false;
+
 
 
 
@@ -521,14 +529,81 @@ public class Player extends Tank{
 
     public void placeBuild() {
         Log.d("BUILDER", "Place build");
+        if(dropActive  && drop1 != null && drop2 != null) {
+            ((StoneWall)drop1).setActive(true);
+            ((StoneWall)drop2).setActive(true);
+            dropActive = false;
+        }
     }
 
     public void dropBuild() {
+        if(!dropActive){
+            buildDir = CONST.Direction.UP;
+            dropActive = true;
+        }
+        else{
+            buildDir = (buildDir + 1)%4;
+            TankView.getInstance().setLevelObjects(p1.x,p1.y, drop1b);
+            TankView.getInstance().setLevelObjects(p2.x,p2.y, drop2b);
+        }
         Log.d("BUILDER", "Drop build");
+        int posx = (int)((float)2*x/w + 0.5);
+        int posy = (int)((float)2*y/h + 0.5);
+        switch (buildDir) {
+            case CONST.Direction.UP:
+                posy = Math.max(posy-1,0);
+                drop1b = TankView.getInstance().getLevelObjects(posx,posy);
+                drop2b = TankView.getInstance().getLevelObjects(posx+1,posy);
+                p1.x = posx; p1.y = posy;
+                p2.x = posx+1; p2.y = posy;
+
+                drop1 = new StoneWall(posx,posy).setActive(false);
+                drop2 = new StoneWall(posx+1,posy).setActive(false);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1);
+                TankView.getInstance().setLevelObjects(posx+1,posy, drop2);
+                break;
+            case CONST.Direction.RIGHT:
+                posx = Math.min(posx+2,25);
+                drop1b = TankView.getInstance().getLevelObjects(posx,posy);
+                drop2b = TankView.getInstance().getLevelObjects(posx,posy+1);
+                p1.x = posx; p1.y = posy;
+                p2.x = posx; p2.y = posy+1;
+
+                drop1 = new StoneWall(posx,posy).setActive(false);
+                drop2 = new StoneWall(posx,posy+1).setActive(false);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1);
+                TankView.getInstance().setLevelObjects(posx,posy+1, drop2);
+                break;
+            case CONST.Direction.DOWN:
+                posy = Math.min(posy+2,25);
+                drop1b = TankView.getInstance().getLevelObjects(posx,posy);
+                drop2b = TankView.getInstance().getLevelObjects(posx+1,posy);
+                p1.x = posx; p1.y = posy;
+                p2.x = posx+1; p2.y = posy;
+
+                drop1 = new StoneWall(posx,posy).setActive(false);
+                drop2 = new StoneWall(posx+1,posy).setActive(false);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1);
+                TankView.getInstance().setLevelObjects(posx+1,posy, drop2);
+                break;
+            case CONST.Direction.LEFT:
+                posx = Math.max(posx-1,0);
+                drop1b = TankView.getInstance().getLevelObjects(posx,posy);
+                drop2b = TankView.getInstance().getLevelObjects(posx,posy+1);
+                p1.x = posx; p1.y = posy;
+                p2.x = posx; p2.y = posy+1;
+
+                drop1 = new StoneWall(posx,posy).setActive(false);
+                drop2 = new StoneWall(posx,posy+1).setActive(false);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1);
+                TankView.getInstance().setLevelObjects(posx,posy+1, drop2);
+                break;
+        }
     }
 
     public void activateBuild() {
         Log.d("BUILDER", "Activate build");
+
     }
 
     public Mine getMine() {

@@ -2,10 +2,16 @@ package com.jiokye.tankbattle_multiplayer.tank;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 
 public class StoneWall extends GameObjects {
     Sprite sprite;
     Bitmap bitmap;
+    boolean active = true;
+    int onTmr = 3;
+    boolean on = true;
+    int frameCount = 0;
+    int posx, posy;
 
     public StoneWall(int x, int y) {
         super(x, y);
@@ -17,6 +23,8 @@ public class StoneWall extends GameObjects {
         super.h = sprite.h;
         super.x = x*sprite.w;
         super.y = y*sprite.h;
+        posx = x;
+        posy = y;
     }
 
     public void collidsWithBullet(Bullet bullet) {
@@ -29,7 +37,31 @@ public class StoneWall extends GameObjects {
         }
     }
 
+    public Point getPos() {
+        return new Point(posx,posy);
+    }
+
+    public StoneWall setActive(boolean active) {
+        this.active = active;
+        if(!active) {
+
+        }
+        return this;
+    }
+
     public void draw(Canvas canvas) {
-        canvas.drawBitmap(bitmap,x,y,null);
+        if(!active) {
+            if(on){
+                canvas.drawBitmap(bitmap,x,y,null);
+            }
+            --frameCount;
+            if(frameCount <= 0){
+                frameCount = onTmr;
+                on = !on;
+            }
+        }
+        else {
+            canvas.drawBitmap(bitmap, x, y, null);
+        }
     }
 }

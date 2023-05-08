@@ -2158,6 +2158,16 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
     }
 
+    public void setLevelObjects(int row, int col, GameObjects obj) {
+        levelObjects.get(col).set(row,obj);
+
+    }
+
+    public GameObjects getLevelObjects(int row, int col) {
+        return levelObjects.get(col).get(row);
+
+    }
+
     private void doGameLogic(){
         if(notifyGiftLife) {
             notifyGiftLife = false;
