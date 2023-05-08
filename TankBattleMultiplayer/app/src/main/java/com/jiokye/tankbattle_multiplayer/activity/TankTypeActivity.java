@@ -50,6 +50,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
     static final String TANK_TYPE = "TANK_TYPE";
     public static AppUpdateManager appUpdateManager;
     public static int UPDATE_REQUEST_CODE = 107;
+    public static boolean IMMEDIATE = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +83,9 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
                         if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                                 // This example applies an immediate update. To apply a flexible update
                                 // instead, pass in AppUpdateType.FLEXIBLE
-                                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                                && appUpdateInfo.isUpdateTypeAllowed(IMMEDIATE ? AppUpdateType.IMMEDIATE : AppUpdateType.FLEXIBLE)) {
                             // Request the update.
-                            startUpdate(appUpdateInfo, AppUpdateType.FLEXIBLE);
+                            startUpdate(appUpdateInfo, IMMEDIATE ? AppUpdateType.IMMEDIATE : AppUpdateType.FLEXIBLE);
                         }
                     });
 
@@ -259,8 +260,15 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
                     // If the update is downloaded but not installed,
                     // notify the user to complete the update.
-                    if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
-                        popupSnackbarForCompleteUpdate();
+                    if(!IMMEDIATE) {
+                        if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                            popupSnackbarForCompleteUpdate();
+                        }
+                    }
+                    else {
+                        if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                            startUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE);
+                        }
                     }
                 });
     }

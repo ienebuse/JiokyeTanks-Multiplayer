@@ -724,7 +724,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         int bldDim = stDim/2;
         buildLayout.width = bmbDim;
         buildLayout.height = bmbDim;
-        ((TankActivity)context).bombAlign.layout(dimW-bmbDim-bmDim,dimH-bmbDim-stDim-bmDim, bmbDim, bmbDim);
+        ((TankActivity)context).bombAlign.layout(bmbL-bldDim-bmDim,bmbT, bmbL-bmDim, bmbDim);
 
 
         // Pause button
