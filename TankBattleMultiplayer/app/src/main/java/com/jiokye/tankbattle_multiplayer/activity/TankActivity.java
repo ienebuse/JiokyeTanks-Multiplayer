@@ -611,7 +611,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
     public void startRetry() {
         int retries = settings.getInt(SettingsManager.RETRY_COUNT,3);
-        long game6h = settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+        long game6h = settings.getLong(SettingsManager.LIFE_TIME_3H,0);
         if(TankView.gameover) {
             SharedPreferences.Editor editor = settings.edit();
             if (game6h < System.currentTimeMillis()) { // No 6h game time. Using game count

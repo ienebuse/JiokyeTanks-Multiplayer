@@ -22,7 +22,7 @@ public class TimerBroadcastService extends Service {
 
             long currentTime = System.currentTimeMillis();
 
-            long game6h = settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+            long game6h = settings.getLong(SettingsManager.LIFE_TIME_3H,0);
             if(game6h > 0 && game6h > currentTime) { //6 hours has not elasped
                 life_time = game6h - currentTime;
                 games = CONST.Tank.MAX_GAME_COUNT;

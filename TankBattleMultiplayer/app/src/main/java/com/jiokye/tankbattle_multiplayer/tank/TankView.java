@@ -772,17 +772,17 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 
         graphics = Bitmap.createScaledBitmap(graphics,(int)(RESIZE*graphics.getWidth()/SCALE),(int)(RESIZE*graphics.getHeight()/SCALE),false);
 
-        bombBm = Bitmap.createScaledBitmap(bombBm,(int)(RESIZE*bombBm.getWidth()/SCALE),(int)(RESIZE*bombBm.getHeight()/SCALE),false);
+        bombBm = Bitmap.createScaledBitmap(bombBm,(int)Math.round(RESIZE*bombBm.getWidth()/SCALE),(int)Math.round(RESIZE*bombBm.getHeight()/SCALE),false);
         bombSprite = SpriteObjects.getInstance().getData(ObjectType.ST_BOMB);
         bombBitmap = new ArrayList<>();
         for(int i = 0; i < 3; i++) {
             bombBitmap.add(Bitmap.createBitmap(bombBm,i*bombSprite.w, 0, bombSprite.w, bombSprite.h));
         }
 
-        mineBitmap = Bitmap.createScaledBitmap(mineBitmap,(int)(RESIZE*mineBitmap.getWidth()/SCALE),(int)(RESIZE*mineBitmap.getHeight()/SCALE),false);
+        mineBitmap = Bitmap.createScaledBitmap(mineBitmap,(int)Math.round(RESIZE*mineBitmap.getWidth()/SCALE),(int)Math.round(RESIZE*mineBitmap.getHeight()/SCALE),false);
         buiderBitmap = Bitmap.createScaledBitmap(buiderBitmap,(int)(RESIZE*buiderBitmap.getWidth()/SCALE),(int)(RESIZE*buiderBitmap.getHeight()/SCALE),false);
 
-        fireBm = Bitmap.createScaledBitmap(fireBm,(int)(RESIZE*fireBm.getWidth()/SCALE),(int)(RESIZE*fireBm.getHeight()/SCALE),false);
+        fireBm = Bitmap.createScaledBitmap(fireBm,(int)Math.round(RESIZE*fireBm.getWidth()/SCALE),(int)Math.round(RESIZE*fireBm.getHeight()/SCALE),false);
         fireSprite = SpriteObjects.getInstance().getData(ObjectType.ST_FIRE);
         fireBitmap = new Bitmap[7][4];
         for(int i = 0; i < 7; i++) {
@@ -2186,7 +2186,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         if(notifyRetryStage) {
             int games  = ((TankActivity)context).settings.getInt(SettingsManager.RETRY_COUNT,0);
-            long game6h = ((TankActivity)context).settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+            long game6h = ((TankActivity)context).settings.getLong(SettingsManager.LIFE_TIME_3H,0);
             if(System.currentTimeMillis() < game6h) {
                 games = CONST.Tank.MAX_GAME_COUNT;
             }
@@ -3619,6 +3619,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 buttonPressed(-1);
             }
         }
+
         else  if (v.getId() == R.id.shootBtn) {
             P1.startShooting();
         }
@@ -3643,6 +3644,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.stopMoving();
             }
         }
+
         if(m.getAction() == MotionEvent.ACTION_DOWN) {
             if(v.getId() == R.id.shootBtn) {
                 ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot31_btn,null));
@@ -3655,7 +3657,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             }
             else if(v.getId() == R.id.builderBtn) {
                 ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build31_btn,null));
-                P1.activateBuild();
+//                P1.activateBuild();
             }
         }
     }

@@ -25,6 +25,7 @@
     <string name="clockshovel_gold">x5</string>
     <string name="gunhelmet_gold">x5</string>
     <string name="tankgrenade_gold">x5</string>
+    <string name="builder_gold">x5</string>
     <string name="mine_gold">x5</string>
     <string name="game_gold">x10</string>
     <string name="game3_gold">x20</string>
@@ -39,6 +40,7 @@
     <string name="gunhelmet_count">x2</string>
     <string name="tankgrenade_count">x2</string>
     <string name="mine_count">x2</string>
+    <string name="builder_count">x3</string>
     <string name="game_count">x1</string>
     <string name="game6h_count">x1</string>
     <string name="adGold_count">x10</string>
@@ -66,9 +68,14 @@
     <string name="day_2">Day 2</string>
     <string name="day_3">Day 3</string>
     <string name="day_4">Day 4</string>
-    <string name="day_8">Day 8</string>
-    <string name="day_7">Day 7</string>
+    <string name="day_5">Day 5</string>
     <string name="day_6">Day 6</string>
+    <string name="day_7">Day 7</string>
+    <string name="day_8">Day 8</string>
+    <string name="day_9">Day 9</string>
+    <string name="day_10">Day 10</string>
+    <string name="day_11">Day 11</string>
+    <string name="day_12">Day 12</string>
     <string name="classic_mode">classic mode</string>
     <string name="campaign_mode">campaign mode</string>
     <string name="info_adcoin">Indicates the amount of Acoins you have. You can use Adcoins to purchase golds. Adcoins can be acquired by watching some Ads which will begin with a prompt allowing you to opt-in.</string>

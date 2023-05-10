@@ -8,7 +8,6 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -30,18 +29,8 @@ import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.AppManager;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;
 import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
-import com.jiokye.tankbattle_multiplayer.utility.TankToast;
 import com.jiokye.tankbattle_multiplayer.utility.TimerBroadcastService;
 import com.jiokye.tankbattle_multiplayer.utility.Utils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 public class TankTypeActivity extends AppCompatActivity implements AppManager.OnAppManagerSignal, InstallStateUpdatedListener {
 
@@ -98,10 +87,10 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
         TimerBroadcastService.settings = getSharedPreferences("TankSettings", 0);
 
-        long game6h = TimerBroadcastService.settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+        long game6h = TimerBroadcastService.settings.getLong(SettingsManager.LIFE_TIME_3H,0);
         if(game6h == 0) {
             SharedPreferences.Editor editor = TimerBroadcastService.settings.edit();
-            editor.putLong(SettingsManager.LIFE_TIME_6H,game6h);
+            editor.putLong(SettingsManager.LIFE_TIME_3H,game6h);
             editor.commit();
         }
 
