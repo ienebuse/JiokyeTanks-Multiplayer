@@ -2138,6 +2138,10 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 //            TankView.GOLD_LEVEL = level;
             TankView.GOLD_LEVEL = -1;
             ((TankActivity)context).saveInt(SettingsManager.GOLD_LEVEL,level);
+            int goldcount = ((TankActivity)context).settings.getInt(TankActivity.GOLD,0);
+            SharedPreferences.Editor editor = ((TankActivity)context).settings.edit();
+            editor.putInt(TankActivity.GOLD,goldcount+1);
+            editor.apply();
             SoundManager.playSound(Sounds.TANK.FIND_GOLD);
         }
     }

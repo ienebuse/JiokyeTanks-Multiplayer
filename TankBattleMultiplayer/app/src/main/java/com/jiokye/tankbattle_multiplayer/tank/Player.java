@@ -358,6 +358,17 @@ public class Player extends Tank{
         });
     }
 
+    public void updateBuilderView() {
+        ((TankActivity)TankView.context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+//                if (Player.this.player == 1) {
+                ((TankActivity) (TankView.getInstance().getTankViewContext())).buildText.setText(String.valueOf(Player.this.builders));
+//                }
+            }
+        });
+    }
+
     public boolean isAlive() {
         return lives > 0;
     }
@@ -508,6 +519,11 @@ public class Player extends Tank{
         updateMineView();
     }
 
+    public void applyBuilder() {
+        ++builders;
+        updateMineView();
+    }
+
     public void dropMine() {
         if(mines <= 0 || lives <= 0 || getMine().isDropped()) {
             return;
@@ -528,15 +544,19 @@ public class Player extends Tank{
     }
 
     public void placeBuild() {
-        Log.d("BUILDER", "Place build");
         if(dropActive  && drop1 != null && drop2 != null) {
             ((StoneWall)drop1).setActive(true);
             ((StoneWall)drop2).setActive(true);
             dropActive = false;
+            builders--;
+            updateBuilderView();
         }
     }
 
     public void dropBuild() {
+        if(builders <= 0) {
+            return;
+        }
         if(!dropActive){
             buildDir = CONST.Direction.UP;
             dropActive = true;
@@ -546,7 +566,7 @@ public class Player extends Tank{
             TankView.getInstance().setLevelObjects(p1.x,p1.y, drop1b);
             TankView.getInstance().setLevelObjects(p2.x,p2.y, drop2b);
         }
-        Log.d("BUILDER", "Drop build");
+
         int posx = (int)((float)2*x/w + 0.5);
         int posy = (int)((float)2*y/h + 0.5);
         switch (buildDir) {
@@ -602,7 +622,6 @@ public class Player extends Tank{
     }
 
     public void activateBuild() {
-        Log.d("BUILDER", "Activate build");
 
     }
 
@@ -679,6 +698,9 @@ public class Player extends Tank{
                     break;
                 case Bonus.MINE:
                     applyMine();
+                    break;
+                case Bonus.BUILDER:
+                    applyBuilder();
                     break;
             }
             if(player != 0) {

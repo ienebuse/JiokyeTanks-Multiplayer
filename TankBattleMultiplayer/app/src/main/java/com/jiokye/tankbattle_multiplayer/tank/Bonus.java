@@ -30,6 +30,7 @@ public class Bonus extends GameObjects {
     public static final int GUN = 6;
     public static final int BOAT = 7;
     public static final int MINE = 8;
+    public static final int BUILDER = 9;
     public static boolean available = false;
     public static int id = 0;
 
