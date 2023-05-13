@@ -8,7 +8,6 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -30,18 +29,8 @@ import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.AppManager;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;
 import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
-import com.jiokye.tankbattle_multiplayer.utility.TankToast;
 import com.jiokye.tankbattle_multiplayer.utility.TimerBroadcastService;
 import com.jiokye.tankbattle_multiplayer.utility.Utils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 public class TankTypeActivity extends AppCompatActivity implements AppManager.OnAppManagerSignal, InstallStateUpdatedListener {
 
@@ -50,6 +39,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
     static final String TANK_TYPE = "TANK_TYPE";
     public static AppUpdateManager appUpdateManager;
     public static int UPDATE_REQUEST_CODE = 107;
+    public static boolean IMMEDIATE = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +72,9 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
                         if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                                 // This example applies an immediate update. To apply a flexible update
                                 // instead, pass in AppUpdateType.FLEXIBLE
-                                && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                                && appUpdateInfo.isUpdateTypeAllowed(IMMEDIATE ? AppUpdateType.IMMEDIATE : AppUpdateType.FLEXIBLE)) {
                             // Request the update.
-                            startUpdate(appUpdateInfo, AppUpdateType.FLEXIBLE);
+                            startUpdate(appUpdateInfo, IMMEDIATE ? AppUpdateType.IMMEDIATE : AppUpdateType.FLEXIBLE);
                         }
                     });
 
@@ -97,10 +87,10 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
         TimerBroadcastService.settings = getSharedPreferences("TankSettings", 0);
 
-        long game6h = TimerBroadcastService.settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+        long game6h = TimerBroadcastService.settings.getLong(SettingsManager.LIFE_TIME_3H,0);
         if(game6h == 0) {
             SharedPreferences.Editor editor = TimerBroadcastService.settings.edit();
-            editor.putLong(SettingsManager.LIFE_TIME_6H,game6h);
+            editor.putLong(SettingsManager.LIFE_TIME_3H,game6h);
             editor.commit();
         }
 
@@ -259,8 +249,15 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
                     // If the update is downloaded but not installed,
                     // notify the user to complete the update.
-                    if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
-                        popupSnackbarForCompleteUpdate();
+                    if(!IMMEDIATE) {
+                        if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                            popupSnackbarForCompleteUpdate();
+                        }
+                    }
+                    else {
+                        if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                            startUpdate(appUpdateInfo, AppUpdateType.IMMEDIATE);
+                        }
                     }
                 });
     }

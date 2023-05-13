@@ -228,7 +228,7 @@ public class TankStage2Fragment extends Fragment implements View.OnTouchListener
                             return;
                         }
                         int games = settings.getInt(SettingsManager.RETRY_COUNT,0);
-                        long game6h = settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+                        long game6h = settings.getLong(SettingsManager.LIFE_TIME_3H,0);
 
                         if(games > 0 || game6h > System.currentTimeMillis()){
 

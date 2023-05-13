@@ -134,6 +134,10 @@ public class TankDailyRewardDialog extends DialogFragment implements View.OnClic
         rewardCover.add(rootView.findViewById(R.id.day6));
         rewardCover.add(rootView.findViewById(R.id.day7));
         rewardCover.add(rootView.findViewById(R.id.day8));
+        rewardCover.add(rootView.findViewById(R.id.day9));
+        rewardCover.add(rootView.findViewById(R.id.day10));
+        rewardCover.add(rootView.findViewById(R.id.day11));
+        rewardCover.add(rootView.findViewById(R.id.day12));
 
 //        reward.add(findViewById(R.id.day1rwd));
 //        reward.add(findViewById(R.id.day2rwd));
@@ -143,7 +147,7 @@ public class TankDailyRewardDialog extends DialogFragment implements View.OnClic
 //        reward.add(findViewById(R.id.day6rwd));
 //        reward.add(findViewById(R.id.day7rwd));
 
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= 12; i++) {
             ImageView dayView = rewardCover.get(i - 1);
             if (i == day) {
 
@@ -275,85 +279,138 @@ public class TankDailyRewardDialog extends DialogFragment implements View.OnClic
             case 2:
                 bonus = settings.getInt(TankActivity.CLOCK,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.CLOCK,bonus);
                 break;
             case 3:
                 bonus = settings.getInt(TankActivity.GRENADE,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.GRENADE,bonus);
 
                 bonus = settings.getInt(TankActivity.BOAT,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.BOAT,bonus);
                 break;
             case 4:
                 bonus = settings.getInt(TankActivity.STAR,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.STAR,bonus);
 
                 bonus = settings.getInt(TankActivity.CLOCK,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.CLOCK,bonus);
                 break;
             case 5:
                 bonus = settings.getInt(TankActivity.GUN,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.GUN,bonus);
 
                 bonus = settings.getInt(TankActivity.GOLD,3);
                 bonus  = doubleReward ? bonus+4 : bonus+2;
-                Math.min(bonus,CONST.Tank.MAX_GOLD);
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
                 editor.putInt(TankActivity.GOLD,bonus);
                 break;
             case 6:
                 bonus = settings.getInt(TankActivity.TANK,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.TANK,bonus);
 
                 bonus = settings.getInt(TankActivity.SHOVEL,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.SHOVEL,bonus);
 
                 bonus = settings.getInt(TankActivity.GOLD,3);
                 bonus  = doubleReward ? bonus+10 : bonus+5;
-                Math.min(bonus,CONST.Tank.MAX_GOLD);
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
                 editor.putInt(TankActivity.GOLD,bonus);
                 break;
             case 7:
                 bonus = settings.getInt(TankActivity.TANK,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.TANK,bonus);
 
                 bonus = settings.getInt(TankActivity.GUN,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_ITEM);
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
                 editor.putInt(TankActivity.GUN,bonus);
 
                 bonus = settings.getInt(TankActivity.GOLD,3);
                 bonus  = doubleReward ? bonus+20 : bonus+10;
-                Math.min(bonus,CONST.Tank.MAX_GOLD);
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
                 editor.putInt(TankActivity.GOLD,bonus);
                 break;
 
             case 8:
                 bonus = settings.getInt(TankActivity.GOLD,3);
                 bonus  = doubleReward ? bonus+20 : bonus+10;
-                Math.min(bonus,CONST.Tank.MAX_GOLD);
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
                 editor.putInt(TankActivity.GOLD,bonus);
 
                 bonus = settings.getInt(SettingsManager.RETRY_COUNT,3);
                 bonus  = doubleReward ? bonus+2 : bonus+1;
-                Math.min(bonus,CONST.Tank.MAX_GAME_COUNT);
+                bonus = Math.min(bonus,CONST.Tank.MAX_GAME_COUNT);
                 editor.putInt(SettingsManager.RETRY_COUNT,bonus);
+                break;
+
+            case 9:
+                bonus = settings.getInt(TankActivity.GOLD,3);
+                bonus  = doubleReward ? bonus+20 : bonus+10;
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
+                editor.putInt(TankActivity.GOLD,bonus);
+
+                bonus = settings.getInt(TankActivity.BUILDER,3);
+                bonus  = doubleReward ? bonus+6 : bonus+3;
+                bonus = Math.min(bonus,CONST.Tank.MAX_BUILDER);
+                editor.putInt(TankActivity.BUILDER,bonus);
+                break;
+
+            case 10:
+                bonus = settings.getInt(TankActivity.TANK,3);
+                bonus  = doubleReward ? bonus+6 : bonus+3;
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
+                editor.putInt(TankActivity.GOLD,bonus);
+
+//                bonus = settings.getInt(SettingsManager.RETRY_COUNT,3);
+//                bonus  = doubleReward ? bonus+2 : bonus+1;
+//                bonus = Math.min(bonus,CONST.Tank.MAX_GAME_COUNT);
+//                editor.putInt(SettingsManager.RETRY_COUNT,bonus);
+                break;
+
+            case 11:
+                bonus = settings.getInt(TankActivity.MINE,3);
+                bonus  = doubleReward ? bonus+6 : bonus+3;
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
+                editor.putInt(TankActivity.MINE,bonus);
+
+//                bonus = settings.getInt(SettingsManager.RETRY_COUNT,3);
+//                bonus  = doubleReward ? bonus+2 : bonus+1;
+//                bonus = Math.min(bonus,CONST.Tank.MAX_GAME_COUNT);
+//                editor.putInt(SettingsManager.RETRY_COUNT,bonus);
+                break;
+
+            case 12:
+                bonus = settings.getInt(TankActivity.MINE,3);
+                bonus  = doubleReward ? bonus+6 : bonus+3;
+                bonus = Math.min(bonus,CONST.Tank.MAX_ITEM);
+                editor.putInt(TankActivity.MINE,bonus);
+
+                bonus = settings.getInt(TankActivity.TANK,3);
+                bonus  = doubleReward ? bonus+6 : bonus+3;
+                bonus = Math.min(bonus,CONST.Tank.MAX_GOLD);
+                editor.putInt(TankActivity.GOLD,bonus);
+
+//                bonus = settings.getInt(SettingsManager.RETRY_COUNT,3);
+//                bonus  = doubleReward ? bonus+2 : bonus+1;
+//                bonus = Math.min(bonus,CONST.Tank.MAX_GAME_COUNT);
+//                editor.putInt(SettingsManager.RETRY_COUNT,bonus);
                 break;
         }
         editor.commit();

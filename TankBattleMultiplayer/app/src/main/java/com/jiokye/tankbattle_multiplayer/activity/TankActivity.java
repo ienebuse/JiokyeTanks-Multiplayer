@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
@@ -38,6 +39,7 @@ import com.jiokye.tankbattle_multiplayer.utility.ServiceListener;
 import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
 import com.jiokye.tankbattle_multiplayer.utility.TankTextView;
 import com.jiokye.tankbattle_multiplayer.utility.TankToast;
+import com.jiokye.tankbattle_multiplayer.utility.Utils;
 import com.jiokye.tankbattle_multiplayer.wifidirect.WifiDirectManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.google.android.gms.ads.AdError;
@@ -67,18 +69,19 @@ import java.util.TimerTask;
 
 public class TankActivity extends AppCompatActivity implements View.OnTouchListener, ServiceListener, AppManager.OnAppManagerSignal {
 
-    public Button stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, menuBtn, nxtBtn, retryBtn;
+    public Button menuBtn, nxtBtn, retryBtn;
+    public ImageView stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn;
     public Button stickView;
     public LinearLayout enemyCount, bonusFrame, pauseControl;
     public ImageView P1StatusImg, P2StatusImg, StageFlag;
     public TextView P1StatusTxt, P2StatusTxt, StageTxt, enemyCountTxt;
     public TankTextView curtainTxt,gameOverTxt;
 
-    public RelativeLayout scoreView,gameView,navView, shootAlign, bombAlign;
+    public RelativeLayout scoreView,gameView,navView, shootAlign, bombAlign, buildAlign;
     private LinearLayout challengeItem;
     private ScrollView challengeScroll;
     private TankTextView challengeCount;
-    public TankTextView bmbText, retryCount, retryGameTmr, hiScore, stageScore, p1Score, p2Score;
+    public TankTextView bmbText, buildText, retryCount, retryGameTmr, hiScore, stageScore, p1Score, p2Score;
     public TankTextView p1AScore, p1BScore, p1CScore, p1DScore;
     public TankTextView p2AScore, p2BScore, p2CScore, p2DScore;
     public TankTextView p1ACount, p1BCount, p1CCount, p1DCount, p1Count;
@@ -106,21 +109,8 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
             STAR = "STAR",
             SHIELD = "SHIELD",
             MINE = "MINE",
+            BUILDER = "BUILDER",
             GOLD = "GOLD";
-
-//        RETRY_COUNT = "RETRY_COUNT",
-//        LIFE_TIME = "LIFE_TIME",
-//        LIFE_TIME_6H = "LIFE_TIME_6H",
-//
-//        GOLD_LEVEL = "GOLD_LEVEL",
-//        AD_COIN = "AD_COIN",
-//
-//        FIRST_TIME = "FIRST_TIME",
-//        LAST_DAY = "LAST_DAY",
-//        CONSECUTIVE_DAYS = "CONSECUTIVE_DAYS",
-//
-//        OBJECTIVES = "OBJECTIVES",
-//        LEVEL_STARS = "LEVEL_STARS";
 
     public SharedPreferences settings;
 
@@ -209,14 +199,18 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         navView = findViewById(R.id.navView);
         shootAlign = findViewById(R.id.shootAlign);
         bombAlign = findViewById(R.id.bombAlign);
+        buildAlign = findViewById(R.id.builderAlign);
         bmbText = findViewById(R.id.bmbTxt);
+        buildText = findViewById(R.id.builderTxt);
 
         shtBtn = findViewById(R.id.shootBtn);
         bmbBtn = findViewById(R.id.bombBtn);
+        buildBtn = findViewById(R.id.builderBtn);
         upBtn = findViewById(R.id.upBtn);
         dwnBtn = findViewById(R.id.downBtn);
         rtBtn = findViewById(R.id.rightBtn);
         lftBtn = findViewById(R.id.leftBtn);
+
 //        stick = findViewById(R.id.navStick);
 //        stickView = findViewById(R.id.navStickView);
 
@@ -231,6 +225,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
         shtBtn.setOnTouchListener(this);
         bmbBtn.setOnTouchListener(this);
+        buildBtn.setOnTouchListener(this);
         upBtn.setOnTouchListener(this);
         dwnBtn.setOnTouchListener(this);
         rtBtn.setOnTouchListener(this);
@@ -620,7 +615,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
     public void startRetry() {
         int retries = settings.getInt(SettingsManager.RETRY_COUNT,3);
-        long game6h = settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+        long game6h = settings.getLong(SettingsManager.LIFE_TIME_3H,0);
         if(TankView.gameover) {
             SharedPreferences.Editor editor = settings.edit();
             if (game6h < System.currentTimeMillis()) { // No 6h game time. Using game count
@@ -738,8 +733,9 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
-        return false;
+//        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
+        mTankView.onButtonPressed(view, motionEvent);
+        return true;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -759,8 +755,11 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         for(int row = 0; row < numRow; row++) {
             int numCol = ((LinearLayout)bonusBank.getChildAt(row)).getChildCount();
             for(int col = 0; col < numCol; col++) {
-                RelativeLayout bonus = (RelativeLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col);
-                bonus.setOnTouchListener(bonusListener);
+                RelativeLayout bonus = (RelativeLayout)((ConstraintLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col)).getChildAt(0);
+                if(((String)bonus.getTag()).equals("NA")){
+                    continue;
+                }
+                bonus.setOnClickListener(bonusListener);
                 int bonusCount = settings.getInt((String) bonus.getTag(),3);
                 TankTextView txtView = (TankTextView)(bonus.getChildAt(0));
                 txtView.setText(bonusCount > 0 ? String.valueOf(bonusCount) : "+");
@@ -790,7 +789,11 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         for(int row = 0; row < numRow; row++) {
             int numCol = ((LinearLayout)bonusBank.getChildAt(row)).getChildCount();
             for(int col = 0; col < numCol; col++) {
-                RelativeLayout bonus = (RelativeLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col);
+
+                RelativeLayout bonus = (RelativeLayout)((ConstraintLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col)).getChildAt(0);
+                if(((String)bonus.getTag()).equals("NA")){
+                    continue;
+                }
                 int bonusCount = settings.getInt((String) bonus.getTag(),0);
                 TankTextView txtView = (TankTextView)(bonus.getChildAt(0));
                 txtView.setText(bonusCount > 0 ? String.valueOf(bonusCount) : "+");
@@ -798,33 +801,33 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         }
     }
 
-    View.OnTouchListener bonusListener = new View.OnTouchListener() {
+    View.OnClickListener bonusListener = new View.OnClickListener() {
         @SuppressLint("ClickableViewAccessibility")
         @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+        public void onClick(View view) {
+            Utils.Effects.blink(view,5);
 
-                int count = settings.getInt((String) view.getTag(),0);
+
+            int count = settings.getInt((String) view.getTag(),0);
 //                Log.d("BONUS", "Got bonus" + (String) view.getTag());
-                if(count <= 0 || ((String) view.getTag()).equals("GOLD")) {
+            if(count <= 0 || ((String) view.getTag()).equals("GOLD")) {
 //                    Log.d("BONUS", "Buy more bonus");
 
-                    // todo -- uncomment after rework on ads
+                // todo -- uncomment after rework on ads
 //                    mTankView.interrupt();
 //                    openStore();
 
-                }
-                else {
-                    mTankView.applyBonus((String) view.getTag());
-                    --count;
-                    TankTextView txtView = ((TankTextView)((RelativeLayout)view).getChildAt(0));
-                    txtView.setText(count > 0 ? String.valueOf(count) : "+");
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putInt((String) view.getTag(),count);
-                    editor.apply();
-                }
             }
-            return true;
+            else {
+                mTankView.applyBonus((String) view.getTag());
+                --count;
+                TankTextView txtView = ((TankTextView)((RelativeLayout)view).getChildAt(0));
+                txtView.setText(count > 0 ? String.valueOf(count) : "+");
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putInt((String) view.getTag(),count);
+                editor.apply();
+            }
+
         }
     };
 
@@ -1071,6 +1074,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     public void enableControls() {
         shtBtn.setEnabled(true);
         bmbBtn.setEnabled(true);
+        buildBtn.setEnabled(true);
         upBtn.setEnabled(true);
         dwnBtn.setEnabled(true);
         rtBtn.setEnabled(true);
@@ -1097,6 +1101,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     public void disableControls() {
         shtBtn.setEnabled(false);
         bmbBtn.setEnabled(false);
+        buildBtn.setEnabled(false);
         upBtn.setEnabled(false);
         dwnBtn.setEnabled(false);
         rtBtn.setEnabled(false);

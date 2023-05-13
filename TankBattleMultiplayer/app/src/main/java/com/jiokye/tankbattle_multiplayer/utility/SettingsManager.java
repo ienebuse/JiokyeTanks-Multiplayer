@@ -10,7 +10,11 @@ public class SettingsManager {
 
         RETRY_COUNT = "RETRY_COUNT",
         LIFE_TIME = "LIFE_TIME",
-        LIFE_TIME_6H = "LIFE_TIME_6H",
+        LIFE_TIME_3H = "LIFE_TIME_3H",
+
+        LIFE_TIME_1H = "LIFE_TIME_3H",
+
+        LIFE_TIME_6H = "LIFE_TIME_3H",
 
         GOLD_LEVEL = "GOLD_LEVEL",
         AD_COIN = "AD_COIN",

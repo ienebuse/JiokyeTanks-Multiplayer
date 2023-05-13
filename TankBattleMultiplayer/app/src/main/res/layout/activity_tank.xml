@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/gameView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -10,10 +11,22 @@
         android:layout_width="350dp"
         android:layout_height="350dp"
         android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="50dp"
-        android:layout_centerHorizontal="true"
         android:background="@color/black" />
+
+<!--    <androidx.constraintlayout.widget.Barrier-->
+<!--        android:id="@+id/barrier"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:barrierDirection="end"-->
+<!--        app:constraint_referenced_ids="tankView"-->
+<!--        android:layout_alignBottom="@id/tankView"/>-->
+
+
+
+
 
     <LinearLayout
         android:id="@+id/pauseControl"
@@ -75,11 +88,10 @@
         android:id="@+id/curtainText"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
+        android:textAlignment="center"
         android:textSize="10sp"
-        android:visibility="invisible"
-        android:textAlignment="center"/>
+        android:visibility="invisible" />
 
     <com.jiokye.tankbattle_multiplayer.utility.TankTextView
         android:id="@+id/gameOverText"
@@ -90,8 +102,8 @@
         android:layout_marginBottom="1dp"
         android:text="@string/game_over"
         android:textAlignment="center"
-        android:textSize="15sp"
         android:textColor="@color/brick_red"
+        android:textSize="15sp"
         android:visibility="invisible" />
 
     <LinearLayout
@@ -392,13 +404,24 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/giftLife"
+        android:layout_alignStart="@+id/giftLife"
+        android:layout_marginBottom="-30dp"
+        android:text="@string/share_life"
+        android:textColor="@color/brick_brown" />
+
     <ImageView
         android:id="@+id/giftLife"
         android:layout_width="35dp"
         android:layout_height="25dp"
+        android:layout_below="@+id/enemyCount"
+        android:layout_marginStart="27dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="33dp"
         android:layout_toEndOf="@+id/PStatus"
-        android:layout_alignBottom="@+id/PStatus"
-        android:layout_marginStart="10dp"
         android:background="@drawable/p1_gift"
         android:visibility="invisible">
 
@@ -437,107 +460,180 @@
         android:layout_height="120dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
-        android:orientation="vertical"
-        android:background="@drawable/bghud71">
+        android:background="@drawable/bghud71"
+        android:orientation="vertical">
 
         <LinearLayout
             android:id="@+id/bonusBank"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp">
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_gravity="center"
                 android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_gravity="center">
+                android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:id="@+id/grenade"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_grenade"
-                    android:tag="GRENADE">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/grenadeCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:alpha="1"
-                        android:text="10"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/white"
-                        android:textSize="9sp" />
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/grenade"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:background="@drawable/bonus_grenade"
+                        android:tag="GRENADE"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
-                <RelativeLayout
-                    android:id="@+id/clock"
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/grenadeCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_clock"
-                    android:tag="CLOCK">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/clockCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:alpha="1"
-                        android:text="10"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/white"
-                        android:textSize="9sp" />
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/clock"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_clock"
+                        android:tag="CLOCK"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
-                <RelativeLayout
-                    android:id="@+id/shovel"
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/clockCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_shovel"
-                    android:tag="SHOVEL">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/shovelCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textAlignment="viewStart"
-                        android:text="10"
-                        android:textSize="9sp"
-                        android:alpha="1"
-                        android:textColor="@color/white"/>
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/shovel"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_shovel"
+                        android:tag="SHOVEL"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/shovelCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <RelativeLayout
+                        android:id="@+id/tank"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_tank"
+                        android:tag="TANK"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/tankCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
@@ -545,90 +641,164 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_gravity="center"
                 android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_gravity="center">
+                android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:id="@+id/tank"
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_tank"
-                    android:tag="TANK">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/tankCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textAlignment="viewStart"
-                        android:text="10"
-                        android:textSize="9sp"
-                        android:alpha="1"
-                        android:textColor="@color/white"/>
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/gun"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_gun"
+                        android:tag="GUN"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
-                <RelativeLayout
-                    android:id="@+id/gun"
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/gunCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_gun"
-                    android:tag="GUN">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/gunCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textAlignment="viewStart"
-                        android:text="10"
-                        android:textSize="9sp"
-                        android:alpha="1"
-                        android:textColor="@color/white"/>
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/boat"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_boat"
+                        android:tag="BOAT"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
-                <RelativeLayout
-                    android:id="@+id/boat"
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/boatCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_boat"
-                    android:tag="BOAT">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/boatCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textAlignment="viewStart"
-                        android:text="10"
-                        android:textSize="9sp"
-                        android:alpha="1"
-                        android:textColor="@color/white"/>
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/star"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_star"
+                        android:tag="STAR"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/starCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <RelativeLayout
+                        android:id="@+id/shield"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_helmet"
+                        android:tag="SHIELD"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/shieldCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
 
             </LinearLayout>
 
@@ -636,90 +806,155 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_gravity="center"
                 android:layout_weight="1"
-                android:orientation="horizontal"
-                android:layout_gravity="center">
+                android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:id="@+id/star"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_star"
-                    android:tag="STAR">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/starCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textAlignment="viewStart"
-                        android:text="10"
-                        android:textSize="9sp"
-                        android:alpha="1"
-                        android:textColor="@color/white"/>
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/mine"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_mine"
+                        android:tag="MINE"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
-                <RelativeLayout
-                    android:id="@+id/shield"
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/mineCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_helmet"
-                    android:tag="SHIELD">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/shieldCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginEnd="5dp"
-                        android:layout_marginTop="5dp"
-                        android:textAlignment="viewStart"
-                        android:text="10"
-                        android:textSize="9sp"
-                        android:alpha="1"
-                        android:textColor="@color/white"/>
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/builder"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bonus_builder"
+                        android:tag="BUILDER"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
-                <RelativeLayout
-                    android:id="@+id/mine"
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:id="@+id/builderCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:text="10"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="2dp"
-                    android:layout_marginStart="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:background="@drawable/bonus_mine"
-                    android:tag="MINE">
+                    android:layout_weight="1">
 
-                    <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-                        android:id="@+id/mineCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentEnd="true"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:alpha="1"
-                        android:text="10"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/white"
-                        android:textSize="9sp" />
-                </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:tag="NA"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1"
+                        android:tag="NA"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentEnd="true"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:alpha="1"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brick_brown"
+                            android:textSize="9sp" />
+                    </RelativeLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
@@ -750,7 +985,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginBottom="20dp">
 
-        <Button
+        <ImageView
             android:id="@+id/leftBtn"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -760,7 +995,7 @@
             android:background="@drawable/left30_btn"
             android:tag="left" />
 
-        <Button
+        <ImageView
             android:id="@+id/rightBtn"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -770,7 +1005,7 @@
             android:background="@drawable/right30_btn"
             android:tag="right" />
 
-        <Button
+        <ImageView
             android:id="@+id/downBtn"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -780,7 +1015,7 @@
             android:background="@drawable/down30_btn"
             android:tag="down" />
 
-        <Button
+        <ImageView
             android:id="@+id/upBtn"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -791,23 +1026,20 @@
             android:tag="up" />
 
 
+        <!--        <Button-->
+        <!--            android:id="@+id/navStickView"-->
+        <!--            android:layout_width="45dp"-->
+        <!--            android:layout_height="45dp"-->
+        <!--            android:layout_centerInParent="true"-->
+        <!--            android:background="@drawable/navstick"/>-->
 
-<!--        <Button-->
-<!--            android:id="@+id/navStickView"-->
-<!--            android:layout_width="45dp"-->
-<!--            android:layout_height="45dp"-->
-<!--            android:layout_centerInParent="true"-->
-<!--            android:background="@drawable/navstick"/>-->
-
-<!--        <Button-->
-<!--            android:id="@+id/navStick"-->
-<!--            android:layout_width="45dp"-->
-<!--            android:layout_height="45dp"-->
-<!--            android:layout_centerInParent="true"-->
-<!--            android:background="@drawable/navstick"-->
-<!--            android:alpha="0"/>-->
-
-
+        <!--        <Button-->
+        <!--            android:id="@+id/navStick"-->
+        <!--            android:layout_width="45dp"-->
+        <!--            android:layout_height="45dp"-->
+        <!--            android:layout_centerInParent="true"-->
+        <!--            android:background="@drawable/navstick"-->
+        <!--            android:alpha="0"/>-->
 
 
     </RelativeLayout>
@@ -820,7 +1052,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="40dp">
 
-        <Button
+        <ImageView
             android:id="@+id/bombBtn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -834,9 +1066,35 @@
             android:layout_height="wrap_content"
             android:textSize="15sp"
             android:textColor="@color/brick_brown"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
+            android:layout_centerInParent="true"
+            android:translationZ="10dp"
+            android:text="3"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/builderAlign"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/shootAlign"
+        android:layout_toStartOf="@+id/bombAlign"
+        android:layout_marginEnd="5dp">
+
+        <ImageView
+            android:id="@+id/builderBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="1"
+            android:background="@drawable/build30_btn"
+            android:tag="shoot" />
+
+        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+            android:id="@+id/builderTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="@color/brick_brown"
+            android:layout_centerInParent="true"
             android:translationZ="10dp"
             android:text="3"/>
 
@@ -856,7 +1114,7 @@
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="30dp">
 
-        <Button
+        <ImageView
             android:id="@+id/shootBtn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -1804,6 +2062,11 @@
 
 
     </RelativeLayout>
+
+
+
+
+
 
 <!--    <RelativeLayout-->
 <!--        android:id="@+id/fragmentFrame2"-->

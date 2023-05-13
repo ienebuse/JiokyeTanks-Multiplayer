@@ -149,6 +149,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
     private Eagle eagle;
     public static ArrayList<Bitmap> bombBitmap;
     public static Bitmap mineBitmap;
+    public static Bitmap buiderBitmap;
     public static Sprite bombSprite;
     public static ArrayList<ArrayList<Bitmap>> hveBitmap;
     public static Sprite hveSprite;
@@ -212,6 +213,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 
 
     public static ConcurrentLinkedQueue<Game> gameModel;
+    public static ConcurrentLinkedQueue<int[]> objectDropQueue;
 
 
     public static boolean freeze = false;
@@ -467,6 +469,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         if(twoPlayers) {
             levelObjectsUpdate = new ArrayList<>();
+            objectDropQueue = new ConcurrentLinkedQueue<>();
         }
         BufferedReader reader;
         int row_count = 0;
@@ -545,6 +548,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         if(twoPlayers) {
             levelObjectsUpdate = new ArrayList<>();
+            objectDropQueue = new ConcurrentLinkedQueue<>();
         }
 
 
@@ -655,12 +659,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         // Bonus frame
 
         ViewGroup.LayoutParams bonusLayout = ((TankActivity)context).bonusFrame.getLayoutParams();
+//        int bDim = (int)(((dimW - dim)*0.9/2));
+//        bDim = (int)(Math.min(bDim, dimH*0.45));
         int bDim = (int)(((dimW - dim)*0.9/2));
+        int bWDim = (int)(0.9*bDim);
         bDim = (int)(Math.min(bDim, dimH*0.45));
         int bmDim = (int)(bDim*.05);
-        bonusLayout.width = bDim;
+        bonusLayout.width = Math.max(bWDim,bDim);
         bonusLayout.height = bDim;
-        ((TankActivity)context).bonusFrame.layout(bmDim,bmDim,bDim,bDim);
+        ((TankActivity)context).bonusFrame.layout(bmDim,bmDim,bWDim,bDim);
 
         // Navigation buttons
 
@@ -713,7 +720,18 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         int bmbDim = stDim/2;
         bmbLayout.width = bmbDim;
         bmbLayout.height = bmbDim;
-        ((TankActivity)context).bombAlign.layout(dimW-bmbDim-bmDim,dimH-bmbDim-stDim-bmDim, bmbDim, bmbDim);
+        int bmbL = dimW-bmbDim-bmDim;
+        int bmbT = dimH-bmbDim-stDim-bmDim;
+        ((TankActivity)context).bombAlign.layout(bmbL,bmbT, bmbDim, bmbDim);
+
+        //Builder button
+
+        ViewGroup.LayoutParams buildLayout = ((TankActivity)context).buildAlign.getLayoutParams();
+        int bldDim = stDim/2;
+        buildLayout.width = bmbDim;
+        buildLayout.height = bmbDim;
+        ((TankActivity)context).buildAlign.layout(bmbL-bldDim-bmDim,bmbT, bmbL-bmDim, bmbDim);
+
 
         // Pause button
 
@@ -737,6 +755,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         Bitmap bombBm = BitmapFactory.decodeResource(context.getResources(), R.drawable.bomb);
         Bitmap fireBm = BitmapFactory.decodeResource(context.getResources(), R.drawable.fire);
         mineBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bonus_mine);
+        buiderBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.bonus_builder);
         Bitmap hveBm = BitmapFactory.decodeResource(context.getResources(), R.drawable.hve);
 
         Bitmap test = Bitmap.createBitmap(graphics,0,0,32,32);
@@ -759,16 +778,17 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 
         graphics = Bitmap.createScaledBitmap(graphics,(int)(RESIZE*graphics.getWidth()/SCALE),(int)(RESIZE*graphics.getHeight()/SCALE),false);
 
-        bombBm = Bitmap.createScaledBitmap(bombBm,(int)(RESIZE*bombBm.getWidth()/SCALE),(int)(RESIZE*bombBm.getHeight()/SCALE),false);
+        bombBm = Bitmap.createScaledBitmap(bombBm,(int)Math.round(RESIZE*bombBm.getWidth()/SCALE),(int)Math.round(RESIZE*bombBm.getHeight()/SCALE),false);
         bombSprite = SpriteObjects.getInstance().getData(ObjectType.ST_BOMB);
         bombBitmap = new ArrayList<>();
         for(int i = 0; i < 3; i++) {
             bombBitmap.add(Bitmap.createBitmap(bombBm,i*bombSprite.w, 0, bombSprite.w, bombSprite.h));
         }
 
-        mineBitmap = Bitmap.createScaledBitmap(mineBitmap,(int)(RESIZE*mineBitmap.getWidth()/SCALE),(int)(RESIZE*mineBitmap.getHeight()/SCALE),false);
+        mineBitmap = Bitmap.createScaledBitmap(mineBitmap,(int)Math.round(RESIZE*mineBitmap.getWidth()/SCALE),(int)Math.round(RESIZE*mineBitmap.getHeight()/SCALE),false);
+        buiderBitmap = Bitmap.createScaledBitmap(buiderBitmap,(int)(RESIZE*buiderBitmap.getWidth()/SCALE),(int)(RESIZE*buiderBitmap.getHeight()/SCALE),false);
 
-        fireBm = Bitmap.createScaledBitmap(fireBm,(int)(RESIZE*fireBm.getWidth()/SCALE),(int)(RESIZE*fireBm.getHeight()/SCALE),false);
+        fireBm = Bitmap.createScaledBitmap(fireBm,(int)Math.round(RESIZE*fireBm.getWidth()/SCALE),(int)Math.round(RESIZE*fireBm.getHeight()/SCALE),false);
         fireSprite = SpriteObjects.getInstance().getData(ObjectType.ST_FIRE);
         fireBitmap = new Bitmap[7][4];
         for(int i = 0; i < 7; i++) {
@@ -996,6 +1016,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         ((TankActivity)context).StageTxt.setText(String.valueOf(level));
         ((TankActivity)context).bmbText.setText(String.valueOf(P1.getMineCounts()));
+        ((TankActivity)context).buildText.setText(String.valueOf(P1.getBuildersCount()));
 
         closingCurtain = true;
         openingCurtain = false;
@@ -2123,6 +2144,10 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 //            TankView.GOLD_LEVEL = level;
             TankView.GOLD_LEVEL = -1;
             ((TankActivity)context).saveInt(SettingsManager.GOLD_LEVEL,level);
+            int goldcount = ((TankActivity)context).settings.getInt(TankActivity.GOLD,0);
+            SharedPreferences.Editor editor = ((TankActivity)context).settings.edit();
+            editor.putInt(TankActivity.GOLD,goldcount+1);
+            editor.apply();
             SoundManager.playSound(Sounds.TANK.FIND_GOLD);
         }
     }
@@ -2143,6 +2168,22 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
     }
 
+    public void setLevelObjects(int row, int col, GameObjects obj, boolean active) {
+        levelObjects.get(col).set(row,obj);
+
+    }
+
+    public void registerDroppedObject(Point pos) {
+        if(twoPlayers) {
+            objectDropQueue.add(new int[]{pos.y, pos.x, 10});
+        }
+    }
+
+    public GameObjects getLevelObjects(int row, int col) {
+        return levelObjects.get(col).get(row);
+
+    }
+
     private void doGameLogic(){
         if(notifyGiftLife) {
             notifyGiftLife = false;
@@ -2157,7 +2198,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         if(notifyRetryStage) {
             int games  = ((TankActivity)context).settings.getInt(SettingsManager.RETRY_COUNT,0);
-            long game6h = ((TankActivity)context).settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+            long game6h = ((TankActivity)context).settings.getLong(SettingsManager.LIFE_TIME_3H,0);
             if(System.currentTimeMillis() < game6h) {
                 games = CONST.Tank.MAX_GAME_COUNT;
             }
@@ -3027,6 +3068,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             if(l[2] == 0) {
                 levelObjects.get(l[0]).set(l[1],null);
             }
+            else if(l[2] == 10) {
+                setLevelObjects(l[1], l[0], new StoneWall(l[1],l[0]),true);
+            }
             else if(levelObjects.get(l[0]).get(l[1]) != null) {
                 if (l[2] == 6) {
                     ((Brick) levelObjects.get(l[0]).get(l[1])).collidsWithBullet(CONST.Direction.UP);
@@ -3038,6 +3082,8 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                     ((Brick) levelObjects.get(l[0]).get(l[1])).collidsWithBullet(CONST.Direction.RIGHT);
                 }
             }
+
+
         }
 
         for(int i:model.lBushes) {
@@ -3083,6 +3129,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             sendModel.loadEnemies(Enemies);
             sendModel.eCount = Enemy.EnemyCount;
             sendModel.loadEnemyActiveBullets(Enemy.getActiveBullets());
+            while(!objectDropQueue.isEmpty()) {
+                levelObjectsUpdate.add(objectDropQueue.poll());
+            }
             sendModel.loadLevelObjects(levelObjectsUpdate);
             sendModel.loadLevelBushes(levelBushesUpdate);
 //            }
@@ -3323,6 +3372,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         else if(tag.equals(TankActivity.MINE)) {
             P1.applyMine();
         }
+        else if(tag.equals(TankActivity.BUILDER)) {
+            P1.applyBuilder();
+        }
     }
 
 
@@ -3447,6 +3499,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
     }
 
     private void buttonPressed(int dir) {
+        P1.placeBuild();
         if(dir != P1.getDirection()) {
 //            Log.d("DIRECTION","DIR: " + dir + " P1: " + P1.getDirection());
             TankView.vibrate();
@@ -3496,7 +3549,6 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 
     @Override
     public void onButtonPressed(View v, MotionEvent m) {
-//        Log.d("Button Pressed", "Strick move");
 
 //        if (v.getId() == R.id.navStick) {
 //            if (m.getX() < 0) {
@@ -3604,10 +3656,16 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.dropMine();
             }
 
+            else if(v.getId()== R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build30_btn,null));
+                P1.dropBuild();
+            }
+
             else {
                 P1.stopMoving();
             }
         }
+
         if(m.getAction() == MotionEvent.ACTION_DOWN) {
             if(v.getId() == R.id.shootBtn) {
                 ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot31_btn,null));
@@ -3617,6 +3675,10 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             else if(v.getId() == R.id.bombBtn) {
                 ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine31_btn,null));
                 P1.activateMine();
+            }
+            else if(v.getId() == R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build31_btn,null));
+//                P1.activateBuild();
             }
         }
     }

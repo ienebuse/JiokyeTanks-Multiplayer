@@ -259,7 +259,7 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
                     @Override
                     public void onAnimationEnd(Animation animation) {
                         int games = settings.getInt(SettingsManager.RETRY_COUNT,0);
-                        long game6h = settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+                        long game6h = settings.getLong(SettingsManager.LIFE_TIME_3H,0);
 //                        games = 3;
                         if(games > 0 || game6h > System.currentTimeMillis()){
                             int level = selected + 1;

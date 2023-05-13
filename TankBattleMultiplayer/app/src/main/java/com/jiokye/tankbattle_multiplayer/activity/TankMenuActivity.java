@@ -312,7 +312,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
 
             if(!first_time) {
                 newDay = true;
-                numDays = (numDays % 8) + 1;
+                numDays = (numDays % 12) + 1;
             }
 
             editor.putInt(SettingsManager.CONSECUTIVE_DAYS,numDays);

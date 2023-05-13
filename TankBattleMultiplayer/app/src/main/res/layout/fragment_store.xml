@@ -26,7 +26,7 @@
             android:background="@drawable/storeheader">
 
             <LinearLayout
-                android:layout_width="400dp"
+                android:layout_width="420dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="5dp"
@@ -421,6 +421,48 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="2">
+
+                        <ImageView
+                            android:id="@+id/builderImg"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:background="@drawable/bonus_builder"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintDimensionRatio="1:1" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <TextView
+                        android:id="@+id/buildercountTxt"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:text=""
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="8sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_weight="0.7"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
 
                     <ImageView
                         android:id="@+id/gamecountImg"
@@ -572,6 +614,11 @@
 
         <!--        </LinearLayout>-->
 
+
+
+
+
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -587,106 +634,116 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/storefreegold"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storefreegold" />
+                    <ImageView
+                        android:id="@+id/storefreegold"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storefreegold" />
 
-                <ImageView
-                    android:id="@+id/storestarboat"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storestarboat" />
+                    <ImageView
+                        android:id="@+id/storestarboat"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storestarboat" />
 
-                <ImageView
-                    android:id="@+id/storeclockshovel"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storeclockshovel" />
+                    <ImageView
+                        android:id="@+id/storeclockshovel"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storeclockshovel" />
 
-                <ImageView
-                    android:id="@+id/storehelmetgun"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storehelmetgun" />
+                    <ImageView
+                        android:id="@+id/storehelmetgun"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storehelmetgun" />
 
-                <ImageView
-                    android:id="@+id/storegrenadetank"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storegrenadetank" />
+                    <ImageView
+                        android:id="@+id/storegrenadetank"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storegrenadetank" />
 
-                <ImageView
-                    android:id="@+id/storemine"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storemine" />
+                    <ImageView
+                        android:id="@+id/storemine"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storemine" />
 
-                <ImageView
-                    android:id="@+id/storegame"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storegame" />
+                    <ImageView
+                        android:id="@+id/storebuilder"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storebuilder" />
 
-                <ImageView
-                    android:id="@+id/storegame6h"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storegame6h" />
+                    <ImageView
+                        android:id="@+id/storegame"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storegame" />
 
-                <ImageView
-                    android:id="@+id/storeadgold"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storeadgold" />
+                    <ImageView
+                        android:id="@+id/storegame6h"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storegame6h" />
 
-                <ImageView
-                    android:id="@+id/storebuygold50"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storebuygold50" />
+                    <ImageView
+                        android:id="@+id/storeadgold"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storeadgold" />
 
-                <ImageView
-                    android:id="@+id/storebuygold100"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storebuygold100" />
+                    <ImageView
+                        android:id="@+id/storebuygold50"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storebuygold50" />
 
-                <ImageView
-                    android:id="@+id/storebuygold200"
-                    android:layout_width="120dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@drawable/storebuygold200" />
+                    <ImageView
+                        android:id="@+id/storebuygold100"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storebuygold100" />
 
-            </LinearLayout>
+                    <ImageView
+                        android:id="@+id/storebuygold200"
+                        android:layout_width="120dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@drawable/storebuygold200" />
+
+                </LinearLayout>
 
 
-        </HorizontalScrollView>
+
+
+            </HorizontalScrollView>
 
         <RelativeLayout
             android:layout_width="match_parent"

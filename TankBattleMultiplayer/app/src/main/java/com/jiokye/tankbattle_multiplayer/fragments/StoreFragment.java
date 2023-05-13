@@ -14,7 +14,6 @@ import androidx.fragment.app.FragmentActivity;
 //import android.support.v4.app.Fragment;
 //import androidx.fragment.app.FragmentManager;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -80,6 +79,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
             guncountTxt,
             grenadecountText,
             tankcountTxt,
+            buildercountTxt,
             gamecountTxt,
             goldcountText,
             adcoincountText;
@@ -94,6 +94,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
             gunImg,
             grenadeImg,
             tankImg,
+            builderImg,
             gamecountImg,
             goldImg,
             adcoinImg;
@@ -175,6 +176,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
         rootView.findViewById(R.id.storemine).setOnClickListener(storeListener);
         rootView.findViewById(R.id.storegame).setOnClickListener(storeListener);
         rootView.findViewById(R.id.storegame6h).setOnClickListener(storeListener);
+        rootView.findViewById(R.id.storebuilder).setOnClickListener(storeListener);
         rootView.findViewById(R.id.storeadgold).setOnClickListener(storeListener);
         rootView.findViewById(R.id.storebuygold50).setOnClickListener(storeListener);
         rootView.findViewById(R.id.storebuygold100).setOnClickListener(storeListener);
@@ -189,6 +191,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
         guncountTxt = rootView.findViewById(R.id.guncountTxt);
         grenadecountText = rootView.findViewById(R.id.grenadecountText);
         tankcountTxt = rootView.findViewById(R.id.tankcountTxt);
+        buildercountTxt = rootView.findViewById(R.id.buildercountTxt);
         gamecountTxt = rootView.findViewById(R.id.gamecountTxt);
         goldcountText = rootView.findViewById(R.id.goldcountText);
         adcoincountText = rootView.findViewById(R.id.adcoincountText);
@@ -203,6 +206,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
         gunImg = rootView.findViewById(R.id.gunImg);
         grenadeImg = rootView.findViewById(R.id.grenadeImg);
         tankImg = rootView.findViewById(R.id.tankImg);
+        builderImg = rootView.findViewById(R.id.builderImg);
         gamecountImg = rootView.findViewById(R.id.gamecountImg);
         goldImg = rootView.findViewById(R.id.goldImg);
         adcoinImg = rootView.findViewById(R.id.adcoinImg);
@@ -345,6 +349,21 @@ public class StoreFragment extends Fragment implements TransanctionListener {
                             cost = Integer.parseInt((activity.getResources().getString(R.string.mine_gold).replace("x", "")));
                             if (cost <= goldCount) {
                                 openExchangeDialog(6, cost);
+                            } else {
+                                SoundManager.playSound(Sounds.TANK.CLICK2);
+                                showToast();
+                            }
+                        }
+                    }
+                    else if(id == R.id.storebuilder) {
+                        int builder = settings.getInt(TankActivity.BUILDER, 0);
+                        if(builder >= CONST.Tank.MAX_BUILDER) {
+                            showFullToast();
+                        }
+                        else {
+                            cost = Integer.parseInt((activity.getResources().getString(R.string.builder_gold).replace("x", "")));
+                            if (cost <= goldCount) {
+                                openExchangeDialog(10, cost);
                             } else {
                                 SoundManager.playSound(Sounds.TANK.CLICK2);
                                 showToast();
@@ -558,9 +577,9 @@ public class StoreFragment extends Fragment implements TransanctionListener {
                         goldCount = Math.max(goldCount,0);
                         goldcountText.setText(String.format("%s", goldCount));
                         ((ImageView)rootView.findViewById(R.id.gamecountImg)).setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.game6h,null));
-                        long time_6h = System.currentTimeMillis() + CONST.Tank.LIFE_DURATION_6HRS;
+                        long time_6h = System.currentTimeMillis() + CONST.Tank.LIFE_DURATION_3HRS;
                         editor.putInt(TankActivity.GOLD, goldCount);
-                        editor.putLong(SettingsManager.LIFE_TIME_6H, time_6h);
+                        editor.putLong(SettingsManager.LIFE_TIME_3H, time_6h);
                         editor.putInt(SettingsManager.RETRY_COUNT, CONST.Tank.MAX_GAME_COUNT);
                         editor.commit();
                         SoundManager.playSound(Sounds.TANK.BUY_ITEM);
@@ -579,6 +598,22 @@ public class StoreFragment extends Fragment implements TransanctionListener {
                         editor.commit();
                         SoundManager.playSound(Sounds.TANK.BUY_ITEM);
                         Utils.Effects.zoom(goldImg,0.7f,4);
+                        break;
+                    case 10:
+                        int builder = settings.getInt(TankActivity.BUILDER, 3);
+                        amount = Integer.parseInt((activity.getResources().getString(R.string.builder_count).replace("x", "")));
+                        builder += amount;
+                        builder = Math.min(builder,CONST.Tank.MAX_BUILDER);
+
+                        goldCount -= cost;
+                        goldCount = Math.max(goldCount,0);
+                        goldcountText.setText(String.format("%s", goldCount));
+                        buildercountTxt.setText(String.format("%s", builder));
+                        editor.putInt(TankActivity.BUILDER, builder);
+                        editor.putInt(TankActivity.GOLD, goldCount);
+                        editor.commit();
+                        SoundManager.playSound(Sounds.TANK.BUY_ITEM);
+                        Utils.Effects.zoom(builderImg,0.7f,4);
                         break;
                 }
                 updateBonus();
@@ -634,7 +669,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
     }
 
     public void updateBonus() {
-        long game6h = settings.getLong(SettingsManager.LIFE_TIME_6H,0);
+        long game6h = settings.getLong(SettingsManager.LIFE_TIME_3H,0);
         if(game6h > System.currentTimeMillis()) {
             (rootView.findViewById(R.id.gamecountImg)).setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.game6h,null));
         }
@@ -647,6 +682,7 @@ public class StoreFragment extends Fragment implements TransanctionListener {
         guncountTxt.setText(String.valueOf(settings.getInt(TankActivity.GUN,3)));
         boatcountTxt.setText(String.valueOf(settings.getInt(TankActivity.BOAT,3)));
         minecountTxt.setText(String.valueOf(settings.getInt(TankActivity.MINE,3)));
+        buildercountTxt.setText(String.valueOf(settings.getInt(TankActivity.BUILDER,3)));
         goldcountText.setText(String.valueOf(settings.getInt(TankActivity.GOLD,3)));
         gamecountTxt.setText(String.valueOf(settings.getInt(SettingsManager.RETRY_COUNT,5)));
         adcoincountText.setText(String.valueOf(settings.getInt(SettingsManager.AD_COIN,0)));
