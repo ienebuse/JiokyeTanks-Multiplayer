@@ -983,6 +983,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         for(Enemy e:Enemies) {
             e = null;
         }
+        Enemy.clearActiveBullets();
 
 
 //        level;

@@ -596,6 +596,12 @@ public class Enemy extends Tank{
         return activeBullets;
     }
 
+    public static void clearActiveBullets() {
+        for(int i = 0; i < activeBullets.length; i++) {
+            activeBullets[i].clear();
+        }
+    }
+
 
     public void setModel(MTank model, float scale, boolean server) {
         if(!server){

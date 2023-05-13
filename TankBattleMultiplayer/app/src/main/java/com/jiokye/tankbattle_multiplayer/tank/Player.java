@@ -21,7 +21,7 @@ public class Player extends Tank{
     protected int frame_delay;
     public int lives = 3;
     private int mines = 3;
-    private int builders = 3;
+    private int builders = 1;
     private int buildDir = 0;
     protected int reloadTmr = (int)(0.1*TankView.FPS);
     protected int reload_time = 0;

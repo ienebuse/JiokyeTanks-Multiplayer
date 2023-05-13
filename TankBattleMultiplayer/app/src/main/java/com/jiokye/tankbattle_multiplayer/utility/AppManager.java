@@ -147,18 +147,18 @@ public class AppManager {
     }
 
     private static void sendNotifications() {
-        new CountDownTimer((long)(Math.random()*30000),1000) {
-
-            @Override
-            public void onTick(long l) {}
-
-            @Override
-            public void onFinish() {
-                for(OnAppManagerSignal onAppManagerSignal: onAppManagerSignals) {
-                    onAppManagerSignal.executeSignal();
-                };
-            }
-        }.start();
+//        new CountDownTimer((long)(Math.random()*30000),1000) {
+//
+//            @Override
+//            public void onTick(long l) {}
+//
+//            @Override
+//            public void onFinish() {
+//                for(OnAppManagerSignal onAppManagerSignal: onAppManagerSignals) {
+//                    onAppManagerSignal.executeSignal();
+//                };
+//            }
+//        }.start();
     }
 
     public static String getAppString() {

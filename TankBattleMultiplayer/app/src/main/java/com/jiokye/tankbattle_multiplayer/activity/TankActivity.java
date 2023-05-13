@@ -603,7 +603,10 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         scoreView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                return true;
+                if(view.getVisibility() == View.VISIBLE) {
+                    return true;
+                }
+                return false;
             }
         });
 
