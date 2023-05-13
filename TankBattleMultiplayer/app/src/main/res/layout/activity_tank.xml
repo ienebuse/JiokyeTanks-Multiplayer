@@ -405,13 +405,16 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/giftInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/giftLife"
         android:layout_alignStart="@+id/giftLife"
         android:layout_marginBottom="-30dp"
         android:text="@string/share_life"
-        android:textColor="@color/brick_brown" />
+        android:textSize="10sp"
+        android:textColor="@color/brick_brown"
+        android:visibility="invisible"/>
 
     <ImageView
         android:id="@+id/giftLife"

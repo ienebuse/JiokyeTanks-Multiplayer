@@ -74,7 +74,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     public Button stickView;
     public LinearLayout enemyCount, bonusFrame, pauseControl;
     public ImageView P1StatusImg, P2StatusImg, StageFlag;
-    public TextView P1StatusTxt, P2StatusTxt, StageTxt, enemyCountTxt;
+    public TextView P1StatusTxt, P2StatusTxt, StageTxt, enemyCountTxt, giftInfo;
     public TankTextView curtainTxt,gameOverTxt;
 
     public RelativeLayout scoreView,gameView,navView, shootAlign, bombAlign, buildAlign;
@@ -495,6 +495,10 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         });
 
         giftBtn = findViewById(R.id.giftLife);
+        giftInfo = findViewById(R.id.giftInfo);
+        if(two_Players) {
+            giftInfo.setVisibility(View.VISIBLE);
+        }
         giftBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
