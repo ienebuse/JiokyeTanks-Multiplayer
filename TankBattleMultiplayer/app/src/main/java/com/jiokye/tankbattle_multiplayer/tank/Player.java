@@ -521,7 +521,7 @@ public class Player extends Tank{
 
     public void applyBuilder() {
         ++builders;
-        updateMineView();
+        updateBuilderView();
     }
 
     public void dropMine() {
@@ -547,6 +547,8 @@ public class Player extends Tank{
         if(dropActive  && drop1 != null && drop2 != null) {
             ((StoneWall)drop1).setActive(true);
             ((StoneWall)drop2).setActive(true);
+            TankView.getInstance().registerDroppedObject(((StoneWall) drop1).getPos());
+            TankView.getInstance().registerDroppedObject(((StoneWall) drop2).getPos());
             dropActive = false;
             builders--;
             updateBuilderView();
@@ -563,8 +565,8 @@ public class Player extends Tank{
         }
         else{
             buildDir = (buildDir + 1)%4;
-            TankView.getInstance().setLevelObjects(p1.x,p1.y, drop1b);
-            TankView.getInstance().setLevelObjects(p2.x,p2.y, drop2b);
+            TankView.getInstance().setLevelObjects(p1.x,p1.y, drop1b,true);
+            TankView.getInstance().setLevelObjects(p2.x,p2.y, drop2b,true);
         }
 
         int posx = (int)((float)2*x/w + 0.5);
@@ -579,8 +581,8 @@ public class Player extends Tank{
 
                 drop1 = new StoneWall(posx,posy).setActive(false);
                 drop2 = new StoneWall(posx+1,posy).setActive(false);
-                TankView.getInstance().setLevelObjects(posx,posy, drop1);
-                TankView.getInstance().setLevelObjects(posx+1,posy, drop2);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1,false);
+                TankView.getInstance().setLevelObjects(posx+1,posy, drop2,false);
                 break;
             case CONST.Direction.RIGHT:
                 posx = Math.min(posx+2,25);
@@ -591,8 +593,8 @@ public class Player extends Tank{
 
                 drop1 = new StoneWall(posx,posy).setActive(false);
                 drop2 = new StoneWall(posx,posy+1).setActive(false);
-                TankView.getInstance().setLevelObjects(posx,posy, drop1);
-                TankView.getInstance().setLevelObjects(posx,posy+1, drop2);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1,false);
+                TankView.getInstance().setLevelObjects(posx,posy+1, drop2,false);
                 break;
             case CONST.Direction.DOWN:
                 posy = Math.min(posy+2,25);
@@ -603,8 +605,8 @@ public class Player extends Tank{
 
                 drop1 = new StoneWall(posx,posy).setActive(false);
                 drop2 = new StoneWall(posx+1,posy).setActive(false);
-                TankView.getInstance().setLevelObjects(posx,posy, drop1);
-                TankView.getInstance().setLevelObjects(posx+1,posy, drop2);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1,false);
+                TankView.getInstance().setLevelObjects(posx+1,posy, drop2,false);
                 break;
             case CONST.Direction.LEFT:
                 posx = Math.max(posx-1,0);
@@ -615,8 +617,8 @@ public class Player extends Tank{
 
                 drop1 = new StoneWall(posx,posy).setActive(false);
                 drop2 = new StoneWall(posx,posy+1).setActive(false);
-                TankView.getInstance().setLevelObjects(posx,posy, drop1);
-                TankView.getInstance().setLevelObjects(posx,posy+1, drop2);
+                TankView.getInstance().setLevelObjects(posx,posy, drop1,false);
+                TankView.getInstance().setLevelObjects(posx,posy+1, drop2,false);
                 break;
         }
     }

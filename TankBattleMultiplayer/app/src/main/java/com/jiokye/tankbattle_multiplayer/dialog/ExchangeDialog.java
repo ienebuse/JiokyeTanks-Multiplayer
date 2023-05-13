@@ -140,6 +140,14 @@ public class ExchangeDialog extends Dialog {
                 exchangeItem2.setVisibility(View.VISIBLE);
                 itemQty.setText("x10");
                 break;
+            case 10:
+                exchangeItem2.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.bonus_builder,null));
+                exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
+                exchangeQty.setText("5");
+                exchangeItem1.setVisibility(View.INVISIBLE);
+                exchangeItem2.setVisibility(View.VISIBLE);
+                itemQty.setText("x3");
+                break;
         }
 
 

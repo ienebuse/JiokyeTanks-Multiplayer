@@ -213,6 +213,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 
 
     public static ConcurrentLinkedQueue<Game> gameModel;
+    public static ConcurrentLinkedQueue<int[]> objectDropQueue;
 
 
     public static boolean freeze = false;
@@ -468,6 +469,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         if(twoPlayers) {
             levelObjectsUpdate = new ArrayList<>();
+            objectDropQueue = new ConcurrentLinkedQueue<>();
         }
         BufferedReader reader;
         int row_count = 0;
@@ -546,6 +548,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
         if(twoPlayers) {
             levelObjectsUpdate = new ArrayList<>();
+            objectDropQueue = new ConcurrentLinkedQueue<>();
         }
 
 
@@ -656,12 +659,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         // Bonus frame
 
         ViewGroup.LayoutParams bonusLayout = ((TankActivity)context).bonusFrame.getLayoutParams();
+//        int bDim = (int)(((dimW - dim)*0.9/2));
+//        bDim = (int)(Math.min(bDim, dimH*0.45));
         int bDim = (int)(((dimW - dim)*0.9/2));
+        int bWDim = (int)(0.9*bDim);
         bDim = (int)(Math.min(bDim, dimH*0.45));
         int bmDim = (int)(bDim*.05);
-        bonusLayout.width = bDim;
+        bonusLayout.width = Math.max(bWDim,bDim);
         bonusLayout.height = bDim;
-        ((TankActivity)context).bonusFrame.layout(bmDim,bmDim,bDim,bDim);
+        ((TankActivity)context).bonusFrame.layout(bmDim,bmDim,bWDim,bDim);
 
         // Navigation buttons
 
@@ -724,7 +730,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         int bldDim = stDim/2;
         buildLayout.width = bmbDim;
         buildLayout.height = bmbDim;
-        ((TankActivity)context).bombAlign.layout(bmbL-bldDim-bmDim,bmbT, bmbL-bmDim, bmbDim);
+        ((TankActivity)context).buildAlign.layout(bmbL-bldDim-bmDim,bmbT, bmbL-bmDim, bmbDim);
 
 
         // Pause button
@@ -2162,9 +2168,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         }
     }
 
-    public void setLevelObjects(int row, int col, GameObjects obj) {
+    public void setLevelObjects(int row, int col, GameObjects obj, boolean active) {
         levelObjects.get(col).set(row,obj);
 
+    }
+
+    public void registerDroppedObject(Point pos) {
+        if(twoPlayers) {
+            objectDropQueue.add(new int[]{pos.y, pos.x, 10});
+        }
     }
 
     public GameObjects getLevelObjects(int row, int col) {
@@ -3056,6 +3068,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             if(l[2] == 0) {
                 levelObjects.get(l[0]).set(l[1],null);
             }
+            else if(l[2] == 10) {
+                setLevelObjects(l[1], l[0], new StoneWall(l[1],l[0]),true);
+            }
             else if(levelObjects.get(l[0]).get(l[1]) != null) {
                 if (l[2] == 6) {
                     ((Brick) levelObjects.get(l[0]).get(l[1])).collidsWithBullet(CONST.Direction.UP);
@@ -3067,6 +3082,8 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                     ((Brick) levelObjects.get(l[0]).get(l[1])).collidsWithBullet(CONST.Direction.RIGHT);
                 }
             }
+
+
         }
 
         for(int i:model.lBushes) {
@@ -3112,6 +3129,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             sendModel.loadEnemies(Enemies);
             sendModel.eCount = Enemy.EnemyCount;
             sendModel.loadEnemyActiveBullets(Enemy.getActiveBullets());
+            while(!objectDropQueue.isEmpty()) {
+                levelObjectsUpdate.add(objectDropQueue.poll());
+            }
             sendModel.loadLevelObjects(levelObjectsUpdate);
             sendModel.loadLevelBushes(levelBushesUpdate);
 //            }
@@ -3352,6 +3372,9 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         else if(tag.equals(TankActivity.MINE)) {
             P1.applyMine();
         }
+        else if(tag.equals(TankActivity.BUILDER)) {
+            P1.applyBuilder();
+        }
     }
 
 
@@ -3526,7 +3549,6 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 
     @Override
     public void onButtonPressed(View v, MotionEvent m) {
-//        Log.d("Button Pressed", "Strick move");
 
 //        if (v.getId() == R.id.navStick) {
 //            if (m.getX() < 0) {
@@ -3619,7 +3641,6 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 buttonPressed(-1);
             }
         }
-
         else  if (v.getId() == R.id.shootBtn) {
             P1.startShooting();
         }

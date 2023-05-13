@@ -81,4 +81,5 @@
     <string name="info_adcoin">Indicates the amount of Acoins you have. You can use Adcoins to purchase golds. Adcoins can be acquired by watching some Ads which will begin with a prompt allowing you to opt-in.</string>
     <string name="info_gold">Indicates the amount of golds you have in stock. You can use gold to purchase items from the store to boost your tank and game play, as well as controller to have more game time. Gold can be acquied with either Adcoin or with real currency from the store</string>
     <string name="info_game">Indicates the amount of games you have left. Its value decreases each time you lose, restart or end a game. The number of games increases by one ever 1 hour to a maximum of 5. You can purchase more games with gold or Adcoin</string>
+    <string name="share_life">Share life</string>
 </resources>

@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
@@ -38,6 +39,7 @@ import com.jiokye.tankbattle_multiplayer.utility.ServiceListener;
 import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
 import com.jiokye.tankbattle_multiplayer.utility.TankTextView;
 import com.jiokye.tankbattle_multiplayer.utility.TankToast;
+import com.jiokye.tankbattle_multiplayer.utility.Utils;
 import com.jiokye.tankbattle_multiplayer.wifidirect.WifiDirectManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.google.android.gms.ads.AdError;
@@ -67,7 +69,8 @@ import java.util.TimerTask;
 
 public class TankActivity extends AppCompatActivity implements View.OnTouchListener, ServiceListener, AppManager.OnAppManagerSignal {
 
-    public Button stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn, menuBtn, nxtBtn, retryBtn;
+    public Button menuBtn, nxtBtn, retryBtn;
+    public ImageView stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn;
     public Button stickView;
     public LinearLayout enemyCount, bonusFrame, pauseControl;
     public ImageView P1StatusImg, P2StatusImg, StageFlag;
@@ -207,6 +210,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         dwnBtn = findViewById(R.id.downBtn);
         rtBtn = findViewById(R.id.rightBtn);
         lftBtn = findViewById(R.id.leftBtn);
+
 //        stick = findViewById(R.id.navStick);
 //        stickView = findViewById(R.id.navStickView);
 
@@ -729,8 +733,9 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
-        return false;
+//        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
+        mTankView.onButtonPressed(view, motionEvent);
+        return true;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -750,8 +755,11 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         for(int row = 0; row < numRow; row++) {
             int numCol = ((LinearLayout)bonusBank.getChildAt(row)).getChildCount();
             for(int col = 0; col < numCol; col++) {
-                RelativeLayout bonus = (RelativeLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col);
-                bonus.setOnTouchListener(bonusListener);
+                RelativeLayout bonus = (RelativeLayout)((ConstraintLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col)).getChildAt(0);
+                if(((String)bonus.getTag()).equals("NA")){
+                    continue;
+                }
+                bonus.setOnClickListener(bonusListener);
                 int bonusCount = settings.getInt((String) bonus.getTag(),3);
                 TankTextView txtView = (TankTextView)(bonus.getChildAt(0));
                 txtView.setText(bonusCount > 0 ? String.valueOf(bonusCount) : "+");
@@ -781,7 +789,11 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         for(int row = 0; row < numRow; row++) {
             int numCol = ((LinearLayout)bonusBank.getChildAt(row)).getChildCount();
             for(int col = 0; col < numCol; col++) {
-                RelativeLayout bonus = (RelativeLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col);
+
+                RelativeLayout bonus = (RelativeLayout)((ConstraintLayout)((LinearLayout)(bonusBank.getChildAt(row))).getChildAt(col)).getChildAt(0);
+                if(((String)bonus.getTag()).equals("NA")){
+                    continue;
+                }
                 int bonusCount = settings.getInt((String) bonus.getTag(),0);
                 TankTextView txtView = (TankTextView)(bonus.getChildAt(0));
                 txtView.setText(bonusCount > 0 ? String.valueOf(bonusCount) : "+");
@@ -789,33 +801,33 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         }
     }
 
-    View.OnTouchListener bonusListener = new View.OnTouchListener() {
+    View.OnClickListener bonusListener = new View.OnClickListener() {
         @SuppressLint("ClickableViewAccessibility")
         @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+        public void onClick(View view) {
+            Utils.Effects.blink(view,5);
 
-                int count = settings.getInt((String) view.getTag(),0);
+
+            int count = settings.getInt((String) view.getTag(),0);
 //                Log.d("BONUS", "Got bonus" + (String) view.getTag());
-                if(count <= 0 || ((String) view.getTag()).equals("GOLD")) {
+            if(count <= 0 || ((String) view.getTag()).equals("GOLD")) {
 //                    Log.d("BONUS", "Buy more bonus");
 
-                    // todo -- uncomment after rework on ads
+                // todo -- uncomment after rework on ads
 //                    mTankView.interrupt();
 //                    openStore();
 
-                }
-                else {
-                    mTankView.applyBonus((String) view.getTag());
-                    --count;
-                    TankTextView txtView = ((TankTextView)((RelativeLayout)view).getChildAt(0));
-                    txtView.setText(count > 0 ? String.valueOf(count) : "+");
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putInt((String) view.getTag(),count);
-                    editor.apply();
-                }
             }
-            return true;
+            else {
+                mTankView.applyBonus((String) view.getTag());
+                --count;
+                TankTextView txtView = ((TankTextView)((RelativeLayout)view).getChildAt(0));
+                txtView.setText(count > 0 ? String.valueOf(count) : "+");
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putInt((String) view.getTag(),count);
+                editor.apply();
+            }
+
         }
     };
 
