@@ -4,7 +4,8 @@
     android:id="@+id/gameView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/bghud3">
+    android:background="@drawable/bghud3"
+    android:splitMotionEvents="true">
 
     <com.jiokye.tankbattle_multiplayer.tank.TankView
         android:id="@+id/tankView"
@@ -986,7 +987,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        android:splitMotionEvents="true">
+
+
 
         <ImageView
             android:id="@+id/leftBtn"
@@ -1028,6 +1032,13 @@
             android:background="@drawable/up30_btn"
             android:tag="up" />
 
+        <ImageView
+            android:id="@+id/navStick"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/navstick"/>
+
 
         <!--        <Button-->
         <!--            android:id="@+id/navStickView"-->
@@ -1053,7 +1064,8 @@
         android:layout_height="50dp"
         android:layout_above="@+id/shootAlign"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="40dp">
+        android:layout_marginEnd="40dp"
+        android:splitMotionEvents="true">
 
         <ImageView
             android:id="@+id/bombBtn"
@@ -1081,7 +1093,8 @@
         android:layout_height="50dp"
         android:layout_above="@+id/shootAlign"
         android:layout_toStartOf="@+id/bombAlign"
-        android:layout_marginEnd="5dp">
+        android:layout_marginEnd="5dp"
+        android:splitMotionEvents="true">
 
         <ImageView
             android:id="@+id/builderBtn"
@@ -1104,10 +1117,6 @@
     </RelativeLayout>
 
 
-
-
-
-
     <RelativeLayout
         android:id="@+id/shootAlign"
         android:layout_width="100dp"
@@ -1115,7 +1124,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="40dp"
-        android:layout_marginBottom="30dp">
+        android:layout_marginBottom="30dp"
+        android:splitMotionEvents="true">
 
         <ImageView
             android:id="@+id/shootBtn"

@@ -123,9 +123,14 @@ public class TankIntroActivity extends AppCompatActivity implements AppManager.O
 
         };
         SoundManager.loadSounds(sounds);
-        SharedPreferences settings = getSharedPreferences("TankSettings", 0);;
+        SharedPreferences settings = getSharedPreferences("TankSettings", 0);
         boolean sound = settings.getBoolean(SettingsManager.PREF_MUTED,true);
         SoundManager.setSound(sound);
+    }
+
+    protected void onDestroy() {
+        finishAndRemoveTask();
+        super.onDestroy();
     }
 
 }

@@ -2,14 +2,20 @@ package com.jiokye.tankbattle_multiplayer.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
+import android.graphics.Point;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -71,7 +77,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
     public Button menuBtn, nxtBtn, retryBtn;
     public ImageView stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn;
-    public Button stickView;
+//    public ImageView stickView;
     public LinearLayout enemyCount, bonusFrame, pauseControl;
     public ImageView P1StatusImg, P2StatusImg, StageFlag;
     public TextView P1StatusTxt, P2StatusTxt, StageTxt, enemyCountTxt, giftInfo;
@@ -87,6 +93,8 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     public TankTextView p1ACount, p1BCount, p1CCount, p1DCount, p1Count;
     public TankTextView p2ACount, p2BCount, p2CCount, p2DCount, p2Count;
     public ImageView enemyCountImg,gameStars, giftBtn, gameImg;
+
+    int stick_x, stick_y;
 
     public static boolean p2Ready = false;
 
@@ -134,7 +142,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     public static boolean GOT_REWARD = false;
     public static boolean GOT_IREWARD = false;
 
-    RelativeLayout.LayoutParams layoutParams;
+    ViewGroup.LayoutParams layoutParams;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -211,7 +219,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         rtBtn = findViewById(R.id.rightBtn);
         lftBtn = findViewById(R.id.leftBtn);
 
-//        stick = findViewById(R.id.navStick);
+        stick = findViewById(R.id.navStick);
 //        stickView = findViewById(R.id.navStickView);
 
         menuBtn = findViewById(R.id.menuBtn);
@@ -223,6 +231,9 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         enemyCount = findViewById(R.id.enemyCount);
 
 
+//        shtBtn.setOnTouchListener(actionListener);
+//        bmbBtn.setOnTouchListener(actionListener);
+//        buildBtn.setOnTouchListener(actionListener);
         shtBtn.setOnTouchListener(this);
         bmbBtn.setOnTouchListener(this);
         buildBtn.setOnTouchListener(this);
@@ -230,78 +241,103 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
         dwnBtn.setOnTouchListener(this);
         rtBtn.setOnTouchListener(this);
         lftBtn.setOnTouchListener(this);
-//        stick.setOnTouchListener(this);
+
+        gameView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
+
+
+
+
+//        stick.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                switch (motionEvent.getAction()) {
+//                    case MotionEvent.ACTION_UP:
+//                        break;
+//                    case MotionEvent.ACTION_DOWN:
+//                        break;
+//                    case MotionEvent.ACTION_MOVE:f
+//                        Log.d("NAV MOVE", "x: " + motionEvent.getX() + " | y: " + motionEvent.getY());
+//                        break;
+//                }
+//                return false;
+//            }
+//        });
 //        stickView.setOnTouchListener(this);
 
 //        ImageView stickView = new ImageView(this);
 //        stickView.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.navstick));
 //        stickView.setTag("StickView");
 
-//        stickView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                    ClipData data = ClipData.newPlainText("", "");
-//                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(stickView);
+        stick.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    ClipData data = ClipData.newPlainText("", "");
+                    View.DragShadowBuilder shadowBuilder = new NavDragShadowBuilder(stick);//new View.DragShadowBuilder(stick);
+
+                    stick.startDrag(null, shadowBuilder, stick, 0);
+                    v.setAlpha(0);
+                }
+                else if (event.getAction() == MotionEvent.ACTION_UP){
+                    v.setAlpha(1);
+                }
+                return true;
+            }
+        });
 //
-//                    stickView.startDrag(data, shadowBuilder, stickView, 0);
-//                    v.setAlpha(0);
-//                }
-//                else if (event.getAction() == MotionEvent.ACTION_UP){
-//                    v.setAlpha(1);
-//                }
-//                return false;
-//            }
-//        });
-//
-//        stickView.setOnDragListener(new View.OnDragListener() {
-//            @Override
-//            public boolean onDrag(View v, DragEvent event) {
-//                String msg = "Drag and Drop";
-//                switch(event.getAction()) {
-//                    case DragEvent.ACTION_DRAG_STARTED:
-//                        layoutParams = (RelativeLayout.LayoutParams)v.getLayoutParams();
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_STARTED");
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_ENTERED:
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENTERED");
-//                        int x_cord = (int) event.getX();
-//                        int y_cord = (int) event.getY();
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_EXITED :
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_EXITED");
-//                        x_cord = (int) event.getX();
-//                        y_cord = (int) event.getY();
+            stick.setOnDragListener(new View.OnDragListener() {
+                @Override
+                public boolean onDrag(View v, DragEvent event) {
+                    String msg = "Drag and Drop";
+                    switch(event.getAction()) {
+                    case DragEvent.ACTION_DRAG_STARTED:
+                        layoutParams = (ViewGroup.LayoutParams)v.getLayoutParams();
+                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_STARTED | x: " + event.getX() + " | y: " + event.getY());
+                        break;
+
+                    case DragEvent.ACTION_DRAG_ENTERED:
+                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENTERED | x: " + event.getX() + " | y: " + event.getY());
+                        int x_cord = (int) event.getX();
+                        int y_cord = (int) event.getY();
+                        break;
+
+                    case DragEvent.ACTION_DRAG_EXITED :
+                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_EXITED | x: " + event.getX() + " | y: " + event.getY());
+                        x_cord = (int) event.getX();
+                        y_cord = (int) event.getY();
 //                        layoutParams.leftMargin = x_cord;
 //                        layoutParams.topMargin = y_cord;
 //                        v.setLayoutParams(layoutParams);
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_LOCATION  :
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_LOCATION");
-//                        x_cord = (int) event.getX();
-//                        y_cord = (int) event.getY();
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_ENDED   :
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENDED");
-//                        v.setAlpha(1);
-//                        // Do nothing
-//                        break;
-//
-//                    case DragEvent.ACTION_DROP:
-//                        Log.d(msg, "ACTION_DROP event");
-//
-//                        // Do nothing
-//                        break;
-//                    default: break;
-//                }
-//
-//                return false;
-//            }
-//        });
+                        break;
+
+                    case DragEvent.ACTION_DRAG_LOCATION  :
+                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_LOCATION | x: " + event.getX() + " | y: " + event.getY());
+                        x_cord = (int) event.getX();
+                        y_cord = (int) event.getY();
+                        break;
+
+                    case DragEvent.ACTION_DRAG_ENDED   :
+                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENDED | x: " + event.getX() + " | y: " + event.getY());
+                        v.setAlpha(1);
+                        // Do nothing
+                        break;
+
+                    case DragEvent.ACTION_DROP:
+                        Log.d(msg, "ACTION_DROP event | x: " + event.getX() + " | y: " + event.getY());
+
+                        // Do nothing
+                        break;
+                    default: break;
+                }
+
+                return true;
+            }
+        });
 
         menuBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -606,13 +642,50 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
                 if(view.getVisibility() == View.VISIBLE) {
                     return true;
                 }
-                return false;
+                return true;
             }
         });
+//        scoreView.setEnabled(false);
 
         MessageRegister.getInstance().setServiceListener(this);
 
         first_start = true;
+    }
+
+    private class NavDragShadowBuilder extends View.DragShadowBuilder {
+
+        public NavDragShadowBuilder(View view) {
+            super(view);
+        }
+
+        //1
+        private Drawable shadow = ResourcesCompat.getDrawable(getResources(), R.drawable.navstick, null);
+
+        // 2
+        public void onProvideShadowMetrics(Point size, Point touch) {
+            // 3
+            int width = getView().getWidth()*2;
+
+            // 4
+            int height = getView().getHeight()*2;
+
+            getView().setAlpha(1f);
+
+            // 5
+            shadow.setBounds(0, 0, width, height);
+
+            // 6
+            size.set(width, height);
+
+            // 7
+            touch.set(width / 2, height / 2);
+        }
+
+        // 8
+        public void onDrawShadow(Canvas canvas) {
+            // 9
+            shadow.draw(canvas);
+        }
     }
 
     @Override
@@ -645,7 +718,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     public void onWindowFocusChanged (boolean hasFocus) {
-//        if(hasFocus) {
+        if(hasFocus) {
             View decorView = getWindow().getDecorView();
             int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -654,7 +727,7 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(uiOptions);
-//        }
+        }
     }
 
     public TankView getTankView() {
@@ -738,12 +811,37 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
 
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-//        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
-        mTankView.onButtonPressed(view, motionEvent);
+        int id = view.getId();
+        if(id == R.id.upBtn ||
+            id == R.id.leftBtn ||
+            id == R.id.rightBtn ||
+            id ==  R.id.downBtn
+            || id == R.id.shootBtn ||
+            id == R.id.bombBtn ||
+            id == R.id.builderBtn
+        ) {
+//            if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+//                view.performClick();
+//            }
+        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
+//            mTankView.onButtonPressed(view, motionEvent);
+//            return true;
+        }
+//        return super.onTouchEvent(motionEvent);
         return true;
     }
+
+    @SuppressLint("ClickableViewAccessibility")
+    View.OnTouchListener actionListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            mTankView.onActionButtonPressed(view, motionEvent);
+            return true;
+        }
+    };
 
     @SuppressLint("ClickableViewAccessibility")
     public void initilizeBonusBank() {
@@ -1135,8 +1233,8 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
     }
 
     protected void onStop() {
-        super.onStop();
         mTankView.stop();
+        super.onStop();
     }
 
     public TankView getView() {
@@ -1146,17 +1244,19 @@ public class TankActivity extends AppCompatActivity implements View.OnTouchListe
 
 
     protected void onDestroy() {
-        super.onDestroy();
         mTankView.release();
         WifiDirectManager.getInstance().cancelDisconnect();
         Log.d("TANKACTIVITY", "Activity destroyed");
+        finishAndRemoveTask();
+        super.onDestroy();
+
     }
 
 
     protected void onPause() {
-        super.onPause();
         mTankView.pauseNoAds();
         SoundManager.pauseGameSounds();
+        super.onPause();
     }
 
     protected void onResume() {
