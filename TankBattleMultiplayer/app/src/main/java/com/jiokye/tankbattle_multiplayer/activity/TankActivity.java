@@ -293,71 +293,71 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
             }
         });
 
-        stick.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    ClipData data = ClipData.newPlainText("", "");
-                    View.DragShadowBuilder shadowBuilder = new NavDragShadowBuilder(stick);//new View.DragShadowBuilder(stick);
-
-                    stick.startDrag(null, shadowBuilder, stick, 0);
-                    v.setAlpha(0);
-                }
-                else if (event.getAction() == MotionEvent.ACTION_UP){
-                    v.setAlpha(1);
-                }
-                return true;
-            }
-        });
+//        stick.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//                    ClipData data = ClipData.newPlainText("", "");
+//                    View.DragShadowBuilder shadowBuilder = new NavDragShadowBuilder(stick);//new View.DragShadowBuilder(stick);
 //
-        stick.setOnDragListener(new View.OnDragListener() {
-            @Override
-            public boolean onDrag(View v, DragEvent event) {
-                String msg = "Drag and Drop";
-                switch(event.getAction()) {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        layoutParams = (ViewGroup.LayoutParams)v.getLayoutParams();
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_STARTED | x: " + event.getX() + " | y: " + event.getY());
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENTERED:
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENTERED | x: " + event.getX() + " | y: " + event.getY());
-                        int x_cord = (int) event.getX();
-                        int y_cord = (int) event.getY();
-                        break;
-
-                    case DragEvent.ACTION_DRAG_EXITED :
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_EXITED | x: " + event.getX() + " | y: " + event.getY());
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-//                        layoutParams.leftMargin = x_cord;
-//                        layoutParams.topMargin = y_cord;
-//                        v.setLayoutParams(layoutParams);
-                        break;
-
-                    case DragEvent.ACTION_DRAG_LOCATION  :
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_LOCATION | x: " + event.getX() + " | y: " + event.getY());
-                        x_cord = (int) event.getX();
-                        y_cord = (int) event.getY();
-                        break;
-
-                    case DragEvent.ACTION_DRAG_ENDED   :
-                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENDED | x: " + event.getX() + " | y: " + event.getY());
-                        v.setAlpha(1);
-                        // Do nothing
-                        break;
-
-                    case DragEvent.ACTION_DROP:
-                        Log.d(msg, "ACTION_DROP event | x: " + event.getX() + " | y: " + event.getY());
-
-                        // Do nothing
-                        break;
-                    default: break;
-                }
-
-                return true;
-            }
-        });
+//                    stick.startDrag(null, shadowBuilder, stick, 0);
+//                    v.setAlpha(0);
+//                }
+//                else if (event.getAction() == MotionEvent.ACTION_UP){
+//                    v.setAlpha(1);
+//                }
+//                return true;
+//            }
+//        });
+////
+//        stick.setOnDragListener(new View.OnDragListener() {
+//            @Override
+//            public boolean onDrag(View v, DragEvent event) {
+//                String msg = "Drag and Drop";
+//                switch(event.getAction()) {
+//                    case DragEvent.ACTION_DRAG_STARTED:
+//                        layoutParams = (ViewGroup.LayoutParams)v.getLayoutParams();
+//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_STARTED | x: " + event.getX() + " | y: " + event.getY());
+//                        break;
+//
+//                    case DragEvent.ACTION_DRAG_ENTERED:
+//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENTERED | x: " + event.getX() + " | y: " + event.getY());
+//                        int x_cord = (int) event.getX();
+//                        int y_cord = (int) event.getY();
+//                        break;
+//
+//                    case DragEvent.ACTION_DRAG_EXITED :
+//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_EXITED | x: " + event.getX() + " | y: " + event.getY());
+//                        x_cord = (int) event.getX();
+//                        y_cord = (int) event.getY();
+////                        layoutParams.leftMargin = x_cord;
+////                        layoutParams.topMargin = y_cord;
+////                        v.setLayoutParams(layoutParams);
+//                        break;
+//
+//                    case DragEvent.ACTION_DRAG_LOCATION  :
+//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_LOCATION | x: " + event.getX() + " | y: " + event.getY());
+//                        x_cord = (int) event.getX();
+//                        y_cord = (int) event.getY();
+//                        break;
+//
+//                    case DragEvent.ACTION_DRAG_ENDED   :
+//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENDED | x: " + event.getX() + " | y: " + event.getY());
+//                        v.setAlpha(1);
+//                        // Do nothing
+//                        break;
+//
+//                    case DragEvent.ACTION_DROP:
+//                        Log.d(msg, "ACTION_DROP event | x: " + event.getX() + " | y: " + event.getY());
+//
+//                        // Do nothing
+//                        break;
+//                    default: break;
+//                }
+//
+//                return true;
+//            }
+//        });
 
         menuBtn.setOnClickListener(new View.OnClickListener() {
             @Override
