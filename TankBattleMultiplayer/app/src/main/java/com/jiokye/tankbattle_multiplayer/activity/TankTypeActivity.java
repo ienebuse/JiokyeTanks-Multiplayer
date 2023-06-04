@@ -200,6 +200,7 @@ public class TankTypeActivity extends AppCompatActivity implements AppManager.On
 
     protected void onDestroy() {
         appUpdateManager.unregisterListener(this);
+        finishAndRemoveTask();
         super.onDestroy();
     }
 

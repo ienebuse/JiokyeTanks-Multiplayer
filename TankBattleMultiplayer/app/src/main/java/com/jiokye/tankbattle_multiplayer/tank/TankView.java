@@ -680,6 +680,8 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         navLayout.height = navDim;
         ((TankActivity)context).navView.layout(bmDim,dimH-navDim,navDim,navDim);
 
+        Log.d("NAVVIEW", String.valueOf(bmDim) + " " +  (dimH-navDim) + " " +  navDim + " " +  navDim + " | " +  dimH + " " +  dimW);
+
         RelativeLayout.LayoutParams btnLayout = (RelativeLayout.LayoutParams)((TankActivity)context).lftBtn.getLayoutParams();
         btnLayout.width = (int)(navDim*0.4);
         btnLayout.height = (int)(navDim*0.4);
@@ -731,6 +733,8 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         buildLayout.width = bmbDim;
         buildLayout.height = bmbDim;
         ((TankActivity)context).buildAlign.layout(bmbL-bldDim-bmDim,bmbT, bmbL-bmDim, bmbDim);
+
+//        ((TankActivity)context).setRect();
 
 
         // Pause button
@@ -1449,6 +1453,7 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
         if(curtainPause && --curtainPauseTmr > 0) {
             if(curtainPauseTmr == 1) {
                 ((TankActivity)context).curtainTxt.setVisibility(View.INVISIBLE);
+                ((TankActivity)context).setRect();
             }
             return;
         }
@@ -3563,7 +3568,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 //            }
 //        }
 
+        Log.d("BUTTON ACTION", String.valueOf(m.getAction()));
+        Log.d("BUTTON ACTION POINTER", String.valueOf(m.getActionMasked()));
+        for(int i = 0; i < m.getPointerCount(); i++) {
+            Log.d("BUTTON POINTER ID", String.valueOf(m.getPointerId(i)));
+        }
+        Log.d("Touch Location", m.getX() + " | " + m.getY());
+
         if(v.getId() == R.id.upBtn) {
+            Log.d("BUTTON", "UP");
             if (m.getX() < 0) {
                 buttonPressed(CONST.Direction.LEFT);
                 P1.move(CONST.Direction.LEFT);
@@ -3578,12 +3591,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.move(CONST.Direction.UP);
             }
 
-            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getActionMasked() == MotionEvent.ACTION_UP || m.getActionMasked() == MotionEvent.ACTION_POINTER_UP){
+            if(m.getAction() == MotionEvent.ACTION_UP || m.getAction() == MotionEvent.ACTION_POINTER_UP){
                 buttonPressed(-1);
             }
         }
 
         else  if (v.getId() == R.id.downBtn) {
+            Log.d("BUTTON", "DOWN");
             if (m.getX() < 0) {
                 buttonPressed(CONST.Direction.LEFT);
                 P1.move(CONST.Direction.LEFT);
@@ -3598,12 +3614,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.move(CONST.Direction.DOWN);
             }
 
-            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getActionMasked() == MotionEvent.ACTION_UP || m.getActionMasked() == MotionEvent.ACTION_POINTER_UP){
+            if(m.getAction() == MotionEvent.ACTION_UP || m.getAction() == MotionEvent.ACTION_POINTER_UP){
                 buttonPressed(-1);
             }
         }
 
         else  if (v.getId() == R.id.leftBtn) {
+            Log.d("BUTTON", "LEFT");
             if (m.getY() < 0) {
                 buttonPressed(CONST.Direction.UP);
                 P1.move(CONST.Direction.UP);
@@ -3618,12 +3637,15 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.move(CONST.Direction.LEFT);
             }
 
-            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getActionMasked() == MotionEvent.ACTION_UP || m.getActionMasked() == MotionEvent.ACTION_POINTER_UP){
+            if(m.getAction() == MotionEvent.ACTION_UP || m.getAction() == MotionEvent.ACTION_POINTER_UP){
                 buttonPressed(-1);
             }
         }
 
         else  if (v.getId() == R.id.rightBtn) {
+            Log.d("BUTTON", "RIGHT");
             if (m.getY() < 0) {
                 buttonPressed(CONST.Direction.UP);
                 P1.move(CONST.Direction.UP);
@@ -3638,15 +3660,21 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
                 P1.move(CONST.Direction.RIGHT);
             }
 
-            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getAction() == MotionEvent.ACTION_UP) {
+//            if(m.getActionMasked() == MotionEvent.ACTION_UP || m.getActionMasked() == MotionEvent.ACTION_POINTER_UP){
+            if(m.getAction() == MotionEvent.ACTION_UP || m.getAction() == MotionEvent.ACTION_POINTER_UP){
                 buttonPressed(-1);
             }
         }
-        else  if (v.getId() == R.id.shootBtn) {
-            P1.startShooting();
-        }
+//        else  if (v.getId() == R.id.shootBtn) {
+//            P1.startShooting();
+//        }
 
-        if(m.getAction() == MotionEvent.ACTION_UP) {
+
+//
+//        if(m.getAction() == MotionEvent.ACTION_UP) {
+//        if(m.getActionMasked() == MotionEvent.ACTION_UP || m.getActionMasked() == MotionEvent.ACTION_POINTER_UP){
+        if(m.getAction() == MotionEvent.ACTION_UP || m.getAction() == MotionEvent.ACTION_POINTER_UP){
             if(v.getId()== R.id.shootBtn) {
                 ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot30_btn,null));
                 P1.stopShooting();
@@ -3667,11 +3695,14 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
             }
         }
 
-        if(m.getAction() == MotionEvent.ACTION_DOWN) {
+//        if(m.getAction() == MotionEvent.ACTION_DOWN) {
+//        if(m.getActionMasked() == MotionEvent.ACTION_DOWN || m.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN){
+        if(m.getAction() == MotionEvent.ACTION_DOWN || m.getAction() == MotionEvent.ACTION_POINTER_DOWN){
             if(v.getId() == R.id.shootBtn) {
                 ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot31_btn,null));
                 TankView.vibrate();
 //                P1.fire();
+                P1.startShooting();
             }
             else if(v.getId() == R.id.bombBtn) {
                 ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine31_btn,null));
@@ -3682,6 +3713,135 @@ public class TankView extends View implements RemoteMessageListener, ButtonListe
 //                P1.activateBuild();
             }
         }
+    }
+
+
+//    @Override
+    public void onControlButtonPressed(View v, int x, int y, int mAction, boolean navAction) {
+
+        if(navAction && (mAction == MotionEvent.ACTION_UP || mAction == MotionEvent.ACTION_POINTER_UP)) {
+            buttonPressed(-1);
+            P1.stopMoving();
+        }
+
+        int dir = ((TankActivity)context).getDir(x,y);
+
+        if(dir == CONST.Direction.UP) {
+            buttonPressed(CONST.Direction.UP);
+            P1.move(CONST.Direction.UP);
+            if(navAction && (mAction == MotionEvent.ACTION_UP || mAction == MotionEvent.ACTION_POINTER_UP)){
+                buttonPressed(-1);
+            }
+        }
+
+        else if(dir == CONST.Direction.DOWN) {
+            buttonPressed(CONST.Direction.DOWN);
+            P1.move(CONST.Direction.DOWN);
+            if(navAction && (mAction == MotionEvent.ACTION_UP || mAction == MotionEvent.ACTION_POINTER_UP)){
+                buttonPressed(-1);
+            }
+        }
+
+        else if(dir == CONST.Direction.LEFT) {
+            buttonPressed(CONST.Direction.LEFT);
+            P1.move(CONST.Direction.LEFT);
+            if(navAction && (mAction == MotionEvent.ACTION_UP || mAction == MotionEvent.ACTION_POINTER_UP)){
+                buttonPressed(-1);
+            }
+        }
+
+        else if(dir == CONST.Direction.RIGHT) {
+            buttonPressed(CONST.Direction.RIGHT);
+            P1.move(CONST.Direction.RIGHT);
+            if(navAction && (mAction == MotionEvent.ACTION_UP || mAction == MotionEvent.ACTION_POINTER_UP)){
+                buttonPressed(-1);
+            }
+        }
+
+        if(mAction == MotionEvent.ACTION_UP || mAction == MotionEvent.ACTION_POINTER_UP){
+            if(v != null && v.getId()== R.id.shootBtn) {
+                ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot30_btn,null));
+                P1.stopShooting();
+            }
+
+            else if(v != null && v.getId()== R.id.bombBtn) {
+                ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine30_btn,null));
+                P1.dropMine();
+            }
+
+            else if(v != null && v.getId()== R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build30_btn,null));
+                P1.dropBuild();
+            }
+
+            else {
+                P1.stopMoving();
+            }
+        }
+
+        if(mAction == MotionEvent.ACTION_DOWN || mAction == MotionEvent.ACTION_POINTER_DOWN){
+            if(v != null && v.getId() == R.id.shootBtn) {
+                ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot31_btn,null));
+                TankView.vibrate();
+                P1.startShooting();
+            }
+            else if(v != null && v.getId() == R.id.bombBtn) {
+                ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine31_btn,null));
+                P1.activateMine();
+            }
+            else if(v != null && v.getId() == R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build31_btn,null));
+
+            }
+        }
+    }
+
+
+
+    public void onActionButtonPressed(View v, MotionEvent m) {
+
+        //        if(m.getAction() == MotionEvent.ACTION_UP) {
+        if(m.getActionMasked() == MotionEvent.ACTION_UP || m.getActionMasked() == MotionEvent.ACTION_POINTER_UP){
+//        if(m.getAction() == MotionEvent.ACTION_UP || m.getAction() == MotionEvent.ACTION_POINTER_UP){
+            if(v.getId()== R.id.shootBtn) {
+                ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot30_btn,null));
+                P1.stopShooting();
+            }
+
+            else if(v.getId()== R.id.bombBtn) {
+                ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine30_btn,null));
+                P1.dropMine();
+            }
+
+            else if(v.getId()== R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build30_btn,null));
+                P1.dropBuild();
+            }
+
+            else {
+                P1.stopMoving();
+            }
+        }
+
+//        if(m.getAction() == MotionEvent.ACTION_DOWN) {
+        if(m.getActionMasked() == MotionEvent.ACTION_DOWN || m.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN){
+//        if(m.getAction() == MotionEvent.ACTION_DOWN || m.getAction() == MotionEvent.ACTION_POINTER_DOWN){
+            if(v.getId() == R.id.shootBtn) {
+                ((TankActivity)context).shtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.shoot31_btn,null));
+                TankView.vibrate();
+//                P1.fire();
+                P1.startShooting();
+            }
+            else if(v.getId() == R.id.bombBtn) {
+                ((TankActivity)context).bmbBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.mine31_btn,null));
+                P1.activateMine();
+            }
+            else if(v.getId() == R.id.builderBtn) {
+                ((TankActivity)context).buildBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.build31_btn,null));
+//                P1.activateBuild();
+            }
+        }
+
     }
 
 

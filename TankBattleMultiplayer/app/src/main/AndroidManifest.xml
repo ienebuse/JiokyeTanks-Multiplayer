@@ -34,33 +34,42 @@
         android:required="true" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <uses-feature android:name="android.hardware.touchscreen.multitouch"
+        android:required="true" />
+
+
+    <!--        android:allowBackup="true"-->
+    <!--        android:dataExtractionRules="@xml/data_extraction_rules"-->
+    <!--        android:fullBackupContent="@xml/backup_rules"-->
 
     <application
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TankBattleMultiplayer"
+        android:autoRemoveFromRecents="true"
         tools:targetApi="31">
         <activity
             android:name="com.jiokye.tankbattle_multiplayer.activity.TankActivity"
             android:exported="true"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:autoRemoveFromRecents="true"/>
         <activity
             android:name="com.jiokye.tankbattle_multiplayer.activity.TankMenuActivity"
             android:exported="true"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:autoRemoveFromRecents="true"/>
         <activity
             android:name="com.jiokye.tankbattle_multiplayer.activity.TankTypeActivity"
             android:exported="true"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:autoRemoveFromRecents="true" />
         <activity
             android:name="com.jiokye.tankbattle_multiplayer.activity.TankIntroActivity"
             android:exported="true"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:autoRemoveFromRecents="true"/>
 <!--        <meta-data-->
 <!--            android:name="com.google.android.gms.ads.APPLICATION_ID"-->
 <!--            android:value="ca-app-pub-3940256099942544~3347511713" />-->
@@ -72,6 +81,7 @@
             android:name="com.jiokye.tankbattle_multiplayer.activity.MainActivity"
             android:exported="true"
             android:screenOrientation="landscape"
+            android:autoRemoveFromRecents="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

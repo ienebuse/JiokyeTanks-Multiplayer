@@ -4,7 +4,174 @@
     android:id="@+id/gameView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/bghud3">
+    android:background="@drawable/bghud3"
+    android:splitMotionEvents="true">
+
+    <RelativeLayout
+        android:id="@+id/controlsView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:splitMotionEvents="true">
+
+        <RelativeLayout
+            android:id="@+id/navView"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="20dp"
+            android:splitMotionEvents="true">
+
+
+
+            <ImageView
+                android:id="@+id/leftBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:alpha="1"
+                android:background="@drawable/left30_btn"
+                android:tag="left" />
+
+            <ImageView
+                android:id="@+id/rightBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:alpha="1"
+                android:background="@drawable/right30_btn"
+                android:tag="right" />
+
+            <ImageView
+                android:id="@+id/downBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:alpha="1"
+                android:background="@drawable/down30_btn"
+                android:tag="down" />
+
+            <ImageView
+                android:id="@+id/upBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:alpha="1"
+                android:background="@drawable/up30_btn"
+                android:tag="up" />
+
+            <ImageView
+                android:id="@+id/navStick"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/navstick"/>
+
+
+            <!--        <Button-->
+            <!--            android:id="@+id/navStickView"-->
+            <!--            android:layout_width="45dp"-->
+            <!--            android:layout_height="45dp"-->
+            <!--            android:layout_centerInParent="true"-->
+            <!--            android:background="@drawable/navstick"/>-->
+
+            <!--        <Button-->
+            <!--            android:id="@+id/navStick"-->
+            <!--            android:layout_width="45dp"-->
+            <!--            android:layout_height="45dp"-->
+            <!--            android:layout_centerInParent="true"-->
+            <!--            android:background="@drawable/navstick"-->
+            <!--            android:alpha="0"/>-->
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/bombAlign"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/shootAlign"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="40dp"
+            android:splitMotionEvents="true">
+
+            <ImageView
+                android:id="@+id/bombBtn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="1"
+                android:background="@drawable/mine30_btn"
+                android:tag="shoot" />
+
+            <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                android:id="@+id/bmbTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/brick_brown"
+                android:layout_centerInParent="true"
+                android:translationZ="10dp"
+                android:text="3"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/builderAlign"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_above="@+id/shootAlign"
+            android:layout_toStartOf="@+id/bombAlign"
+            android:layout_marginEnd="5dp"
+            android:splitMotionEvents="true">
+
+            <ImageView
+                android:id="@+id/builderBtn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="1"
+                android:background="@drawable/build30_btn"
+                android:tag="shoot" />
+
+            <com.jiokye.tankbattle_multiplayer.utility.TankTextView
+                android:id="@+id/builderTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@color/brick_brown"
+                android:layout_centerInParent="true"
+                android:translationZ="10dp"
+                android:text="3"/>
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/shootAlign"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="30dp"
+            android:splitMotionEvents="true">
+
+            <ImageView
+                android:id="@+id/shootBtn"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:alpha="1"
+                android:background="@drawable/shoot30_btn"
+                android:tag="shoot" />
+        </RelativeLayout>
+
+    </RelativeLayout>
 
     <com.jiokye.tankbattle_multiplayer.tank.TankView
         android:id="@+id/tankView"
@@ -979,153 +1146,12 @@
 
 
 <!--    ads:adUnitId="ca-app-pub-3940256099942544/6300978111"-->
-    <RelativeLayout
-        android:id="@+id/navView"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="20dp">
-
-        <ImageView
-            android:id="@+id/leftBtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:alpha="1"
-            android:background="@drawable/left30_btn"
-            android:tag="left" />
-
-        <ImageView
-            android:id="@+id/rightBtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:alpha="1"
-            android:background="@drawable/right30_btn"
-            android:tag="right" />
-
-        <ImageView
-            android:id="@+id/downBtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:alpha="1"
-            android:background="@drawable/down30_btn"
-            android:tag="down" />
-
-        <ImageView
-            android:id="@+id/upBtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:alpha="1"
-            android:background="@drawable/up30_btn"
-            android:tag="up" />
-
-
-        <!--        <Button-->
-        <!--            android:id="@+id/navStickView"-->
-        <!--            android:layout_width="45dp"-->
-        <!--            android:layout_height="45dp"-->
-        <!--            android:layout_centerInParent="true"-->
-        <!--            android:background="@drawable/navstick"/>-->
-
-        <!--        <Button-->
-        <!--            android:id="@+id/navStick"-->
-        <!--            android:layout_width="45dp"-->
-        <!--            android:layout_height="45dp"-->
-        <!--            android:layout_centerInParent="true"-->
-        <!--            android:background="@drawable/navstick"-->
-        <!--            android:alpha="0"/>-->
-
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/bombAlign"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_above="@+id/shootAlign"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="40dp">
-
-        <ImageView
-            android:id="@+id/bombBtn"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="1"
-            android:background="@drawable/mine30_btn"
-            android:tag="shoot" />
-
-        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-            android:id="@+id/bmbTxt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:textColor="@color/brick_brown"
-            android:layout_centerInParent="true"
-            android:translationZ="10dp"
-            android:text="3"/>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/builderAlign"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_above="@+id/shootAlign"
-        android:layout_toStartOf="@+id/bombAlign"
-        android:layout_marginEnd="5dp">
-
-        <ImageView
-            android:id="@+id/builderBtn"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="1"
-            android:background="@drawable/build30_btn"
-            android:tag="shoot" />
-
-        <com.jiokye.tankbattle_multiplayer.utility.TankTextView
-            android:id="@+id/builderTxt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:textColor="@color/brick_brown"
-            android:layout_centerInParent="true"
-            android:translationZ="10dp"
-            android:text="3"/>
-
-    </RelativeLayout>
 
 
 
 
 
-
-    <RelativeLayout
-        android:id="@+id/shootAlign"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="30dp">
-
-        <ImageView
-            android:id="@+id/shootBtn"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:alpha="1"
-            android:background="@drawable/shoot30_btn"
-            android:tag="shoot" />
-    </RelativeLayout>
+<!--    todo-->
 
 
     <RelativeLayout

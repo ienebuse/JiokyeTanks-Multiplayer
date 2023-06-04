@@ -90,4 +90,15 @@ public class MainActivity extends AppCompatActivity implements AppManager.OnAppM
     }
 
 
+    public void onRemoveFromRecents(View view) {
+        // The document is no longer needed; remove its task.
+        finishAndRemoveTask();
+    }
+
+    protected void onDestroy() {
+        finishAndRemoveTask();
+        super.onDestroy();
+    }
+
+
 }
