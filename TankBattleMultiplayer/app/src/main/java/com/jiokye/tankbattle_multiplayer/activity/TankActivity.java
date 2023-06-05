@@ -79,8 +79,9 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 
     public Button menuBtn, nxtBtn, retryBtn;
     public ImageView stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn;
+    public boolean stickActive = false;
     float navR, navRsqr;
-    Point navC;
+    Point navC, stickPos;
     public Rect navRect=new Rect(), upRect=new Rect(), leftRect=new Rect(), downRect=new Rect(), rightRect=new Rect(), shootRect=new Rect(), bmbRect=new Rect(), buildRect=new Rect();
 //    public ImageView stickView;
     public LinearLayout enemyCount, bonusFrame, pauseControl;
@@ -88,7 +89,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
     public TextView P1StatusTxt, P2StatusTxt, StageTxt, enemyCountTxt, giftInfo;
     public TankTextView curtainTxt,gameOverTxt;
 
-    public RelativeLayout scoreView,gameView,navView, shootAlign, bombAlign, buildAlign, controlsView;
+    public RelativeLayout scoreView,gameView,navView, stickView, shootAlign, bombAlign, buildAlign, controlsView;
     private LinearLayout challengeItem;
     private ScrollView challengeScroll;
     private TankTextView challengeCount;
@@ -226,6 +227,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         lftBtn = findViewById(R.id.leftBtn);
 
         stick = findViewById(R.id.navStick);
+        stickView = findViewById(R.id.stickView);
 //        stickView = findViewById(R.id.navStickView);
 
         menuBtn = findViewById(R.id.menuBtn);
@@ -237,136 +239,10 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         enemyCount = findViewById(R.id.enemyCount);
 
 
-//        shtBtn.setOnTouchListener(actionListener);
-//        bmbBtn.setOnTouchListener(actionListener);
-//        buildBtn.setOnTouchListener(actionListener);
-
-//        shtBtn.setOnTouchListener(buttonListener);
-//        bmbBtn.setOnTouchListener(buttonListener);
-//        buildBtn.setOnTouchListener(buttonListener);
-//        upBtn.setOnTouchListener(buttonListener);
-//        dwnBtn.setOnTouchListener(buttonListener);
-//        rtBtn.setOnTouchListener(buttonListener);
-//        lftBtn.setOnTouchListener(buttonListener);
-
-        controlsView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                int action = MotionEvent.ACTION_MASK & motionEvent.getActionMasked();
-                int index = motionEvent.getActionIndex();
-                int pc = motionEvent.getPointerCount();
-
-                int aX = (int)motionEvent.getX(index);
-                int aY = (int)motionEvent.getY(index);
-
-
-                int x = 0;
-                int y = 0;
-                View btnView = null;
-                int navIndex = -1;
-
-                for (int i = 0; i < pc; i++) {
-                    x = (int)motionEvent.getX(i);
-                    y = (int)motionEvent.getY(i);
-
-                    if(x < TankView.WIDTH/2 && y > TankView.HEIGHT/2) {
-                        navIndex = i;
-                        x = (int)motionEvent.getX(i);
-                        y = (int)motionEvent.getY(i);
-                        break;
-                    }
-                }
-
-                if(shootRect.contains(aX,aY)){
-                    btnView = shtBtn;
-                }
-                else if(bmbRect.contains(aX,aY)){
-                    btnView = bmbBtn;
-                }
-                else if(buildRect.contains(aX,aY)){
-                    btnView = buildBtn;
-                }
-
-                mTankView.onControlButtonPressed(btnView, x, y, action, navIndex==index);
-
-                return true;
-            }
-        });
-
-//        stick.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//                    ClipData data = ClipData.newPlainText("", "");
-//                    View.DragShadowBuilder shadowBuilder = new NavDragShadowBuilder(stick);//new View.DragShadowBuilder(stick);
-//
-//                    stick.startDrag(null, shadowBuilder, stick, 0);
-//                    v.setAlpha(0);
-//                }
-//                else if (event.getAction() == MotionEvent.ACTION_UP){
-//                    v.setAlpha(1);
-//                }
-//                return true;
-//            }
-//        });
-////
-//        stick.setOnDragListener(new View.OnDragListener() {
-//            @Override
-//            public boolean onDrag(View v, DragEvent event) {
-//                String msg = "Drag and Drop";
-//                switch(event.getAction()) {
-//                    case DragEvent.ACTION_DRAG_STARTED:
-//                        layoutParams = (ViewGroup.LayoutParams)v.getLayoutParams();
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_STARTED | x: " + event.getX() + " | y: " + event.getY());
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_ENTERED:
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENTERED | x: " + event.getX() + " | y: " + event.getY());
-//                        int x_cord = (int) event.getX();
-//                        int y_cord = (int) event.getY();
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_EXITED :
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_EXITED | x: " + event.getX() + " | y: " + event.getY());
-//                        x_cord = (int) event.getX();
-//                        y_cord = (int) event.getY();
-////                        layoutParams.leftMargin = x_cord;
-////                        layoutParams.topMargin = y_cord;
-////                        v.setLayoutParams(layoutParams);
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_LOCATION  :
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_LOCATION | x: " + event.getX() + " | y: " + event.getY());
-//                        x_cord = (int) event.getX();
-//                        y_cord = (int) event.getY();
-//                        break;
-//
-//                    case DragEvent.ACTION_DRAG_ENDED   :
-//                        Log.d(msg, "Action is DragEvent.ACTION_DRAG_ENDED | x: " + event.getX() + " | y: " + event.getY());
-//                        v.setAlpha(1);
-//                        // Do nothing
-//                        break;
-//
-//                    case DragEvent.ACTION_DROP:
-//                        Log.d(msg, "ACTION_DROP event | x: " + event.getX() + " | y: " + event.getY());
-//
-//                        // Do nothing
-//                        break;
-//                    default: break;
-//                }
-//
-//                return true;
-//            }
-//        });
-
         menuBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 endGame();
-//                    SoundManager.stopGameSounds();
-//                    Intent i = new Intent(TankActivity.this, TankMenuActivity.class);
-//                    TankActivity.this.startActivity(i);
-//                    TankActivity.this.finish();
             }
         });
 
@@ -679,42 +555,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         first_start = true;
     }
 
-    private class NavDragShadowBuilder extends View.DragShadowBuilder {
-
-        public NavDragShadowBuilder(View view) {
-            super(view);
-        }
-
-        //1
-        private Drawable shadow = ResourcesCompat.getDrawable(getResources(), R.drawable.navstick, null);
-
-        // 2
-        public void onProvideShadowMetrics(Point size, Point touch) {
-            // 3
-            int width = getView().getWidth()*2;
-
-            // 4
-            int height = getView().getHeight()*2;
-
-            getView().setAlpha(1f);
-
-            // 5
-            shadow.setBounds(0, 0, width, height);
-
-            // 6
-            size.set(width, height);
-
-            // 7
-            touch.set(width / 2, height / 2);
-        }
-
-        // 8
-        public void onDrawShadow(Canvas canvas) {
-            // 9
-            shadow.draw(canvas);
-        }
-    }
-
+    @SuppressLint("ClickableViewAccessibility")
     public void setRect() {
         navView.getHitRect(navRect);
         upBtn.getHitRect(upRect);
@@ -735,18 +576,31 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         buildRect.offset(buildAlign.getLeft(),buildAlign.getTop());
 
         navC = new Point((navRect.right - navRect.left) / 2 + navRect.left, (navRect.bottom - navRect.top) / 2 + navRect.top);
-        navR = (navRect.right - navRect.left) / 2f;
+        navR = (stickView.getRight() - stickView.getLeft()) / 2f;
         navRsqr = navR*navR;
+
+        stickPos = new Point((navRect.right - navRect.left - stick.getWidth()) / 2, (navRect.bottom - navRect.top - stick.getHeight()) / 2);
+
+        controlsView.setOnTouchListener(controlViewListener);
 
     }
 
-    public int getDir(int x, int y) {
+    public int getDir(int x, int y, boolean mDown) {
 
         float dSqr = (x - navC.x) * (x - navC.x) + (y - navC.y) * (y - navC.y);
         int yL1 = x - navC.x + navC.y;
         int yL2 = navC.x - x + navC.y;
 
-        if(dSqr > navRsqr) {
+        if(mDown) {
+            if(dSqr > navRsqr) {
+                return -1;
+            }
+            else {
+                stickActive = true;
+            }
+        }
+
+        if(!stickActive) {
             return -1;
         }
 
@@ -766,6 +620,73 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 
         return -1;
     }
+
+    public void dropStick() {
+        stick.setX(stickPos.x);
+        stick.setY(stickPos.y);
+        stickActive = false;
+    }
+
+    public void moveStick(int x, int y) {
+        int relX = x-navC.x;
+        int relY = y-navC.y;
+        double posR = Math.sqrt(relX*relX + relY*relY);
+        int xstick = relX;
+        int ystick = relY;
+
+        if(posR > navR) {
+            xstick = (int) (navR * relX / posR);
+            ystick = (int) (navR * relY / posR);
+        }
+
+        stick.setX(xstick + navC.x - navRect.left - stick.getWidth()/2f);
+        stick.setY(ystick + navC.y - navRect.top - stick.getHeight()/2f);
+    }
+
+    View.OnTouchListener controlViewListener = new View.OnTouchListener() {
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            int action = MotionEvent.ACTION_MASK & motionEvent.getActionMasked();
+            int index = motionEvent.getActionIndex();
+            int pc = motionEvent.getPointerCount();
+
+            int aX = (int)motionEvent.getX(index);
+            int aY = (int)motionEvent.getY(index);
+
+
+            int x = 0;
+            int y = 0;
+            View btnView = null;
+            int navIndex = -1;
+
+            for (int i = 0; i < pc; i++) {
+                x = (int)motionEvent.getX(i);
+                y = (int)motionEvent.getY(i);
+
+                if(x < TankView.WIDTH/2 && y > TankView.HEIGHT/2) {
+                    navIndex = i;
+                    x = (int)motionEvent.getX(i);
+                    y = (int)motionEvent.getY(i);
+                    break;
+                }
+            }
+
+            if(shootRect.contains(aX,aY)){
+                btnView = shtBtn;
+            }
+            else if(bmbRect.contains(aX,aY)){
+                btnView = bmbBtn;
+            }
+            else if(buildRect.contains(aX,aY)){
+                btnView = buildBtn;
+            }
+
+            mTankView.onControlButtonPressed(btnView, x, y, action, navIndex==index);
+
+            return true;
+        }
+    };
 
     @Override
     public void executeSignal() {
@@ -887,49 +808,6 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
             }
         }
     }
-
-
-
-//    @SuppressLint("ClickableViewAccessibility")
-//    @Override
-//    public boolean onTouch(View view, MotionEvent motionEvent) {
-//        int id = view.getId();
-//        if(id == R.id.upBtn ||
-//            id == R.id.leftBtn ||
-//            id == R.id.rightBtn ||
-//            id ==  R.id.downBtn
-//            || id == R.id.shootBtn ||
-//            id == R.id.bombBtn ||
-//            id == R.id.builderBtn
-//        ) {
-////            if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
-////                view.performClick();
-////            }
-//        MessageRegister.getInstance().registerButtonAction(view, motionEvent);
-////            mTankView.onButtonPressed(view, motionEvent);
-////            return true;
-//        }
-////        return super.onTouchEvent(motionEvent);
-//        return true;
-//    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    View.OnTouchListener buttonListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            MessageRegister.getInstance().registerButtonAction(view, motionEvent);
-            return true;
-        }
-    };
-
-    @SuppressLint("ClickableViewAccessibility")
-    View.OnTouchListener actionListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            mTankView.onActionButtonPressed(view, motionEvent);
-            return true;
-        }
-    };
 
     @SuppressLint("ClickableViewAccessibility")
     public void initilizeBonusBank() {
