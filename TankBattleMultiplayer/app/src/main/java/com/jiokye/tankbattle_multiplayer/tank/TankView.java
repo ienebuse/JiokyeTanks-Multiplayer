@@ -714,6 +714,29 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
         btnLayout.bottomMargin = (int)(bDim*0.5*0.35);
         ((TankActivity)context).stickView.setLayoutParams(btnLayout);
 
+        // Dir indication
+
+        btnLayout = (RelativeLayout.LayoutParams)((TankActivity)context).dleft.getLayoutParams();
+        btnLayout.width = (int)(bDim*0.35*0.1);
+        btnLayout.height = (int)(bDim*0.35*0.6);
+        ((TankActivity)context).dleft.setLayoutParams(btnLayout);
+
+        btnLayout = (RelativeLayout.LayoutParams)((TankActivity)context).dright.getLayoutParams();
+        btnLayout.width = (int)(bDim*0.35*0.1);
+        btnLayout.height = (int)(bDim*0.35*0.6);
+        ((TankActivity)context).dright.setLayoutParams(btnLayout);
+
+
+        btnLayout = (RelativeLayout.LayoutParams)((TankActivity)context).dup.getLayoutParams();
+        btnLayout.width = (int)(bDim*0.35*0.6);
+        btnLayout.height = (int)(bDim*0.35*0.1);
+        ((TankActivity)context).dup.setLayoutParams(btnLayout);
+
+        btnLayout = (RelativeLayout.LayoutParams)((TankActivity)context).ddown.getLayoutParams();
+        btnLayout.width = (int)(bDim*0.35*0.6);
+        btnLayout.height = (int)(bDim*0.35*0.1);
+        ((TankActivity)context).ddown.setLayoutParams(btnLayout);
+
         // Shoot button
 
         ViewGroup.LayoutParams shtLayout = ((TankActivity)context).shootAlign.getLayoutParams();
@@ -3525,6 +3548,13 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                 ((TankActivity)context).dwnBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.down30_btn,null));
                 ((TankActivity)context).lftBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.left30_btn,null));
                 ((TankActivity)context).rtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.right30_btn,null));
+
+
+                ((TankActivity)context).dup.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dup1,null));
+
+                ((TankActivity)context).ddown.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ddown0,null));
+                ((TankActivity)context).dleft.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dleft0,null));
+                ((TankActivity)context).dright.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dright0,null));
                 break;
             }
             case CONST.Direction.DOWN: {
@@ -3533,6 +3563,12 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                 ((TankActivity)context).upBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.up30_btn,null));
                 ((TankActivity)context).lftBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.left30_btn,null));
                 ((TankActivity)context).rtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.right30_btn,null));
+
+                ((TankActivity)context).ddown.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ddown1,null));
+
+                ((TankActivity)context).dup.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dup0,null));
+                ((TankActivity)context).dleft.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dleft0,null));
+                ((TankActivity)context).dright.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dright0,null));
                 break;
             }
             case CONST.Direction.LEFT: {
@@ -3541,6 +3577,13 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                 ((TankActivity)context).upBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.up30_btn,null));
                 ((TankActivity)context).dwnBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.down30_btn,null));
                 ((TankActivity)context).rtBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.right30_btn,null));
+
+
+                ((TankActivity)context).dleft.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dleft1,null));
+
+                ((TankActivity)context).ddown.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ddown0,null));
+                ((TankActivity)context).dup.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dup0,null));
+                ((TankActivity)context).dright.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dright0,null));
                 break;
             }
             case CONST.Direction.RIGHT: {
@@ -3549,6 +3592,13 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                 ((TankActivity)context).upBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.up30_btn,null));
                 ((TankActivity)context).lftBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.left30_btn,null));
                 ((TankActivity)context).dwnBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.down30_btn,null));
+
+
+                ((TankActivity)context).dright.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dright1,null));
+
+                ((TankActivity)context).dleft.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dleft0,null));
+                ((TankActivity)context).ddown.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ddown0,null));
+                ((TankActivity)context).dup.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dup0,null));
                 break;
             }
             default: {
@@ -3556,6 +3606,11 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                 ((TankActivity)context).upBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.up30_btn,null));
                 ((TankActivity)context).lftBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.left30_btn,null));
                 ((TankActivity)context).dwnBtn.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.down30_btn,null));
+
+                ((TankActivity)context).dright.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dright0,null));
+                ((TankActivity)context).dleft.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dleft0,null));
+                ((TankActivity)context).ddown.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ddown0,null));
+                ((TankActivity)context).dup.setBackground(ResourcesCompat.getDrawable(context.getResources(),R.drawable.dup0,null));
                 break;
             }
         }

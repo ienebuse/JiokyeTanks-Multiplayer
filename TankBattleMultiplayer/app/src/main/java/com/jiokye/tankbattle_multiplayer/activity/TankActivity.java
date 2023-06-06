@@ -79,6 +79,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 
     public Button menuBtn, nxtBtn, retryBtn;
     public ImageView stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn;
+    public ImageView dup, dleft, ddown, dright;
     public boolean stickActive = false, controlActive = true;
     float navR, navRsqr;
     Point navC, stickPos;
@@ -225,6 +226,11 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         dwnBtn = findViewById(R.id.downBtn);
         rtBtn = findViewById(R.id.rightBtn);
         lftBtn = findViewById(R.id.leftBtn);
+
+        dup = findViewById(R.id.dup);
+        dleft = findViewById(R.id.dleft);
+        dright = findViewById(R.id.dright);
+        ddown = findViewById(R.id.ddown);
 
         stick = findViewById(R.id.navStick);
         stickView = findViewById(R.id.stickView);

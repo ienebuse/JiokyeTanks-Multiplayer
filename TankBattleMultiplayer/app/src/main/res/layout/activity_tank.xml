@@ -71,23 +71,6 @@
                 android:visibility="invisible"/>
 
 
-
-
-            <!--        <Button-->
-            <!--            android:id="@+id/navStickView"-->
-            <!--            android:layout_width="45dp"-->
-            <!--            android:layout_height="45dp"-->
-            <!--            android:layout_centerInParent="true"-->
-            <!--            android:background="@drawable/navstick"/>-->
-
-            <!--        <Button-->
-            <!--            android:id="@+id/navStick"-->
-            <!--            android:layout_width="45dp"-->
-            <!--            android:layout_height="45dp"-->
-            <!--            android:layout_centerInParent="true"-->
-            <!--            android:background="@drawable/navstick"-->
-            <!--            android:alpha="0"/>-->
-
             <RelativeLayout
                 android:id="@+id/stickView"
                 android:layout_width="match_parent"
@@ -102,6 +85,38 @@
                 android:layout_height="45dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/navstick"/>
+
+            <ImageView
+                android:id="@+id/dleft"
+                android:layout_width="5dp"
+                android:layout_height="30dp"
+                android:background="@drawable/dleft0"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/dright"
+                android:layout_width="5dp"
+                android:layout_height="30dp"
+                android:background="@drawable/dright0"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"/>
+
+            <ImageView
+                android:id="@+id/dup"
+                android:layout_width="30dp"
+                android:layout_height="5dp"
+                android:background="@drawable/dup0"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"/>
+
+            <ImageView
+                android:id="@+id/ddown"
+                android:layout_width="30dp"
+                android:layout_height="5dp"
+                android:background="@drawable/ddown0"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"/>
 
 
         </RelativeLayout>
