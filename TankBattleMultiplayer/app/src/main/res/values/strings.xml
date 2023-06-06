@@ -82,4 +82,10 @@
     <string name="info_gold">Indicates the amount of golds you have in stock. You can use gold to purchase items from the store to boost your tank and game play, as well as controller to have more game time. Gold can be acquied with either Adcoin or with real currency from the store</string>
     <string name="info_game">Indicates the amount of games you have left. Its value decreases each time you lose, restart or end a game. The number of games increases by one ever 1 hour to a maximum of 5. You can purchase more games with gold or Adcoin</string>
     <string name="share_life">Share life</string>
+    <string name="info_game3h">Indicates unlimited game time for 3 hours</string>
+    <string name="info_mine">Timed grenade. Explodes in 5 seconds killing all enemies within the blast distance in 4 directions</string>
+    <string name="info_helmet">Helmet. Provides an impenetrable shield for 10 seconds</string>
+    <string name="info_clock">Clock. Freezes all enemies for 8 seconds</string>
+    <string name="info_boat">Boat. Allows your tank to move through water</string>
+    <string name="info_star">Star. Upgrades your tank to the next level, increasing its speed and bullet speed</string>
 </resources>

@@ -79,7 +79,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 
     public Button menuBtn, nxtBtn, retryBtn;
     public ImageView stick, upBtn, dwnBtn, rtBtn, lftBtn, shtBtn, bmbBtn, buildBtn;
-    public boolean stickActive = false;
+    public boolean stickActive = false, controlActive = true;
     float navR, navRsqr;
     Point navC, stickPos;
     public Rect navRect=new Rect(), upRect=new Rect(), leftRect=new Rect(), downRect=new Rect(), rightRect=new Rect(), shootRect=new Rect(), bmbRect=new Rect(), buildRect=new Rect();
@@ -577,7 +577,8 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 
         navC = new Point((navRect.right - navRect.left) / 2 + navRect.left, (navRect.bottom - navRect.top) / 2 + navRect.top);
         navR = (stickView.getRight() - stickView.getLeft()) / 2f;
-        navRsqr = navR*navR;
+        float navRp = (navRect.right - navRect.left) / 2;
+        navRsqr = navRp*navRp;
 
         stickPos = new Point((navRect.right - navRect.left - stick.getWidth()) / 2, (navRect.bottom - navRect.top - stick.getHeight()) / 2);
 
@@ -593,6 +594,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 
         if(mDown) {
             if(dSqr > navRsqr) {
+                Log.d("STICK", "Stick out" + " " + (dSqr - navRsqr));
                 return -1;
             }
             else {
@@ -628,6 +630,9 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
     }
 
     public void moveStick(int x, int y) {
+        if(!controlActive) {
+            return;
+        }
         int relX = x-navC.x;
         int relY = y-navC.y;
         double posR = Math.sqrt(relX*relX + relY*relY);
@@ -647,6 +652,9 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
+            if(!controlActive) {
+                return true;
+            }
             int action = MotionEvent.ACTION_MASK & motionEvent.getActionMasked();
             int index = motionEvent.getActionIndex();
             int pc = motionEvent.getPointerCount();
@@ -664,7 +672,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
                 x = (int)motionEvent.getX(i);
                 y = (int)motionEvent.getY(i);
 
-                if(x < TankView.WIDTH/2 && y > TankView.HEIGHT/2) {
+                if(x < navRect.right*2 && y > TankView.HEIGHT/2) {
                     navIndex = i;
                     x = (int)motionEvent.getX(i);
                     y = (int)motionEvent.getY(i);
@@ -681,6 +689,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
             else if(buildRect.contains(aX,aY)){
                 btnView = buildBtn;
             }
+
 
             mTankView.onControlButtonPressed(btnView, x, y, action, navIndex==index);
 
@@ -1143,6 +1152,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
 //    }
 
     public void enableControls() {
+        controlActive = true;
         shtBtn.setEnabled(true);
         bmbBtn.setEnabled(true);
         buildBtn.setEnabled(true);
@@ -1150,6 +1160,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         dwnBtn.setEnabled(true);
         rtBtn.setEnabled(true);
         lftBtn.setEnabled(true);
+        stick.setEnabled(true);
         if(twoPlayers) {
             enableGift();
         }
@@ -1170,6 +1181,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
     }
 
     public void disableControls() {
+        controlActive = false;
         shtBtn.setEnabled(false);
         bmbBtn.setEnabled(false);
         buildBtn.setEnabled(false);
@@ -1177,6 +1189,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         dwnBtn.setEnabled(false);
         rtBtn.setEnabled(false);
         lftBtn.setEnabled(false);
+        stick.setEnabled(false);
         if(twoPlayers) {
             disableGift();
         }
