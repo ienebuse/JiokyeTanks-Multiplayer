@@ -13,6 +13,8 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import androidx.fragment.app.FragmentActivity;
 //import androidx.fragment.app.FragmentManager;
@@ -51,8 +53,8 @@ public class Utils {
                     public void onAnimationEnd(Animator animation) {
                         animation.removeListener(this);
                         animation.setDuration(0);
-                        ((ValueAnimator) animation).reverse();
-                        super.onAnimationEnd(animation);
+                        animation.setInterpolator(new ReverseInterpolator());
+                        animation.start();
                     }
                 });
             }
@@ -107,6 +109,24 @@ public class Utils {
             if (fragmentManager.getBackStackEntryCount() > 0) {
                 fragmentManager.popBackStack();
             }
+        }
+    }
+
+    private static class ReverseInterpolator implements Interpolator {
+
+        private final Interpolator delegate;
+
+        public ReverseInterpolator(Interpolator delegate){
+            this.delegate = delegate;
+        }
+
+        public ReverseInterpolator(){
+            this(new LinearInterpolator());
+        }
+
+        @Override
+        public float getInterpolation(float input) {
+            return 1 - delegate.getInterpolation(input);
         }
     }
 }

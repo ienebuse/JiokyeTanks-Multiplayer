@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -70,7 +71,9 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
     TankTextView completedTxt;
 
     GridLayout stageBtns, objGrid;
-    LinearLayout.LayoutParams cardParams, cardParamsSel;
+//    GridLayout.LayoutParams cardParams, cardParamsSel;
+    LinearLayout.LayoutParams cardParamsSel;
+    CardView.LayoutParams cardParams;
     ScrollView scrollView;
     int selected = 0;
     ArrayList<boolean[]> objectives;
@@ -165,15 +168,16 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
             }
         });
 
-//        cardParams = new LinearLayout.LayoutParams((int) CVTR.toDp(80), (int) CVTR.toDp(80));
-        cardParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        cardParams = new CardView.LayoutParams(CardView.LayoutParams.MATCH_PARENT, CardView.LayoutParams.MATCH_PARENT);
         cardParamsSel = new LinearLayout.LayoutParams((int) CVTR.toDp(70), (int) CVTR.toDp(70));
+
 
         cardParams.setMargins((int)CVTR.toDp(2),(int)CVTR.toDp(2),(int)CVTR.toDp(2),(int)CVTR.toDp(2));
         cardParamsSel.setMargins((int)CVTR.toDp(20),(int)CVTR.toDp(20),(int)CVTR.toDp(0),(int)CVTR.toDp(0));
+        cardParamsSel.gravity = Gravity.CENTER;
 
 
-        LinearLayout.LayoutParams txtParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        CardView.LayoutParams txtParams = new CardView.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         txtParams.setMargins(0,0,0,0);
         txtParams.gravity = Gravity.CENTER;
 
@@ -195,7 +199,7 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
             ImageView img = new ImageView(this.getContext());
 
             //todo remove
-//            int unlockLevel = 1;
+//            unlockLevel = 5;
             if(i <= unlockLevel) {
                 int star = levelStars.get(i-1);
 //                int star = 0;
@@ -236,7 +240,18 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
             }
             card.setTag(i);
             selCard.addView(card);
-            stageBtns.addView(selCard);
+
+            GridLayout.LayoutParams param = new GridLayout.LayoutParams();
+            param.height = (int) CVTR.toDp(80);
+            param.width = (int) CVTR.toDp(80);
+            param.rightMargin = 20;
+            param.topMargin = 20;
+            param.setGravity(Gravity.CENTER);
+            int row  = (i-1)/4;
+            int col = (i-1)%4;
+            param.columnSpec = GridLayout.spec(col);
+            param.rowSpec = GridLayout.spec(row);
+            stageBtns.addView(selCard,param);
         }
 
         ((CardView)stageBtns.getChildAt(selected)).setCardBackgroundColor(Color.WHITE);
