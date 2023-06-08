@@ -177,51 +177,91 @@
 
                 </LinearLayout>
 
-
-
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:layout_marginLeft="10dp"
                     android:layout_marginBottom="10dp"
                     android:layout_marginRight="10dp"
+                    android:orientation="horizontal"
                     android:background="@drawable/linbg">
 
-                    <TextView
-                        android:id="@+id/puzz_sel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:gravity="start"
-                        android:text="@string/numpuzz_sel"
-                        android:textColor="@color/white"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginTop="5dp">
+
+                        <TextView
+                            android:id="@+id/puzz_sel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:gravity="start"
+                            android:text="@string/numpuzz_sel"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_toRightOf="@id/puzz_sel">
+
+                            <ImageView
+                                android:id="@+id/sel_puzz_img"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintDimensionRatio="1:1"
+                                android:background="@drawable/numpuzicon"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+                    </RelativeLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_toRightOf="@id/puzz_sel">
+                        android:layout_weight="1"
+                        android:layout_marginTop="5dp">
 
-                        <ImageView
-                            android:id="@+id/sel_puzz_img"
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
+                        <TextView
+                            android:id="@+id/rewardTxt"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="REWARD"
+                            android:textStyle="bold|italic"
+                            android:textColor="@color/white"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+                        <ImageView
+                            android:id="@+id/rewardImg"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintLeft_toRightOf="@id/rewardTxt"
+                            app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@drawable/numpuzicon"/>
+                            android:layout_marginStart="20dp"
+                            app:layout_constraintDimensionRatio="1.2:1"
+                            android:background="@drawable/lvl1rwd"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
+                </LinearLayout>
 
 
-                </RelativeLayout>
 
             </LinearLayout>
 

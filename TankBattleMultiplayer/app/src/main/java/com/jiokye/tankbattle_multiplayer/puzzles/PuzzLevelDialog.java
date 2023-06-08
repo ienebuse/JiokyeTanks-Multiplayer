@@ -29,7 +29,7 @@ public class PuzzLevelDialog extends Dialog implements View.OnClickListener{
     SharedPreferences settings;
 
     ImageView lvl1, lvl2, lvl3, lvl4;
-    ImageView lvl1_sel, lvl2_sel, lvl3_sel, lvl4_sel, puzzSel;
+    ImageView lvl1_sel, lvl2_sel, lvl3_sel, lvl4_sel, puzzSel, rewardImg;
     TextView puzzInfo;
     int selected = 1;
     String puzz;
@@ -80,6 +80,9 @@ public class PuzzLevelDialog extends Dialog implements View.OnClickListener{
         lvl3_sel = findViewById(R.id.lvl3_sel);
         lvl4_sel = findViewById(R.id.lvl4_sel);
 
+        rewardImg = findViewById(R.id.rewardImg);
+
+
 
 
         puzzInfo = findViewById(R.id.puzz_sel);
@@ -112,6 +115,8 @@ public class PuzzLevelDialog extends Dialog implements View.OnClickListener{
                 lvl3_sel.setBackground(null);
                 lvl4_sel.setBackground(null);
 
+                rewardImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd,null));
+
                 selected = 1;
             }
             else if(id == R.id.puzzlvl2) {
@@ -119,6 +124,8 @@ public class PuzzLevelDialog extends Dialog implements View.OnClickListener{
                 lvl2_sel.setBackground(selView);
                 lvl3_sel.setBackground(null);
                 lvl4_sel.setBackground(null);
+
+                rewardImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl2rwd,null));
 
                 selected = 2;
             }
@@ -128,6 +135,8 @@ public class PuzzLevelDialog extends Dialog implements View.OnClickListener{
                 lvl3_sel.setBackground(selView);
                 lvl4_sel.setBackground(null);
 
+                rewardImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl3rwd,null));
+
                 selected = 3;
             }
             else if(id == R.id.puzzlvl4){
@@ -135,6 +144,9 @@ public class PuzzLevelDialog extends Dialog implements View.OnClickListener{
                 lvl2_sel.setBackground(null);
                 lvl3_sel.setBackground(null);
                 lvl4_sel.setBackground(selView);
+
+                rewardImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.game6h,null));
+
                 selected = 4;
             }
             return true;

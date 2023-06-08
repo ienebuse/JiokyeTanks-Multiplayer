@@ -45,15 +45,17 @@ public class Utils {
             objectAnimator.setDuration(500);
             objectAnimator.setRepeatMode(ValueAnimator.REVERSE);
             objectAnimator.setRepeatCount(repeat == 0 ? ValueAnimator.INFINITE:repeat);
-            objectAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
+            if(repeat != 0) {
+                objectAnimator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
 //                    animation.removeListener(this);
-                    animation.setDuration(0);
-                    ((ValueAnimator)animation).reverse();
-                }
-            });
+                        animation.setDuration(0);
+                        ((ValueAnimator) animation).reverse();
+                    }
+                });
+            }
             objectAnimator.start();
             return  objectAnimator;
         }
