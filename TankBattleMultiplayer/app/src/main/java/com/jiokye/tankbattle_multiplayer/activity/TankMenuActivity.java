@@ -48,6 +48,7 @@ import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.billing.TransactionManager;
 import com.jiokye.tankbattle_multiplayer.dialog.AdDialogFragment;
 import com.jiokye.tankbattle_multiplayer.dialog.InfoDialog;
+import com.jiokye.tankbattle_multiplayer.dialog.PuzzleNoticeDialog;
 import com.jiokye.tankbattle_multiplayer.dialog.TankDailyRewardDialog;
 import com.jiokye.tankbattle_multiplayer.dialog.TankSettingsDialog;
 import com.jiokye.tankbattle_multiplayer.fragments.ConstructionFragment;
@@ -89,7 +90,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
     ImageView p1Btn, p2Btn, cnstBtn, setBtn, infoBtn;
     Button backBtn, rateBtn;
     TextView goldTxt, retryTxt, retryTmr, adCoinTxt;
-    ImageView retryImg, adcoincountImg;
+    ImageView retryImg, adcoincountImg, puzzleImg;
     private  static String tankType;
     boolean firstTime = true;
 
@@ -187,8 +188,10 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         retryImg = findViewById(R.id.gamecountImg);
         retryTmr = findViewById(R.id.menuRetryTmrTxt);
         adcoincountImg = findViewById(R.id.adcoincountImg);
+        puzzleImg = findViewById(R.id.puzzle);
         Utils.Effects.zoom(adcoincountImg,0.9f,0);
         Utils.Effects.zoom(infoBtn,0.9f,0);
+        Utils.Effects.zoom(puzzleImg,0.9f,0);
 
         adcoincountImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +199,13 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                 p2 = false;
                 notice = false;
                 showRewardedInterstitialAd(false);
+            }
+        });
+
+        puzzleImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openPuzzleNotice();
             }
         });
 
@@ -604,6 +614,40 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         wd.show();
         wd.getWindow().setAttributes(lp);
         wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+    }
+
+    public void openPuzzleNotice() {
+
+        PuzzleNoticeDialog wd = new PuzzleNoticeDialog(this);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+
+        lp.copyFrom(wd.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.dimAmount = 0.8f;
+        wd.show();
+        wd.getWindow().setAttributes(lp);
+        wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        wd.setOnDismissPuzzleNotice(new PuzzleNoticeDialog.OnDismissPuzzleNotice() {
+            @Override
+            public void finish(int selectedPuzzle) {
+                    openPuzzles(selectedPuzzle);
+            }
+        });
+    }
+
+    void openPuzzles(int puzzle) {
+
+        if(puzzle == 0) {
+
+        }
+        else if(puzzle == 1) {
+
+        }
+        else if(puzzle == 2) {
+
+        }
+
     }
 
     void showDailyReward() {

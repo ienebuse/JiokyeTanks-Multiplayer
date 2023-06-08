@@ -26,7 +26,7 @@
             android:background="@drawable/classicheader">
 
             <LinearLayout
-                android:layout_width="240dp"
+                android:layout_width="300dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="5dp"
@@ -49,12 +49,26 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <ImageView
-                            android:id="@+id/gamecountImg"
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
-                            android:layout_weight="2"
-                            android:background="@drawable/game" />
+                            android:layout_weight="2">
+
+                            <ImageView
+                                android:id="@+id/gamecountImg"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
+                                app:layout_constraintDimensionRatio="1.5:1"
+                                android:background="@drawable/game" />
+
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
                         <TextView
                             android:id="@+id/menuRetryTmrTxt"
@@ -113,12 +127,28 @@
                         android:gravity="center"
                         android:orientation="vertical">
 
-                        <ImageView
-                            android:id="@+id/goldcountImg"
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
-                            android:layout_weight="2"
-                            android:background="@drawable/gold" />
+                            android:layout_weight="2">
+
+                            <ImageView
+                                android:id="@+id/goldcountImg"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintRight_toRightOf="parent"
+                                app:layout_constraintDimensionRatio="1.5:1"
+                                android:background="@drawable/gold" />
+
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
 
                         <TextView
                             android:id="@+id/goldcountTxt"
@@ -147,12 +177,25 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/adcoincountImg"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="2"
-                        android:background="@drawable/adcoin" />
+                        android:layout_weight="2">
+
+                        <ImageView
+                            android:id="@+id/adcoincountImg"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintDimensionRatio="1.2:1"
+                            android:background="@drawable/adcoin" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
                     <TextView
                         android:id="@+id/adcoincountText"
@@ -168,18 +211,55 @@
 
                 </LinearLayout>
 
-
-                <LinearLayout
-                    android:id="@+id/storeBtn"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/shop"
-                    android:orientation="horizontal">
+                    android:layout_marginBottom="5dp"
+                    android:layout_weight="1">
 
-                </LinearLayout>
+                    <ImageView
+                        android:id="@+id/puzzle"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
+                        android:background="@drawable/puzzleicon"/>
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/storeBtn"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintDimensionRatio="1.2:1"
+                        android:background="@drawable/shop"
+                        android:orientation="horizontal">
+
+                    </LinearLayout>
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
             </LinearLayout>
 
