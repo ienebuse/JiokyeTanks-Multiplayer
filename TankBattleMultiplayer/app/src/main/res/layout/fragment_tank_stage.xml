@@ -106,7 +106,7 @@
                             android:horizontalSpacing="6dp"
                             android:verticalSpacing="6dp"
                             android:columnCount="4"
-                            android:rowCount="5">
+                            android:rowCount="9">
 
 
                         </GridLayout>
