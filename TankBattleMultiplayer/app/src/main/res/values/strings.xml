@@ -88,4 +88,6 @@
     <string name="info_clock">Clock. Freezes all enemies for 8 seconds</string>
     <string name="info_boat">Boat. Allows your tank to move through water</string>
     <string name="info_star">Star. Upgrades your tank to the next level, increasing its speed and bullet speed</string>
+    <string name="info_intro">You have only one objective… destroy all enemy tanks, including the boss tank to progress to the next stage. Collect items to boost your tank and game play.\n\nJoin forces with a friend in two player mode over wifi to take on the enemies.</string>
+
 </resources>

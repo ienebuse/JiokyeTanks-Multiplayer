@@ -1,7 +1,6 @@
 package com.jiokye.tankbattle_multiplayer.dialog;
 
 import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -14,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
-import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
 
 public class InfoDialog extends Dialog{
     CheckBox showCheck;
