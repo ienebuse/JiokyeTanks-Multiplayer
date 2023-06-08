@@ -16,6 +16,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,6 +55,7 @@ import com.jiokye.tankbattle_multiplayer.dialog.TankSettingsDialog;
 import com.jiokye.tankbattle_multiplayer.fragments.ConstructionFragment;
 import com.jiokye.tankbattle_multiplayer.fragments.StoreFragment;
 import com.jiokye.tankbattle_multiplayer.fragments.TankStageFragment;
+import com.jiokye.tankbattle_multiplayer.puzzles.PuzzLevelDialog;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.AppManager;
@@ -631,12 +633,50 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         wd.setOnDismissPuzzleNotice(new PuzzleNoticeDialog.OnDismissPuzzleNotice() {
             @Override
             public void finish(int selectedPuzzle) {
-                    openPuzzles(selectedPuzzle);
+                openPuzzleLevel(selectedPuzzle);
             }
         });
     }
 
-    void openPuzzles(int puzzle) {
+    void openPuzzleLevel(int selectedPuzzle) {
+        String puzzInfo = null;
+        Drawable puzzImg = null;
+        switch(selectedPuzzle) {
+            case 0:
+                puzzInfo = "Number Slide";
+                puzzImg = ResourcesCompat.getDrawable(getResources(),R.drawable.numpuzicon,null);
+                break;
+            case 1:
+                puzzInfo = "Water Sort";
+                puzzImg = ResourcesCompat.getDrawable(getResources(),R.drawable.watersorticon,null);
+                break;
+            case 2:
+                puzzInfo = "Box Sort";
+                puzzImg = ResourcesCompat.getDrawable(getResources(),R.drawable.sokobanicon,null);
+                break;
+        }
+
+        if(puzzInfo != null && puzzImg != null) {
+            PuzzLevelDialog wd = new PuzzLevelDialog(this, puzzInfo, puzzImg);
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+
+            lp.copyFrom(wd.getWindow().getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.dimAmount = 0.8f;
+            wd.show();
+            wd.getWindow().setAttributes(lp);
+            wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            wd.setOnDismissPuzzleLevel(new PuzzLevelDialog.OnDismissPuzzleLevel() {
+                @Override
+                public void finish(int level) {
+                    openPuzzles(selectedPuzzle, level);
+                }
+            });
+        }
+    }
+
+    void openPuzzles(int puzzle, int level) {
 
         if(puzzle == 0) {
 

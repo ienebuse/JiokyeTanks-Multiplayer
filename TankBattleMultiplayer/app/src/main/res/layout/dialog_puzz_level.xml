@@ -7,7 +7,6 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/settings_dialog"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginLeft="5sp"
@@ -24,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/puzzleheader"/>
+            android:background="@drawable/difficultyheader"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -53,92 +52,126 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:layout_weight="1">
 
                         <ImageView
-                            android:id="@+id/numpuzz_sel"
+                            android:id="@+id/lvl1_sel"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@color/green"/>
+                            app:layout_constraintDimensionRatio="4:3"
+                            android:background="@drawable/selbg"/>
 
                         <ImageView
-                            android:id="@+id/numpuzz"
+                            android:id="@+id/puzzlvl1"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintHeight_percent="0.9"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@drawable/numpuzicon"/>
+                            app:layout_constraintWidth_percent="0.9"
+                            app:layout_constraintDimensionRatio="4:3"
+                            android:background="@drawable/lev1btn"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:layout_weight="1">
 
                         <ImageView
-                            android:id="@+id/watersort_sel"
+                            android:id="@+id/lvl2_sel"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@color/green"
-                            android:visibility="invisible"/>
+                            app:layout_constraintDimensionRatio="4:3"/>
 
                         <ImageView
-                            android:id="@+id/watersortpuzz"
+                            android:id="@+id/puzzlvl2"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintHeight_percent="0.9"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@drawable/watersorticon"/>
+                            app:layout_constraintWidth_percent="0.9"
+                            app:layout_constraintDimensionRatio="4:3"
+                            android:background="@drawable/lev2btn"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:layout_weight="1">
 
                         <ImageView
-                            android:id="@+id/sokoban_sel"
+                            android:id="@+id/lvl3_sel"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@color/green"
-                            android:visibility="invisible"/>
+                            app:layout_constraintDimensionRatio="4:3"/>
 
                         <ImageView
-                            android:id="@+id/sokoban"
+                            android:id="@+id/puzzlvl3"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_constraintLeft_toLeftOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
-                            app:layout_constraintHeight_percent="0.9"
-                            app:layout_constraintDimensionRatio="1:1"
-                            android:background="@drawable/sokobanicon"/>
+                            app:layout_constraintWidth_percent="0.9"
+                            app:layout_constraintDimensionRatio="4:3"
+                            android:background="@drawable/lev3btn"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/lvl4_sel"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintDimensionRatio="4:3"/>
+
+                        <ImageView
+                            android:id="@+id/puzzlvl4"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            app:layout_constraintWidth_percent="0.9"
+                            app:layout_constraintDimensionRatio="4:3"
+                            android:background="@drawable/lev4btn"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -165,20 +198,28 @@
                         android:text="@string/numpuzz_sel"
                         android:textColor="@color/white"
                         android:textSize="12sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
-
-                    <TextView
-                        android:id="@+id/puzzInfo"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_toRightOf="@id/puzz_sel"
-                        android:layout_centerVertical="true"
-                        android:gravity="start"
+                        android:layout_height="match_parent"
                         android:layout_marginLeft="20dp"
-                        android:text="@string/info_numpuzz"
-                        android:textColor="@color/white"
-                        android:textSize="12sp" />
+                        android:layout_marginTop="5dp"
+                        android:layout_toRightOf="@id/puzz_sel">
+
+                        <ImageView
+                            android:id="@+id/sel_puzz_img"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_constraintLeft_toLeftOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintDimensionRatio="1:1"
+                            android:background="@drawable/numpuzicon"/>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
                 </RelativeLayout>
 
