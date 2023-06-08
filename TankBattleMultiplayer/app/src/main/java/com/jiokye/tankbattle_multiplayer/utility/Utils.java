@@ -49,10 +49,10 @@ public class Utils {
                 objectAnimator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-//                    animation.removeListener(this);
+                        animation.removeListener(this);
                         animation.setDuration(0);
                         ((ValueAnimator) animation).reverse();
+                        super.onAnimationEnd(animation);
                     }
                 });
             }
