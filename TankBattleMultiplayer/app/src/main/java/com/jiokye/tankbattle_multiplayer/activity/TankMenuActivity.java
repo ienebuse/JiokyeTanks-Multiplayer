@@ -56,6 +56,7 @@ import com.jiokye.tankbattle_multiplayer.fragments.ConstructionFragment;
 import com.jiokye.tankbattle_multiplayer.fragments.StoreFragment;
 import com.jiokye.tankbattle_multiplayer.fragments.TankStageFragment;
 import com.jiokye.tankbattle_multiplayer.puzzles.PuzzLevelDialog;
+import com.jiokye.tankbattle_multiplayer.puzzles.numberpuzzle.NumberPuzzleFragment;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.AppManager;
@@ -678,7 +679,12 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
 
     void openPuzzles(int puzzle, int level) {
 
+        Log.d("Construction", "Opening fragment");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         if(puzzle == 0) {
+
+            fragmentTransaction.replace(R.id.fragmentFrame,new NumberPuzzleFragment(this,level));
 
         }
         else if(puzzle == 1) {
@@ -687,6 +693,9 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         else if(puzzle == 2) {
 
         }
+
+        fragmentTransaction.addToBackStack("cFragment");
+        fragmentTransaction.commit();
 
     }
 
