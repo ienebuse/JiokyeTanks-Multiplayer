@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
@@ -29,7 +30,10 @@ import android.widget.Toast;
 
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.activity.TankActivity;
+import com.jiokye.tankbattle_multiplayer.puzzles.PuzzCompleteDialog;
 import com.jiokye.tankbattle_multiplayer.puzzles.PuzzDialog;
+import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
+import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;
 import com.jiokye.tankbattle_multiplayer.utility.MessageRegister;
 import com.jiokye.tankbattle_multiplayer.utility.ServiceListener;
@@ -54,6 +58,8 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
     View rootView;
     Activity activity;
 
+    LinearLayout gamecountView, goldcountView;
+
     int level;
     BoardView boardView;
     LinearLayout boardrows;
@@ -75,6 +81,7 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
 
     ImageView gamecountImg, goldcountImg, rwdImg;
     TextView retryTmrTxt, gamecountTxt, goldcountTxt;
+    Drawable rwdDrawable;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -141,6 +148,9 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
         goldcountImg = rootView.findViewById(R.id.goldcountImg);
         rwdImg = rootView.findViewById(R.id.rwdImg);
 
+        gamecountView = rootView.findViewById(R.id.gamecountView);
+        goldcountView = rootView.findViewById(R.id.goldcountView);
+
         retryTmrTxt = rootView.findViewById(R.id.menuRetryTmrTxt);
         gamecountTxt = rootView.findViewById(R.id.gamecountTxt);
         goldcountTxt = rootView.findViewById(R.id.goldcountTxt);
@@ -156,30 +166,33 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
                 resID = R.drawable.puzz3;
 //                fragViewID = R.id.fragView3;
                 Rows = Cols = 3;
-                rwdImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd,null));
+                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd,null);
+
                 break;
             case 2:
 //                rootView = inflater.inflate(R.layout.fragment_number_puzzle_4, container, false);
                 resID = R.drawable.puzz4;
 //                fragViewID = R.id.fragView4;
                 Rows = Cols = 4;
-                rwdImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl2rwd,null));
+                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl2rwd,null);
                 break;
             case 3:
 //                rootView = inflater.inflate(R.layout.fragment_number_puzzle_5, container, false);
                 resID = R.drawable.puzz5;
 //                fragViewID = R.id.fragView5;
                 Rows = Cols = 5;
-                rwdImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl3rwd,null));
+                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl3rwd,null);
                 break;
             case 4:
 //                rootView = inflater.inflate(R.layout.fragment_number_puzzle_6, container, false);
                 resID = R.drawable.puzz6;
 //                fragViewID = R.id.fragView6;
                 Rows = Cols = 6;
-                rwdImg.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.game6h,null));
+                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.game6h,null);
                 break;
         }
+
+        rwdImg.setBackground(rwdDrawable);
 
 
 
@@ -290,7 +303,51 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
     }
 
     void doGameWon() {
+        PuzzCompleteDialog wd = new PuzzCompleteDialog(requireActivity(), rwdDrawable);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
 
+        lp.copyFrom(wd.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.dimAmount = 0.8f;
+        wd.show();
+        wd.getWindow().setAttributes(lp);
+        wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        wd.setOnDismissPuzzleCompleteDialog(new PuzzCompleteDialog.OnDismissPuzzleCompleteDialog() {
+            @Override
+            public void finish(boolean ok) {
+                if(ok) {
+                    int gold = settings.getInt(TankActivity.GOLD,3);
+                    SharedPreferences.Editor editor = settings.edit();
+                    switch (level){
+                        case 1:
+                            editor.putInt(TankActivity.GOLD, gold + CONST.PUZZLE.LVL1RWD);
+                            break;
+                        case 2:
+                            editor.putInt(TankActivity.GOLD, gold + CONST.PUZZLE.LVL2RWD);
+                            break;
+                        case 3:
+                            editor.putInt(TankActivity.GOLD, gold + CONST.PUZZLE.LVL3RWD);
+                            break;
+                        case 4:
+                            long time_3h = System.currentTimeMillis() + CONST.Tank.LIFE_DURATION_3HRS;
+                            editor.putLong(SettingsManager.LIFE_TIME_3H, time_3h);
+                            editor.putInt(SettingsManager.RETRY_COUNT, CONST.Tank.MAX_GAME_COUNT);
+                            break;
+                    }
+                    editor.commit();
+                    SoundManager.playSound(Sounds.TANK.EARN_GOLD);
+                    goldcountTxt.setText(String.valueOf(settings.getInt(TankActivity.GOLD,3)));
+                    retryTmrTxt.setText(String.valueOf(settings.getInt(SettingsManager.RETRY_COUNT,5)));
+                    if(level == 1 || level == 2 || level == 3 ) {
+                        Utils.Effects.zoom(goldcountView,0.8f,4);
+                    }
+                    else if(level == 4) {
+                        Utils.Effects.zoom(gamecountView,0.8f,4);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -429,9 +486,9 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
 //                    SoundManager.playSound(Sounds.NUM_PUZZ.WIN1);
 //                    SoundManager.playSound(Sounds.NUM_PUZZ.WIN2);
 //                }
-                String text = "You Won!";
-                int duration = Toast.LENGTH_LONG;
-                TankToast.showTankToast(activity, text, 3000);
+//                String text = "You Won!";
+//                int duration = Toast.LENGTH_LONG;
+//                TankToast.showTankToast(activity, text, 3000);
                 updateTimer.cancel();
 //                confetti = new Confetti(this);
 //                confetti.generate_confetti(confettiEmitter);

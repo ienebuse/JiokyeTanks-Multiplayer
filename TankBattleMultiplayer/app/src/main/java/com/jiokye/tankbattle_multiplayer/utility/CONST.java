@@ -59,6 +59,12 @@ public class CONST {
 
     }
 
+    public static class PUZZLE {
+        public static final int LVL1RWD = 2;
+        public static final int LVL2RWD = 4;
+        public static final int LVL3RWD = 6;
+    }
+
     public static final String GAME_DATA_KEY = "GAME_DATA";
     public static final String GAME_NAME = "TANK";
     public static final String PLAYER_INFO = "PLAYER_INFO";
