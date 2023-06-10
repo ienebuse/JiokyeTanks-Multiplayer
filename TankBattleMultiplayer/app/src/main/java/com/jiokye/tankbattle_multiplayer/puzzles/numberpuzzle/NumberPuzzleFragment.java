@@ -387,9 +387,6 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
                 ended = false;
             }
             else {
-//                AlertDialog.Builder alert = new AlertDialog.Builder(requireContext());
-//                alert.setTitle("Really?");
-
                 showDialog("Really?").setOnDismissPuzzleDialog(new PuzzDialog.OnDismissPuzzleDialog() {
                     @Override
                     public void finish(boolean ok) {
@@ -402,24 +399,6 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
                         }
                     }
                 });
-
-//                alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int whichButton) {
-//                        updateTimer.cancel();
-//                        boardView.shuffle();
-//                        start_timer();
-//                        startTime = System.currentTimeMillis();
-//                        update_board();
-//                    }
-//                });
-//
-//                alert.setNegativeButton("Cancel",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int whichButton) {
-//                            }
-//                        });
-//
-//                alert.show();
             }
         }
         else{
@@ -529,21 +508,6 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
 
     public void go_back() {
         if (started) {
-//            AlertDialog.Builder alert = new AlertDialog.Builder(requireContext());
-//            alert.setTitle("Really? Your game will be lost!");
-
-//            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//                public void onClick(DialogInterface dialog, int whichButton) {
-//                    closePuzzle();
-//                }
-//            });
-//
-//            alert.setNegativeButton("Cancel",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int whichButton) {
-//                        }
-//                    });
-//            alert.show();
             showDialog("Really? Your game will be lost!").setOnDismissPuzzleDialog(new PuzzDialog.OnDismissPuzzleDialog() {
                 @Override
                 public void finish(boolean ok) {
@@ -561,7 +525,6 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
     public void onDestroy()
     {
         super.onDestroy();
-//        SoundManager.cleanup();
     }
 
     void closePuzzle() {
