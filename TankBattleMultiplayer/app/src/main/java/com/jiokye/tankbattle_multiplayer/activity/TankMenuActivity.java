@@ -706,7 +706,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
     }
 
 
-    private void updateStore() {
+    public void updateStore() {
         goldTxt.setText(String.valueOf(settings.getInt(TankActivity.GOLD,3)));
         retryTxt.setText(String.valueOf(settings.getInt(SettingsManager.RETRY_COUNT,5)));
         adCoinTxt.setText(String.valueOf(settings.getInt(SettingsManager.AD_COIN,0)));

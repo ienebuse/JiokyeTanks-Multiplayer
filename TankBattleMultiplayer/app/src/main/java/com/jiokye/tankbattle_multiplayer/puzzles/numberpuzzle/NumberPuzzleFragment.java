@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.activity.TankActivity;
+import com.jiokye.tankbattle_multiplayer.activity.TankMenuActivity;
 import com.jiokye.tankbattle_multiplayer.puzzles.PuzzCompleteDialog;
 import com.jiokye.tankbattle_multiplayer.puzzles.PuzzDialog;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
@@ -565,6 +566,7 @@ public class NumberPuzzleFragment extends Fragment implements View.OnTouchListen
 
     void closePuzzle() {
         opened = false;
+        ((TankMenuActivity)activity).updateStore();
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
