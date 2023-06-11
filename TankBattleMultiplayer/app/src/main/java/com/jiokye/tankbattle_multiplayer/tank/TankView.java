@@ -473,7 +473,8 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
         BufferedReader reader;
         int row_count = 0;
         try {
-            InputStream inputStream = context.getAssets().open(String.valueOf(level));
+//            InputStream inputStream = context.getAssets().open(String.valueOf(level));
+            InputStream inputStream = context.getAssets().open("tankstages/" + level);
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line = reader.readLine();
 
