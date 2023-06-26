@@ -7,19 +7,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -28,31 +24,27 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.play.core.appupdate.AppUpdateInfo;
-import com.google.android.play.core.appupdate.AppUpdateManager;
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
 import com.google.android.play.core.install.InstallState;
 import com.google.android.play.core.install.InstallStateUpdatedListener;
-import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallStatus;
-import com.google.android.play.core.install.model.UpdateAvailability;
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.billing.TransactionManager;
 import com.jiokye.tankbattle_multiplayer.dialog.AdDialogFragment;
 import com.jiokye.tankbattle_multiplayer.dialog.InfoDialog;
+import com.jiokye.tankbattle_multiplayer.dialog.PuzzleNoticeDialog;
 import com.jiokye.tankbattle_multiplayer.dialog.TankDailyRewardDialog;
 import com.jiokye.tankbattle_multiplayer.dialog.TankSettingsDialog;
 import com.jiokye.tankbattle_multiplayer.fragments.ConstructionFragment;
 import com.jiokye.tankbattle_multiplayer.fragments.StoreFragment;
 import com.jiokye.tankbattle_multiplayer.fragments.TankStageFragment;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzLevelDialog;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.numberpuzzle.NumberPuzzleFragment;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.sokoban.SokobanPuzzleFragment;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.AppManager;
@@ -75,9 +67,7 @@ import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.jiokye.tankbattle_multiplayer.wifidirect.WifiNoticeDialog;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -89,7 +79,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
     ImageView p1Btn, p2Btn, cnstBtn, setBtn, infoBtn;
     Button backBtn, rateBtn;
     TextView goldTxt, retryTxt, retryTmr, adCoinTxt;
-    ImageView retryImg, adcoincountImg;
+    ImageView retryImg, adcoincountImg, puzzleImg;
     private  static String tankType;
     boolean firstTime = true;
 
@@ -132,7 +122,8 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         TransactionManager.getInstnce().billingSetup(this);
         settings = getSharedPreferences("TankSettings", 0);
 
-        bannerAdView = findViewById(R.id.adView);
+//        bannerAdView = findViewById(R.id.adView);
+
 //        bannerAdView.setAdSize(AdSize.BANNER);
 //        bannerAdView.setAdUnitId(AppManager.getAppString(CONST.Tank.TankMenuActivity_BAD));
 
@@ -187,8 +178,10 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         retryImg = findViewById(R.id.gamecountImg);
         retryTmr = findViewById(R.id.menuRetryTmrTxt);
         adcoincountImg = findViewById(R.id.adcoincountImg);
+        puzzleImg = findViewById(R.id.puzzle);
         Utils.Effects.zoom(adcoincountImg,0.9f,0);
         Utils.Effects.zoom(infoBtn,0.9f,0);
+        Utils.Effects.zoom(puzzleImg,0.9f,0);
 
         adcoincountImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +189,13 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                 p2 = false;
                 notice = false;
                 showRewardedInterstitialAd(false);
+            }
+        });
+
+        puzzleImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openPuzzleNotice();
             }
         });
 
@@ -478,8 +478,8 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         clickCount = 0;
         SoundManager.stopGameSounds();
         SoundManager.playSound(Sounds.TANK.GAME_SOUND, true);
-        AdRequest request = new AdRequest.Builder().build();
-        bannerAdView.loadAd(request);
+//        AdRequest request = new AdRequest.Builder().build();
+//        bannerAdView.loadAd(request);
         enableButtons();
         opened = true;
         updateStore();
@@ -606,6 +606,88 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
     }
 
+    public void openPuzzleNotice() {
+
+        PuzzleNoticeDialog wd = new PuzzleNoticeDialog(this);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+
+        lp.copyFrom(wd.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.dimAmount = 0.8f;
+        wd.show();
+        wd.getWindow().setAttributes(lp);
+        wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        wd.setOnDismissPuzzleNotice(new PuzzleNoticeDialog.OnDismissPuzzleNotice() {
+            @Override
+            public void finish(int selectedPuzzle) {
+                openPuzzleLevel(selectedPuzzle);
+            }
+        });
+    }
+
+    void openPuzzleLevel(int selectedPuzzle) {
+        openPuzzles(selectedPuzzle, 1);
+        return;
+//        String puzzInfo = null;
+//        Drawable puzzImg = null;
+//        switch(selectedPuzzle) {
+//            case 0:
+//                puzzInfo = "Number Slide";
+//                puzzImg = ResourcesCompat.getDrawable(getResources(),R.drawable.numpuzicon,null);
+//                break;
+//            case 1:
+//                puzzInfo = "Water Sort";
+//                puzzImg = ResourcesCompat.getDrawable(getResources(),R.drawable.watersorticon,null);
+//                break;
+//            case 2:
+//                puzzInfo = "Box Sort";
+//                puzzImg = ResourcesCompat.getDrawable(getResources(),R.drawable.sokobanicon,null);
+//                break;
+//        }
+//
+//        if(puzzInfo != null && puzzImg != null) {
+//            PuzzLevelDialog wd = new PuzzLevelDialog(this, puzzInfo, puzzImg);
+//            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+//
+//            lp.copyFrom(wd.getWindow().getAttributes());
+//            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+//            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+//            lp.dimAmount = 0.8f;
+//            wd.show();
+//            wd.getWindow().setAttributes(lp);
+//            wd.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//            wd.setOnDismissPuzzleLevel(new PuzzLevelDialog.OnDismissPuzzleLevel() {
+//                @Override
+//                public void finish(int level) {
+//                    openPuzzles(selectedPuzzle, level);
+//                }
+//            });
+//        }
+    }
+
+    void openPuzzles(int puzzle, int level) {
+
+        Log.d("Construction", "Opening fragment");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if(puzzle == 0) {
+
+            fragmentTransaction.replace(R.id.fragmentFrame,new NumberPuzzleFragment(this,level));
+
+        }
+        else if(puzzle == 1) {
+
+        }
+        else if(puzzle == 2) {
+            fragmentTransaction.replace(R.id.fragmentFrame,new SokobanPuzzleFragment(this,level));
+        }
+
+        fragmentTransaction.addToBackStack("cFragment");
+        fragmentTransaction.commit();
+
+    }
+
     void showDailyReward() {
         // Create the fragment and show it as a dialog.
         TankDailyRewardDialog dailyReward = TankDailyRewardDialog.newInstance(this);
@@ -613,7 +695,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
     }
 
 
-    private void updateStore() {
+    public void updateStore() {
         goldTxt.setText(String.valueOf(settings.getInt(TankActivity.GOLD,3)));
         retryTxt.setText(String.valueOf(settings.getInt(SettingsManager.RETRY_COUNT,5)));
         adCoinTxt.setText(String.valueOf(settings.getInt(SettingsManager.AD_COIN,0)));
