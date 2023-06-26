@@ -79,7 +79,7 @@ public class ExchangeDialog extends Dialog {
             case 2:
                 exchangeItem1.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.itemstartboat,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("5");
+                exchangeQty.setText("tankstages/5");
                 exchangeItem1.setVisibility(View.VISIBLE);
                 exchangeItem2.setVisibility(View.INVISIBLE);
                 itemQty.setText("x2");
@@ -87,7 +87,7 @@ public class ExchangeDialog extends Dialog {
             case 3:
                 exchangeItem1.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.itemclockshovel,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("5");
+                exchangeQty.setText("tankstages/5");
                 exchangeItem1.setVisibility(View.VISIBLE);
                 exchangeItem2.setVisibility(View.INVISIBLE);
                 itemQty.setText("x2");
@@ -95,7 +95,7 @@ public class ExchangeDialog extends Dialog {
             case 4:
                 exchangeItem1.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.itemhelmetgun,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("5");
+                exchangeQty.setText("tankstages/5");
                 exchangeItem1.setVisibility(View.VISIBLE);
                 exchangeItem2.setVisibility(View.INVISIBLE);
                 itemQty.setText("x2");
@@ -103,7 +103,7 @@ public class ExchangeDialog extends Dialog {
             case 5:
                 exchangeItem1.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.itemgrenadetank,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("5");
+                exchangeQty.setText("tankstages/5");
                 exchangeItem1.setVisibility(View.VISIBLE);
                 exchangeItem2.setVisibility(View.INVISIBLE);
                 itemQty.setText("x2");
@@ -111,7 +111,7 @@ public class ExchangeDialog extends Dialog {
             case 6:
                 exchangeItem2.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.bonus_mine,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("5");
+                exchangeQty.setText("tankstages/5");
                 exchangeItem1.setVisibility(View.INVISIBLE);
                 exchangeItem2.setVisibility(View.VISIBLE);
                 itemQty.setText("x2");
@@ -119,7 +119,7 @@ public class ExchangeDialog extends Dialog {
             case 7:
                 exchangeItem2.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.game,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("10");
+                exchangeQty.setText("tankstages/10");
                 exchangeItem1.setVisibility(View.INVISIBLE);
                 exchangeItem2.setVisibility(View.VISIBLE);
                 itemQty.setText("x1");
@@ -127,7 +127,7 @@ public class ExchangeDialog extends Dialog {
             case 8:
                 exchangeItem2.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.game6h,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("30");
+                exchangeQty.setText("tankstages/30");
                 exchangeItem1.setVisibility(View.INVISIBLE);
                 exchangeItem2.setVisibility(View.VISIBLE);
                 itemQty.setText("x1");
@@ -135,7 +135,7 @@ public class ExchangeDialog extends Dialog {
             case 9:
                 exchangeItem2.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.adcoin,null));
-                exchangeQty.setText("20");
+                exchangeQty.setText("tankstages/20");
                 exchangeItem1.setVisibility(View.INVISIBLE);
                 exchangeItem2.setVisibility(View.VISIBLE);
                 itemQty.setText("x10");
@@ -143,7 +143,7 @@ public class ExchangeDialog extends Dialog {
             case 10:
                 exchangeItem2.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.bonus_builder,null));
                 exchangeValue.setBackground(ResourcesCompat.getDrawable(getContext().getResources(),R.drawable.gold,null));
-                exchangeQty.setText("5");
+                exchangeQty.setText("tankstages/5");
                 exchangeItem1.setVisibility(View.INVISIBLE);
                 exchangeItem2.setVisibility(View.VISIBLE);
                 itemQty.setText("x3");

@@ -52,7 +52,7 @@
     <string name="playOnGoldCost">x10</string>
 
     <string name="more_coins_text" translatable="false">Watch Ad for %d %s.</string>
-<!--    <string name="video_starting_in_text" translatable="false">Ad starts in %d…</string>-->
+    <!--    <string name="video_starting_in_text" translatable="false">Ad starts in %d…</string>-->
     <string name="video_starting_in_text" translatable="false">%d</string>
     <string name="negative_button_text" translatable="false">No, thanks</string>
 
@@ -79,7 +79,7 @@
     <string name="classic_mode">classic mode</string>
     <string name="campaign_mode">campaign mode</string>
     <string name="info_adcoin">Indicates the amount of Acoins you have. You can use Adcoins to purchase golds. Adcoins can be acquired by watching some Ads which will begin with a prompt allowing you to opt-in.</string>
-    <string name="info_gold">Indicates the amount of golds you have in stock. You can use gold to purchase items from the store to boost your tank and game play, as well as controller to have more game time. Gold can be acquied with either Adcoin or with real currency from the store</string>
+    <string name="info_gold">Indicates the amount of golds you have in stock. You can use gold to purchase items from the store to boost your tank and game play, as well as controller to have more game time. Gold can be acquired with either Adcoin or with real currency from the store</string>
     <string name="info_game">Indicates the amount of games you have left. Its value decreases each time you lose, restart or end a game. The number of games increases by one ever 1 hour to a maximum of 5. You can purchase more games with gold or Adcoin</string>
     <string name="share_life">Share life</string>
     <string name="info_game3h">Indicates unlimited game time for 3 hours</string>
@@ -90,4 +90,14 @@
     <string name="info_star">Star. Upgrades your tank to the next level, increasing its speed and bullet speed</string>
     <string name="info_intro">You have only one objective… destroy all enemy tanks, including the boss tank to progress to the next stage. Collect items to boost your tank and game play.\n\nJoin forces with a friend in two player mode over wifi to take on the enemies.</string>
 
+    <string name="info_puzz">Complete puzzles to earn rewards</string>
+
+    <string name="numpuzz_sel">Number Slide:</string>
+    <string name="info_numpuzz">Place all tiles in numerical order</string>
+
+    <string name="watersort_sel">Water Sort:</string>
+    <string name="info_watersort">Sort the different coloured water so that each glass contains only one coloured water</string>
+
+    <string name="sokoban_sel">Box Sort:</string>
+    <string name="info_sokoban">Move all the boxes to their storage location</string>
 </resources>
