@@ -31,7 +31,7 @@ public class PuzzleNoticeDialog extends Dialog implements View.OnClickListener{
     ImageView numpuzz, watersort, sokoban;
     ImageView numpuzz_sel, watersort_sel, sokoban_sel;
     TextView puzzInfo, puzzSel;
-    int selected = 0;
+    int selected = 2;
 
     OnDismissPuzzleNotice onDismissPuzzleNotice;
 
@@ -70,8 +70,8 @@ public class PuzzleNoticeDialog extends Dialog implements View.OnClickListener{
         sokoban = findViewById(R.id.sokoban);
         puzzInfo = findViewById(R.id.puzzInfo);
         puzzSel = findViewById(R.id.puzz_sel);
-        puzzSel.setText(activity.getResources().getString(R.string.numpuzz_sel));
-        puzzInfo.setText(activity.getResources().getString(R.string.info_numpuzz));
+        puzzSel.setText(activity.getResources().getString(R.string.sokoban_sel));
+        puzzInfo.setText(activity.getResources().getString(R.string.info_sokoban));
 
         numpuzz.setOnTouchListener(puzzleSelectListener);
         watersort.setOnTouchListener(puzzleSelectListener);

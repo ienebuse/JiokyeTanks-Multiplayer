@@ -1,4 +1,4 @@
-package com.jiokye.tankbattle_multiplayer.puzzles.sokoban;
+package com.jiokye.tankbattle_multiplayer.dialog.puzzles.sokoban;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -27,15 +28,20 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.activity.TankActivity;
 import com.jiokye.tankbattle_multiplayer.activity.TankMenuActivity;
-import com.jiokye.tankbattle_multiplayer.puzzles.PuzzCompleteDialog;
-import com.jiokye.tankbattle_multiplayer.puzzles.PuzzDialog;
-import com.jiokye.tankbattle_multiplayer.puzzles.sokoban.BoardView;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzDialog;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzCompleteDialog;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
-import com.jiokye.tankbattle_multiplayer.tank.TankView;
+import com.jiokye.tankbattle_multiplayer.utility.AppManager;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;
 import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
 import com.jiokye.tankbattle_multiplayer.utility.Utils;
@@ -80,6 +86,10 @@ public class SokobanPuzzleFragment extends Fragment{
     TextView retryTmrTxt, gamecountTxt, goldcountTxt;
     Drawable rwdDrawable;
     ImageView upBtn, leftBtn, downBtn, rightBtn;
+
+    private InterstitialAd interstitialAd;
+    private final String IAD_UNIT_ID = AppManager.getAppString(CONST.Tank.SokobanFragment_IAD); //"ca-app-pub-3940256099942544/1033173712";
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -143,6 +153,8 @@ public class SokobanPuzzleFragment extends Fragment{
         rootView = inflater.inflate(R.layout.fragment_puzzle, container, false);
         settings = activity.getSharedPreferences("TankSettings", 0);
 
+        loadInterstitialAD();
+
         navView = rootView.findViewById(R.id.navView);
         navView.setEnabled(true);
         navView.setVisibility(View.VISIBLE);
@@ -176,7 +188,7 @@ public class SokobanPuzzleFragment extends Fragment{
             case 1:
                 resID = R.drawable.puzz3;
                 Rows = Cols = 3;
-                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd,null);
+                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd2,null);
 
                 break;
             case 2:
@@ -353,6 +365,7 @@ public class SokobanPuzzleFragment extends Fragment{
                     else if(level == 4) {
                         Utils.Effects.zoom(gamecountView,0.8f,4);
                     }
+                    boardView = new BoardView((AppCompatActivity)activity, boardrows, level);
                 }
             }
         });
@@ -544,13 +557,17 @@ public class SokobanPuzzleFragment extends Fragment{
                 @Override
                 public void finish(boolean ok) {
                     if(ok) {
-                        closePuzzle();
+                        if(!showInterstitial()) {
+                            closePuzzle();
+                        }
                     }
                 }
             });
         }
         else{
-            closePuzzle();
+            if(!showInterstitial()) {
+                closePuzzle();
+            }
         }
     }
 
@@ -565,6 +582,80 @@ public class SokobanPuzzleFragment extends Fragment{
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
+        }
+    }
+
+
+    public void loadInterstitialAD() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(
+                requireContext(),
+                IAD_UNIT_ID,
+                adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        SokobanPuzzleFragment.this.interstitialAd = interstitialAd;
+                        Log.i("Interstitial Ad", "onAdLoaded");
+//                        Toast.makeText(TankMenuActivity.this, "onAdLoaded()", Toast.LENGTH_SHORT).show();
+                        interstitialAd.setFullScreenContentCallback(
+                                new FullScreenContentCallback() {
+                                    @Override
+                                    public void onAdDismissedFullScreenContent() {
+                                        // Called when fullscreen content is dismissed.
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+                                        SokobanPuzzleFragment.this.interstitialAd = null;
+//                                        Log.d("TAG", "The ad was dismissed.");
+                                        closePuzzle();
+                                        loadInterstitialAD();
+                                    }
+
+                                    @Override
+                                    public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                        // Called when fullscreen content failed to show.
+                                        // Make sure to set your reference to null so you don't
+                                        // show it a second time.
+                                        SokobanPuzzleFragment.this.interstitialAd = null;
+//                                        Log.d("TAG", "The ad failed to show.");
+                                        closePuzzle();
+                                        loadInterstitialAD();
+                                    }
+
+                                    @Override
+                                    public void onAdShowedFullScreenContent() {
+                                        // Called when fullscreen content is shown.
+//                                        Log.d("TAG", "The ad was shown.");
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+//                        Log.i("Interstitial Ad", loadAdError.getMessage());
+                        interstitialAd = null;
+
+                        String error =
+                                String.format(
+                                        "domain: %s, code: %d, message: %s",
+                                        loadAdError.getDomain(), loadAdError.getCode(), loadAdError.getMessage());
+//                        Toast.makeText(TankMenuActivity.this, "onAdFailedToLoad() with error: " + error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private boolean showInterstitial() {
+        // Show the ad if it's ready. Otherwise toast and restart the game.
+        if (interstitialAd != null) {
+            interstitialAd.show(activity);
+            return true;
+        } else {
+//            Toast.makeText(this, "Ad did not load", Toast.LENGTH_SHORT).show();
+//            closePuzzle();
+            return false;
         }
     }
 

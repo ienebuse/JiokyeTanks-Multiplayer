@@ -1,4 +1,4 @@
-package com.jiokye.tankbattle_multiplayer.puzzles.numberpuzzle;
+package com.jiokye.tankbattle_multiplayer.dialog.puzzles.numberpuzzle;
 
 public class Board {
     private int[][] cells;

@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bghud3"
-    tools:context=".puzzles.numberpuzzle.NumberPuzzleFragment">
+    tools:context=".dialog.puzzles.numberpuzzle.NumberPuzzleFragment">
 
 <!--    <View android:id="@+id/emiter_top_left1"-->
 <!--        android:layout_marginTop="-20dp"-->
@@ -277,6 +277,84 @@
 
         </LinearLayout>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/navView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHeight_percent="0.8"
+                app:layout_constraintDimensionRatio="1:1">
+
+
+                <ImageView
+                    android:id="@+id/leftBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintHeight_percent="0.4"
+                    android:alpha="1"
+                    android:background="@drawable/left30_btn"
+                    android:tag="left"/>
+
+                <ImageView
+                    android:id="@+id/rightBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintHeight_percent="0.4"
+                    android:alpha="1"
+                    android:background="@drawable/right30_btn"
+                    android:tag="right" />
+
+                <ImageView
+                    android:id="@+id/downBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintHeight_percent="0.4"
+                    android:alpha="1"
+                    android:background="@drawable/down30_btn"
+                    android:tag="down"/>
+
+                <ImageView
+                    android:id="@+id/upBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintHeight_percent="0.4"
+                    android:alpha="1"
+                    android:background="@drawable/up30_btn"
+                    android:tag="up"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -382,83 +460,83 @@
         </LinearLayout>
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1">
+<!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintDimensionRatio="1:1">-->
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/navView"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintHeight_percent="0.8"
-                app:layout_constraintDimensionRatio="1:1">
-
-
-                <ImageView
-                    android:id="@+id/leftBtn"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHeight_percent="0.4"
-                    android:alpha="1"
-                    android:background="@drawable/left30_btn"
-                    android:tag="left"/>
-
-                <ImageView
-                    android:id="@+id/rightBtn"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHeight_percent="0.4"
-                    android:alpha="1"
-                    android:background="@drawable/right30_btn"
-                    android:tag="right" />
-
-                <ImageView
-                    android:id="@+id/downBtn"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHeight_percent="0.4"
-                    android:alpha="1"
-                    android:background="@drawable/down30_btn"
-                    android:tag="down"/>
-
-                <ImageView
-                    android:id="@+id/upBtn"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintHeight_percent="0.4"
-                    android:alpha="1"
-                    android:background="@drawable/up30_btn"
-                    android:tag="up"/>
+<!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+<!--                android:id="@+id/navView"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="0dp"-->
+<!--                app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                app:layout_constraintRight_toRightOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintHeight_percent="0.8"-->
+<!--                app:layout_constraintDimensionRatio="1:1">-->
 
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+<!--                <ImageView-->
+<!--                    android:id="@+id/leftBtn"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintHeight_percent="0.4"-->
+<!--                    android:alpha="1"-->
+<!--                    android:background="@drawable/left30_btn"-->
+<!--                    android:tag="left"/>-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/rightBtn"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    app:layout_constraintRight_toRightOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintHeight_percent="0.4"-->
+<!--                    android:alpha="1"-->
+<!--                    android:background="@drawable/right30_btn"-->
+<!--                    android:tag="right" />-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/downBtn"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    app:layout_constraintRight_toRightOf="parent"-->
+<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                    app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintHeight_percent="0.4"-->
+<!--                    android:alpha="1"-->
+<!--                    android:background="@drawable/down30_btn"-->
+<!--                    android:tag="down"/>-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/upBtn"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="0dp"-->
+<!--                    app:layout_constraintRight_toRightOf="parent"-->
+<!--                    app:layout_constraintTop_toTopOf="parent"-->
+<!--                    app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                    app:layout_constraintDimensionRatio="1:1"-->
+<!--                    app:layout_constraintHeight_percent="0.4"-->
+<!--                    android:alpha="1"-->
+<!--                    android:background="@drawable/up30_btn"-->
+<!--                    android:tag="up"/>-->
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+
+<!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

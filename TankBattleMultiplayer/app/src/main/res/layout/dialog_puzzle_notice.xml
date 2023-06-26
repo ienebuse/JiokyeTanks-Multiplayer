@@ -53,7 +53,8 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_weight="0"
+                        android:visibility="invisible">
 
                         <ImageView
                             android:id="@+id/numpuzz_sel"
@@ -64,7 +65,8 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintDimensionRatio="1:1"
-                            android:background="@color/green"/>
+                            android:background="@color/green"
+                            android:visibility="invisible"/>
 
                         <ImageView
                             android:id="@+id/numpuzz"
@@ -83,7 +85,8 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:layout_weight="1">
+                        android:layout_weight="0"
+                        android:visibility="invisible">
 
                         <ImageView
                             android:id="@+id/watersort_sel"
@@ -126,7 +129,7 @@
                             app:layout_constraintRight_toRightOf="parent"
                             app:layout_constraintDimensionRatio="1:1"
                             android:background="@color/green"
-                            android:visibility="invisible"/>
+                            android:visibility="visible"/>
 
                         <ImageView
                             android:id="@+id/sokoban"

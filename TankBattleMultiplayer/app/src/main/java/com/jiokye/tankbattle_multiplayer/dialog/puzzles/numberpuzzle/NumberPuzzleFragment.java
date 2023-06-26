@@ -1,4 +1,4 @@
-package com.jiokye.tankbattle_multiplayer.puzzles.numberpuzzle;
+package com.jiokye.tankbattle_multiplayer.dialog.puzzles.numberpuzzle;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -29,8 +29,8 @@ import android.widget.TextView;
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.activity.TankActivity;
 import com.jiokye.tankbattle_multiplayer.activity.TankMenuActivity;
-import com.jiokye.tankbattle_multiplayer.puzzles.PuzzCompleteDialog;
-import com.jiokye.tankbattle_multiplayer.puzzles.PuzzDialog;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzDialog;
+import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzCompleteDialog;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;

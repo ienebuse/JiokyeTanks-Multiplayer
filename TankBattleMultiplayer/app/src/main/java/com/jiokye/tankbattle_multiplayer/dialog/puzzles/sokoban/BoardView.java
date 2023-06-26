@@ -1,9 +1,7 @@
-package com.jiokye.tankbattle_multiplayer.puzzles.sokoban;
+package com.jiokye.tankbattle_multiplayer.dialog.puzzles.sokoban;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.SoundPool;
 import android.widget.ImageView;
@@ -13,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.jiokye.tankbattle_multiplayer.R;
-import com.jiokye.tankbattle_multiplayer.tank.Eagle;
-import com.jiokye.tankbattle_multiplayer.tank.GameObjects;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;
 
 import java.io.BufferedReader;
@@ -47,7 +43,8 @@ public class BoardView {
     private int win1sound;
     private int win2sound;
 
-    int level;
+
+    int level,randLevel;
 
 
     public BoardView(AppCompatActivity activity, LinearLayout boardView, int level)  {
@@ -72,6 +69,11 @@ public class BoardView {
         sok[CONST.Direction.RIGHT] = ResourcesCompat.getDrawable(activity.getResources(), R.drawable.sokright,null);
 
         this.level = level;
+
+        randLevel = (int)(1+(Math.random()*30));
+        randLevel = Math.min(randLevel,30);
+        randLevel = Math.max(randLevel,1);
+
         loadLevel(level);
 
     }
@@ -86,9 +88,10 @@ public class BoardView {
         boardLayout = new int[20][20];
         storeLoc = new ArrayList<>();
         BufferedReader reader;
+//        randLevel = 1;
         int row_count = 0;
         try {
-            InputStream inputStream = activity.getAssets().open("sokstages/" + level + "/1");
+            InputStream inputStream = activity.getAssets().open("sokstages/" + level + "/" + randLevel);
             reader = new BufferedReader(new InputStreamReader(inputStream));
             String line = reader.readLine();
 
@@ -100,33 +103,38 @@ public class BoardView {
                             //wall
                             boardLayout[row_count][col_count] = 1;
                             ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setBackground(wall);
+                            ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setAlpha(1f);
                             break;
                         case '@' :
                             // store point
                             storeLoc.add(new BoxStore(col_count, row_count));
                             boardLayout[row_count][col_count] = 0;
                             ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setBackground(strLoc);
+                            ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setAlpha(1f);
                             break;
                         case '.' :
                             //empty
                             boardLayout[row_count][col_count] = 0;
                             ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setBackgroundColor(Color.BLACK);
+                            ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setAlpha(1f);
                             break;
                         case '&' :
                             // box
                             boardLayout[row_count][col_count] = 2;
                             ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setBackground(box);
+                            ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setAlpha(1f);
                             break;
                         case '$' :
                             px = col_count;
                             py = row_count;
                             boardLayout[row_count][col_count] = 0;
                             ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setBackground(sok[CONST.Direction.UP]);
+                            ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setAlpha(1f);
                             break;
                         case '~' :
                             // store point and box
                             boardLayout[row_count][col_count] = 2;
-                            BoxStore boxStore = new BoxStore(row_count, col_count);
+                            BoxStore boxStore = new BoxStore(col_count, row_count);
                             boxStore.setFilled(true);
                             storeLoc.add(boxStore);
                             ((LinearLayout)boardView.getChildAt(row_count)).getChildAt(col_count).setBackground(box);

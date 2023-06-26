@@ -1,14 +1,11 @@
-package com.jiokye.tankbattle_multiplayer.puzzles.numberpuzzle;
+package com.jiokye.tankbattle_multiplayer.dialog.puzzles.numberpuzzle;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
 import android.media.SoundPool;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.jiokye.tankbattle_multiplayer.R;
 
 import java.util.ArrayList;
 
