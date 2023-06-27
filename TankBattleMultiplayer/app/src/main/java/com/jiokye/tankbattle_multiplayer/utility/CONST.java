@@ -12,7 +12,7 @@ public class CONST {
         public static final int FSP = 32;
         public static final int MAX_GAME_COUNT = 5;
         public static final int MAX_BUILDER = 10;
-        public static final int LIFE_DURATION_MINS = 60;
+        public static final int LIFE_DURATION_MINS = 1;//60;
         public static final long LIFE_DURATION_3HRS = 3*60*60*1000;
         public static final int NUM_LEVELS = 35;
         public static final int NUM_OBJECTIVES = 11;

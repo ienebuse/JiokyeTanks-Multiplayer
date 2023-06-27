@@ -3,6 +3,7 @@ package com.jiokye.tankbattle_multiplayer.tank;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.util.Log;
 
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
@@ -53,7 +54,7 @@ public class Mine extends GameObjects {
 
 
         fuseTmr = fuseTime;
-        acc = -(float)TankView.tile_dim/20;
+        acc = -(float)TankView.tile_dim/40;
         v = (float)TankView.tile_dim/2;
 
 
@@ -64,8 +65,8 @@ public class Mine extends GameObjects {
     public void setPosition(int xp, int yp) {
         this.x = xp+w/2;
         this.y = yp+h/2;
-        x = xp + w/2;
-        y = yp + h/2;
+//        x = xp;// + w/2;
+//        y = yp;// + h/2;
 
 
 
@@ -105,6 +106,9 @@ public class Mine extends GameObjects {
 
         int dim = TankView.fireSprite.w;
         int dimx = dim;
+
+//        int x = this.x+w/4;
+//        int y = this.y+h/4;
 
         explodeRect[MIDDLE].left = (int)x;
         explodeRect[MIDDLE].top = (int)y;
@@ -165,17 +169,53 @@ public class Mine extends GameObjects {
         return false;
     }
 
+    protected boolean collides_with(GameObjects targ) {
+        rect = getRect();
+        Rect r = new Rect(rect);
+        int offset = Math.max(1,TankView.tile_dim/4);
+
+        r.left -= offset;
+        r.right += offset;
+        r.bottom += offset;
+        r.top -= offset;
+        Rect trect = new Rect(targ.getRect());
+        trect.left -= offset;
+        trect.right += offset;
+        trect.bottom += offset;
+        trect.top -= offset;
+
+        return Rect.intersects(r,trect);
+    }
+
     public boolean collidesWithObject(GameObjects obj) {
         x = (int)x;
         y = (int)y;
-        if(super.collides_with(obj) || super.collides_with_wall()) {
+        boolean checkObj = collides_with(obj);
+        boolean checkWall = super.collides_with_wall();
 
+        if(checkObj || checkWall) {
             moving = false;
-            x = (int)(Math.floor(x/26.0 + 0.5))*26;
-            y = (int)(Math.floor(y/26.0 + 0.5))*26;
+            switch (dir) {
+                case CONST.Direction.UP:
+                case CONST.Direction.DOWN:
+                    y = (int)(Math.floor(y/26.0 + 0.5))*26;
+                    break;
+                case CONST.Direction.LEFT:
+                case CONST.Direction.RIGHT:
+                    x = (int)(Math.floor(x/26.0 + 0.5))*26;
+                    break;
+            }
+//            x = (int)(Math.floor(x/26.0 + 0.5))*26;
+//            y = (int)(Math.floor(y/26.0 + 0.5))*26;
             moving = false;
             x = (int)x;
             y = (int)y;
+
+            if(checkObj && (obj instanceof Player || obj instanceof Enemy)) {
+                if(fuseTmr > 2) {
+                    fuseTmr = 2;
+                }
+            }
             return true;
         }
         return false;

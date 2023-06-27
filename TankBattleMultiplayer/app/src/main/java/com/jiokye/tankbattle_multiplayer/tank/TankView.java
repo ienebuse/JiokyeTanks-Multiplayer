@@ -1797,6 +1797,8 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
     }
 
     private void checkCollisionPlayerMine(Player p) {
+
+
         if(p.mine.isMoving()) {
             int col = p.mine.x/tile_dim;
             int row = p.mine.y/tile_dim;
@@ -1816,8 +1818,10 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                 if(e == null) {
                     continue;
                 }
-                p.mine.collidesWithObject(e);
-                return;
+                if(p.mine.collidesWithObject(e)) {
+                    return;
+                }
+
             }
 
             if(twoPlayers && p.mine.collidesWithObject(P2)) {
@@ -1885,6 +1889,26 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                         }
                     }
                 }
+            }
+        }
+
+        else  {
+            if(p.mine.collidesWithObject(p)) {
+                return;
+            }
+
+            for (Enemy e : Enemies) {
+                if(e == null) {
+                    continue;
+                }
+                if(p.mine.collidesWithObject(e)) {
+                    return;
+                }
+
+            }
+
+            if(twoPlayers && p.mine.collidesWithObject(P2)) {
+                return;
             }
         }
 
