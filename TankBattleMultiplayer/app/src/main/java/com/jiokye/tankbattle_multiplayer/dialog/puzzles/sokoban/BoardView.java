@@ -70,8 +70,8 @@ public class BoardView {
 
         this.level = level;
 
-        randLevel = (int)(1+(Math.random()*30));
-        randLevel = Math.min(randLevel,30);
+        randLevel = (int)(1+(Math.random()*50));
+        randLevel = Math.min(randLevel,50);
         randLevel = Math.max(randLevel,1);
 
         loadLevel(level);
