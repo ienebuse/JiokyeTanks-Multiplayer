@@ -1,4 +1,4 @@
-package com.jiokye.tankbattle_multiplayer.dialog.puzzles;
+package com.jiokye.tankbattle_multiplayer.puzzles;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

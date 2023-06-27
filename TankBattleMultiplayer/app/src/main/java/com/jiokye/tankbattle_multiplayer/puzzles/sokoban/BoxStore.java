@@ -1,4 +1,4 @@
-package com.jiokye.tankbattle_multiplayer.dialog.puzzles.sokoban;
+package com.jiokye.tankbattle_multiplayer.puzzles.sokoban;
 
 import android.graphics.Point;
 

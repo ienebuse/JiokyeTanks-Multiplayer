@@ -1,4 +1,4 @@
-package com.jiokye.tankbattle_multiplayer.dialog.puzzles.numberpuzzle;
+package com.jiokye.tankbattle_multiplayer.puzzles.numberpuzzle;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;

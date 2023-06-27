@@ -1,14 +1,20 @@
-package com.jiokye.tankbattle_multiplayer.dialog.puzzles.sokoban;
+package com.jiokye.tankbattle_multiplayer.puzzles.numberpuzzle;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,28 +26,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.jiokye.tankbattle_multiplayer.R;
 import com.jiokye.tankbattle_multiplayer.activity.TankActivity;
 import com.jiokye.tankbattle_multiplayer.activity.TankMenuActivity;
-import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzDialog;
-import com.jiokye.tankbattle_multiplayer.dialog.puzzles.PuzzCompleteDialog;
+import com.jiokye.tankbattle_multiplayer.puzzles.PuzzDialog;
+import com.jiokye.tankbattle_multiplayer.puzzles.PuzzCompleteDialog;
 import com.jiokye.tankbattle_multiplayer.sound.SoundManager;
 import com.jiokye.tankbattle_multiplayer.sound.Sounds;
-import com.jiokye.tankbattle_multiplayer.utility.AppManager;
 import com.jiokye.tankbattle_multiplayer.utility.CONST;
 import com.jiokye.tankbattle_multiplayer.utility.SettingsManager;
 import com.jiokye.tankbattle_multiplayer.utility.Utils;
@@ -51,10 +42,10 @@ import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link SokobanPuzzleFragment#newInstance} factory method to
+ * Use the {@link NumberPuzzleFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SokobanPuzzleFragment extends Fragment{
+public class NumberPuzzleFragment extends Fragment implements View.OnTouchListener {
 
     SharedPreferences settings;
     View rootView;
@@ -85,11 +76,6 @@ public class SokobanPuzzleFragment extends Fragment{
     ImageView gamecountImg, goldcountImg, rwdImg;
     TextView retryTmrTxt, gamecountTxt, goldcountTxt;
     Drawable rwdDrawable;
-    ImageView upBtn, leftBtn, downBtn, rightBtn;
-
-    private InterstitialAd interstitialAd;
-    private final String IAD_UNIT_ID = AppManager.getAppString(CONST.Tank.SokobanFragment_IAD); //"ca-app-pub-3940256099942544/1033173712";
-
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -100,11 +86,11 @@ public class SokobanPuzzleFragment extends Fragment{
     private String mParam1;
     private String mParam2;
 
-    public SokobanPuzzleFragment() {
+    public NumberPuzzleFragment() {
         // Required empty public constructor
     }
 
-    public SokobanPuzzleFragment(Activity activity, int level) {
+    public NumberPuzzleFragment(Activity activity, int level) {
         this.activity = activity;
         this.level = level;
     }
@@ -118,8 +104,8 @@ public class SokobanPuzzleFragment extends Fragment{
      * @return A new instance of fragment NumberPuzzleFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SokobanPuzzleFragment newInstance(String param1, String param2) {
-        SokobanPuzzleFragment fragment = new SokobanPuzzleFragment();
+    public static NumberPuzzleFragment newInstance(String param1, String param2) {
+        NumberPuzzleFragment fragment = new NumberPuzzleFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -136,7 +122,6 @@ public class SokobanPuzzleFragment extends Fragment{
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -153,12 +138,9 @@ public class SokobanPuzzleFragment extends Fragment{
         rootView = inflater.inflate(R.layout.fragment_puzzle, container, false);
         settings = activity.getSharedPreferences("TankSettings", 0);
 
-        loadInterstitialAD();
-
         navView = rootView.findViewById(R.id.navView);
-        navView.setEnabled(true);
-        navView.setVisibility(View.VISIBLE);
-
+        navView.setEnabled(false);
+        navView.setVisibility(View.INVISIBLE);
 
         gamecountImg = rootView.findViewById(R.id.gamecountImg);
         goldcountImg = rootView.findViewById(R.id.goldcountImg);
@@ -174,35 +156,35 @@ public class SokobanPuzzleFragment extends Fragment{
         goldcountTxt.setText(String.valueOf(settings.getInt(TankActivity.GOLD,3)));
         retryTmrTxt.setText(String.valueOf(settings.getInt(SettingsManager.RETRY_COUNT,5)));
 
-        upBtn = rootView.findViewById(R.id.upBtn);
-        leftBtn = rootView.findViewById(R.id.leftBtn);
-        rightBtn = rootView.findViewById(R.id.rightBtn);
-        downBtn = rootView.findViewById(R.id.downBtn);
-
-        upBtn.setOnTouchListener(buttonPressed);
-        leftBtn.setOnTouchListener(buttonPressed);
-        rightBtn.setOnTouchListener(buttonPressed);
-        downBtn.setOnTouchListener(buttonPressed);
+//        MessageRegister.getInstance().setServiceListener(this);
 
         switch (level){
             case 1:
+//                rootView = inflater.inflate(R.layout.fragment_number_puzzle_3, container, false);
                 resID = R.drawable.puzz3;
+//                fragViewID = R.id.fragView3;
                 Rows = Cols = 3;
-                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd2,null);
+                rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl1rwd,null);
 
                 break;
             case 2:
+//                rootView = inflater.inflate(R.layout.fragment_number_puzzle_4, container, false);
                 resID = R.drawable.puzz4;
+//                fragViewID = R.id.fragView4;
                 Rows = Cols = 4;
                 rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl2rwd,null);
                 break;
             case 3:
+//                rootView = inflater.inflate(R.layout.fragment_number_puzzle_5, container, false);
                 resID = R.drawable.puzz5;
+//                fragViewID = R.id.fragView5;
                 Rows = Cols = 5;
                 rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.lvl3rwd,null);
                 break;
             case 4:
+//                rootView = inflater.inflate(R.layout.fragment_number_puzzle_6, container, false);
                 resID = R.drawable.puzz6;
+//                fragViewID = R.id.fragView6;
                 Rows = Cols = 6;
                 rwdDrawable = ResourcesCompat.getDrawable(activity.getResources(),R.drawable.game6h,null);
                 break;
@@ -210,6 +192,11 @@ public class SokobanPuzzleFragment extends Fragment{
 
         rwdImg.setBackground(rwdDrawable);
 
+
+
+
+
+//        rootView = inflater.inflate(R.layout.fragment_number_puzzle, container, false);
         rootView.findViewById(R.id.fragView3).setOnTouchListener(new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
@@ -221,7 +208,6 @@ public class SokobanPuzzleFragment extends Fragment{
 
 
         boardrows = rootView.findViewById(R.id.rows);
-        boardrows.setBackgroundColor(Color.BLACK);
 
         LinearLayout.LayoutParams cellParams = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.MATCH_PARENT);
         cellParams.weight = 1;
@@ -230,26 +216,20 @@ public class SokobanPuzzleFragment extends Fragment{
         rowParams.weight = 1;
         rowParams.gravity = Gravity.CENTER;
 
-
-        for(int row = 0; row < 20; row++) {
+        for(int row = 0; row < Rows; row++) {
             LinearLayout columns = new LinearLayout(getContext());
             columns.setGravity(Gravity.CENTER);
             columns.setOrientation(LinearLayout.HORIZONTAL);
-            for(int col = 0; col < 20; col++) {
+            for(int col = 0; col < Cols; col++) {
                 ImageView cell = new ImageView(getContext());
                 cell.setLayoutParams(cellParams);
                 cell.setTag(String.valueOf(row*Cols + col));
-//                cell.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.sokwall));
                 columns.addView(cell);
             }
             boardrows.addView(columns,rowParams);
         }
 
-        Bitmap boardImg = BitmapFactory.decodeResource(activity.getResources(),resID);
-        boardView = new BoardView((AppCompatActivity)activity, boardrows, level);
-
         resetBtn = rootView.findViewById(R.id.resetBtn);
-        resetBtn.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.resetbtn));
         endBtn = rootView.findViewById(R.id.endBtn);
 
         resetBtn.setOnClickListener(new View.OnClickListener() {
@@ -305,7 +285,8 @@ public class SokobanPuzzleFragment extends Fragment{
 
 //        timerView = this.findViewById(R.id.timerfield);
 
-
+        Bitmap boardImg = BitmapFactory.decodeResource(activity.getResources(),resID);
+        boardView = new BoardView((AppCompatActivity)activity, boardImg, Rows, Cols);
 
 
 //        SoundManager.getInstance();
@@ -313,13 +294,11 @@ public class SokobanPuzzleFragment extends Fragment{
 //        int[] sounds = {R.raw.win1, R.raw.win2, R.raw.movecard, R.raw.wrongmove};
 //        SoundManager.loadSounds(sounds);
 
-//        update_board();
+        update_board();
 
         opened = true;
         return rootView;
     }
-
-
 
     void doGameWon() {
         PuzzCompleteDialog wd = new PuzzCompleteDialog(requireActivity(), rwdDrawable);
@@ -336,7 +315,6 @@ public class SokobanPuzzleFragment extends Fragment{
             @Override
             public void finish(boolean ok) {
                 if(ok) {
-                    started = true;
                     int gold = settings.getInt(TankActivity.GOLD,3);
                     SharedPreferences.Editor editor = settings.edit();
                     switch (level){
@@ -365,105 +343,44 @@ public class SokobanPuzzleFragment extends Fragment{
                     else if(level == 4) {
                         Utils.Effects.zoom(gamecountView,0.8f,4);
                     }
-                    boardView = new BoardView((AppCompatActivity)activity, boardrows, level);
                 }
             }
         });
     }
 
-    private void buttonPressed(int dir) {
-
-        switch (dir) {
-            case CONST.Direction.UP: {
-                upBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.up31_btn,null));
-
-                downBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.down30_btn,null));
-                leftBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.left30_btn,null));
-                rightBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.right30_btn,null));
-                break;
-            }
-            case CONST.Direction.DOWN: {
-                downBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.down31_btn,null));
-
-                upBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.up30_btn,null));
-                leftBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.left30_btn,null));
-                rightBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.right30_btn,null));
-                break;
-            }
-            case CONST.Direction.LEFT: {
-                leftBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.left31_btn,null));
-
-                upBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.up30_btn,null));
-                downBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.down30_btn,null));
-                rightBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.right30_btn,null));
-                break;
-            }
-            case CONST.Direction.RIGHT: {
-                rightBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.right31_btn,null));
-
-                upBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.up30_btn,null));
-                leftBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.left30_btn,null));
-                downBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.down30_btn,null));
-                break;
-            }
-            default: {
-                rightBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.right30_btn,null));
-                upBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.up30_btn,null));
-                leftBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.left30_btn,null));
-                downBtn.setBackground(ResourcesCompat.getDrawable(activity.getResources(),R.drawable.down30_btn,null));
-                break;
-            }
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                int pos = Integer.parseInt(String.valueOf(view.getTag()));
+                int row = (int)(pos/Rows);
+                int col = pos % Rows;
+                int res = boardView.move_cellAt(row,col);
+//                if(res == 0 && sound) {
+//                    SoundManager.playSound(Sounds.NUM_PUZZ.MOVE);
+//                }
+//                else if (res == 1 && sound) {
+//                    SoundManager.playSound(Sounds.NUM_PUZZ.WRONGMOVE);
+//                }
+                update_board();
         }
+        return false;
     }
-
-    View.OnTouchListener buttonPressed = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent m) {
-            if(m.getAction() == MotionEvent.ACTION_DOWN) {
-                if(!started) {
-                    started = true;
-                }
-                int id = v.getId();
-                if(id == R.id.upBtn) {
-                    buttonPressed(CONST.Direction.UP);
-                    boardView.move(CONST.Direction.UP);
-                }
-                else if(id == R.id.leftBtn) {
-                    buttonPressed(CONST.Direction.LEFT);
-                    boardView.move(CONST.Direction.LEFT);
-                }
-                else if(id == R.id.downBtn) {
-                    buttonPressed(CONST.Direction.DOWN);
-                    boardView.move(CONST.Direction.DOWN);
-                }
-                else if(id == R.id.rightBtn) {
-                    buttonPressed(CONST.Direction.RIGHT);
-                    boardView.move(CONST.Direction.RIGHT);
-                }
-                checkGameState();
-            }
-
-            else if(m.getAction() == MotionEvent.ACTION_UP) {
-                buttonPressed(-1);
-            }
-            return true;
-        }
-    };
 
     @SuppressLint("ClickableViewAccessibility")
     public void reset() {
-        enableControls();
+
         if (started) {
 
             if(ended) {
 //                if(confetti != null) {
 //                    confetti.cancel_confetti();
 //                }
-//                updateTimer.cancel();
-                boardView.resetBoard();
-//                start_timer();
-//                startTime = System.currentTimeMillis();
-//                update_board();
+                updateTimer.cancel();
+                boardView.shuffle();
+                start_timer();
+                startTime = System.currentTimeMillis();
+                update_board();
                 ended = false;
             }
             else {
@@ -471,15 +388,39 @@ public class SokobanPuzzleFragment extends Fragment{
                     @Override
                     public void finish(boolean ok) {
                         if(ok) {
-//                            updateTimer.cancel();
-                            boardView.resetBoard();
-//                            start_timer();
-//                            startTime = System.currentTimeMillis();
-//                            update_board();
+                            updateTimer.cancel();
+                            boardView.shuffle();
+                            start_timer();
+                            startTime = System.currentTimeMillis();
+                            update_board();
                         }
                     }
                 });
             }
+        }
+        else{
+//            Rows = boardrows.getChildCount();
+            for(int row = 0; row < Rows; row++) {
+                LinearLayout current_row =  (LinearLayout)boardrows.getChildAt(row);
+//                Cols = current_row.getChildCount();
+                for(int col = 0; col < Cols; col++) {
+                    ImageView card = (ImageView) current_row.getChildAt(col);
+                    card.setOnTouchListener(this);
+                    card.setEnabled(true);
+//                    if(confetti != null) {
+//                        confetti.cancel_confetti();
+//                    }
+                }
+            }
+//            ImageView resetBtn = (Button)view;
+            resetBtn.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.resetbtn));
+//            view.invalidate();
+
+            boardView.shuffle();
+            start_timer();
+            startTime = System.currentTimeMillis();
+            update_board();
+            started = true;
         }
     }
 
@@ -506,29 +447,40 @@ public class SokobanPuzzleFragment extends Fragment{
         return wd;
     }
 
-    public void disableControls() {
-        upBtn.setEnabled(false);
-        rightBtn.setEnabled(false);
-        leftBtn.setEnabled(false);
-        downBtn.setEnabled(false);
-    }
-
-    public void enableControls() {
-        upBtn.setEnabled(true);
-        rightBtn.setEnabled(true);
-        leftBtn.setEnabled(true);
-        downBtn.setEnabled(true);
-    }
-
-    protected void checkGameState() {
+    protected void update_board() {
+        for(int row = 0; row < boardrows.getChildCount(); row++) {
+            LinearLayout current_row =  (LinearLayout)boardrows.getChildAt(row);
+            for(int col = 0; col < current_row.getChildCount(); col++) {
+                ImageView card = (ImageView) current_row.getChildAt(col);
+                card.setBackground(boardView.updateCellAt(row,col));
+            }
+        }
         if(started) {
             boolean won = boardView.check_board(sound);
             if (won) {
                 ended = true;
+//                if(sound) {
+//                    SoundManager.playSound(Sounds.NUM_PUZZ.WIN1);
+//                    SoundManager.playSound(Sounds.NUM_PUZZ.WIN2);
+//                }
+//                String text = "You Won!";
+//                int duration = Toast.LENGTH_LONG;
+//                TankToast.showTankToast(activity, text, 3000);
+                updateTimer.cancel();
+//                confetti = new Confetti(this);
+//                confetti.generate_confetti(confettiEmitter);
 
+                Rows = boardrows.getChildCount();
+                for(int row = 0; row < Rows; row++) {
+                    LinearLayout current_row =  (LinearLayout)boardrows.getChildAt(row);
+                    Cols = current_row.getChildCount();
+                    for(int col = 0; col < Cols; col++) {
+                        ImageView card = (ImageView) current_row.getChildAt(col);
+                        card.setEnabled(false);
+                    }
+                }
                 started = false;
                 doGameWon();
-                disableControls();
             }
         }
     }
@@ -557,17 +509,13 @@ public class SokobanPuzzleFragment extends Fragment{
                 @Override
                 public void finish(boolean ok) {
                     if(ok) {
-                        if(!showInterstitial()) {
-                            closePuzzle();
-                        }
+                        closePuzzle();
                     }
                 }
             });
         }
         else{
-            if(!showInterstitial()) {
-                closePuzzle();
-            }
+            closePuzzle();
         }
     }
 
@@ -585,80 +533,33 @@ public class SokobanPuzzleFragment extends Fragment{
         }
     }
 
-
-    public void loadInterstitialAD() {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(
-                requireContext(),
-                IAD_UNIT_ID,
-                adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        SokobanPuzzleFragment.this.interstitialAd = interstitialAd;
-                        Log.i("Interstitial Ad", "onAdLoaded");
-//                        Toast.makeText(TankMenuActivity.this, "onAdLoaded()", Toast.LENGTH_SHORT).show();
-                        interstitialAd.setFullScreenContentCallback(
-                                new FullScreenContentCallback() {
-                                    @Override
-                                    public void onAdDismissedFullScreenContent() {
-                                        // Called when fullscreen content is dismissed.
-                                        // Make sure to set your reference to null so you don't
-                                        // show it a second time.
-                                        SokobanPuzzleFragment.this.interstitialAd = null;
-//                                        Log.d("TAG", "The ad was dismissed.");
-                                        closePuzzle();
-                                        loadInterstitialAD();
-                                    }
-
-                                    @Override
-                                    public void onAdFailedToShowFullScreenContent(AdError adError) {
-                                        // Called when fullscreen content failed to show.
-                                        // Make sure to set your reference to null so you don't
-                                        // show it a second time.
-                                        SokobanPuzzleFragment.this.interstitialAd = null;
-//                                        Log.d("TAG", "The ad failed to show.");
-                                        closePuzzle();
-                                        loadInterstitialAD();
-                                    }
-
-                                    @Override
-                                    public void onAdShowedFullScreenContent() {
-                                        // Called when fullscreen content is shown.
-//                                        Log.d("TAG", "The ad was shown.");
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error
-//                        Log.i("Interstitial Ad", loadAdError.getMessage());
-                        interstitialAd = null;
-
-                        String error =
-                                String.format(
-                                        "domain: %s, code: %d, message: %s",
-                                        loadAdError.getDomain(), loadAdError.getCode(), loadAdError.getMessage());
-//                        Toast.makeText(TankMenuActivity.this, "onAdFailedToLoad() with error: " + error, Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private boolean showInterstitial() {
-        // Show the ad if it's ready. Otherwise toast and restart the game.
-        if (interstitialAd != null) {
-            interstitialAd.show(activity);
-            return true;
-        } else {
-//            Toast.makeText(this, "Ad did not load", Toast.LENGTH_SHORT).show();
-//            closePuzzle();
-            return false;
-        }
-    }
-
-
-
+//    @Override
+//    public void onServiceMessageReceived(int games, long time_left, boolean h6) {
+//        if(opened){
+//            SimpleDateFormat sdf = new SimpleDateFormat("mm:ss", Locale.ENGLISH);
+//            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+//            gamecountTxt.setText(String.valueOf(games));
+//
+//            //game is at maximum, no need to show time and no need to show 6h if this is not a 6h message
+//            if(games >= CONST.Tank.MAX_GAME_COUNT && !h6) {
+////                Log.d("SERVICE MESSAGE MENU", String.valueOf(games) + " " + time_left + " false");
+//                retryTmrTxt.setText("");
+//                gamecountImg.setBackground(ResourcesCompat.getDrawable(this.getResources(),R.drawable.game,null));
+//            }
+//            //this is a 6h message
+//            else if(h6) {
+////                Log.d("SERVICE MESSAGE MENU", String.valueOf(games) + " " + time_left + " true");
+//                sdf = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
+//                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+//                retryTmrTxt.setText(sdf.format(time_left));
+//                gamecountImg.setBackground(ResourcesCompat.getDrawable(this.getResources(),R.drawable.game6h,null));
+//            }
+//            // this is not a 6h message and game is less than maximum
+//            else {
+////                Log.d("SERVICE MESSAGE MENU", String.valueOf(games) + " " + time_left + " false");
+//                retryTmrTxt.setText(sdf.format(time_left));
+//                gamecountImg.setBackground(ResourcesCompat.getDrawable(this.getResources(),R.drawable.game,null));
+//            }
+//        }
+//    }
 }
