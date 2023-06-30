@@ -193,6 +193,7 @@ public class Mine extends GameObjects {
         boolean checkObj = collides_with(obj);
         boolean checkWall = super.collides_with_wall();
 
+
         if(checkObj || checkWall) {
             moving = false;
             switch (dir) {
