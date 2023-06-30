@@ -48,7 +48,8 @@ public class HVE extends Enemy{
         this.bv = bv;
         bulletSpeed = bv;//1.4f;
         MaxBullet = 1;
-        reloadTmr = (int)(0.5*TankView.FPS);
+        reloadTmr = (int)(Math.exp(-0.02*TankView.level)*TankView.FPS);
+//        reloadTmr = (int)(0.5*TankView.FPS);
         view_frame_delay = view_frame_time;
         view_frame = 0;
         vPaint = new Paint();
@@ -75,7 +76,8 @@ public class HVE extends Enemy{
         this.bv = bv;
         bulletSpeed = bv;//1.4f;
         MaxBullet = 1;
-        reloadTmr = (int)(0.5*TankView.FPS);
+        reloadTmr = (int)(Math.exp(-0.02*TankView.level)*TankView.FPS);
+//        reloadTmr = (int)(0.5*TankView.FPS);
         view_frame_delay = view_frame_time;
         view_frame = 0;
         vPaint = new Paint();

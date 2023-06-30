@@ -9,8 +9,8 @@ android {
         applicationId "com.jiokye.tankbattle_multiplayer"
         minSdk 21
         targetSdk 32
-        versionCode 77
-        versionName "1.6.0"
+        versionCode 78
+        versionName "1.6.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

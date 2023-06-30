@@ -3338,8 +3338,8 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                     else {
                         float pHVE = (float)(Math.random());
                         if(pHVE < 0.5) {
-                            float v = 0.5f*(float)Math.pow(10,level*Math.log10(2.2)/NUM_LEVELS);
-                            float vb = 0.8f*(float)Math.pow(10,level*Math.log10(1.75)/NUM_LEVELS);
+                            float v = 0.3f*(float)Math.pow(10,level*Math.log10(2.35)/NUM_LEVELS);
+                            float vb = 0.5f*(float)Math.pow(10,level*Math.log10(2)/NUM_LEVELS);
                             enemy = new HVE(0, 0, v, vb);
                             --HVE_LIVES;
                             new_hve = true;
