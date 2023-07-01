@@ -66,7 +66,7 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
     public Dialog d;
     //    public Button yes, no;
     SharedPreferences settings;
-    boolean twoPlayers;
+    boolean twoPlayers, coop;
     ImageView playBtn, backBtn, playerInfo, constructionBtn;
     TankTextView completedTxt;
 
@@ -96,9 +96,10 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
 
     }
 
-    public TankStageFragment(AppCompatActivity a, boolean twoPlayers) {
+    public TankStageFragment(AppCompatActivity a, boolean twoPlayers, boolean coop) {
         this.activity = a;
         this.twoPlayers = twoPlayers;
+        this.coop = coop;
     }
 
     @Override
@@ -346,7 +347,7 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
                                 editor.apply();
                             }
                             SoundManager.playSound(Sounds.TANK.CLICK);
-                            ((TankMenuActivity) activity).startGame(twoPlayers);
+                            ((TankMenuActivity) activity).startGame(twoPlayers, coop);
 //                            startGame(twoPlayers);
                         }
                         else {
@@ -1138,7 +1139,7 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
                     selfDismiss = false;
                     dismiss();
                     TankView.SCENE_SOUND = msg.sceneSound;
-                    ((TankMenuActivity) activity).startGame(twoPlayers);
+                    ((TankMenuActivity) activity).startGame(twoPlayers, coop);
                 }
             }
             else if(twoPlayers && WifiDirectManager.getInstance().isServer() && TCPServerConnectionThread.serverStarted)
@@ -1310,7 +1311,7 @@ public class TankStageFragment extends Fragment implements View.OnTouchListener,
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fragmentFrame,new TankStage2Fragment(activity, twoPlayers));
+            fragmentTransaction.replace(R.id.fragmentFrame,new TankStage2Fragment(activity, twoPlayers, coop));
             fragmentTransaction.addToBackStack("cFragment");
             fragmentTransaction.commit();
         }

@@ -130,7 +130,7 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
     public SharedPreferences settings;
 
 
-    boolean twoPlayers = false;
+    boolean twoPlayers = false, coop = false;
     boolean first_start;
     public static boolean AdsRunning = false;
 
@@ -205,9 +205,11 @@ public class TankActivity extends AppCompatActivity implements ServiceListener, 
         mTankView.setPlayerControl(two_Players);
         if(two_Players) {
             twoPlayers = true;
+            TankView.coop = b.getBoolean(TankMenuActivity.COOP, false);
         }
         else {
             twoPlayers = false;
+            TankView.coop = false;
         }
 
         controlsView = findViewById(R.id.controlsView);

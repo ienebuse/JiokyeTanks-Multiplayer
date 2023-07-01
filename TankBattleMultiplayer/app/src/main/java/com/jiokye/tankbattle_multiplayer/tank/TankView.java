@@ -269,6 +269,7 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
 
     /** Flags indicating who is a player */
     public static boolean twoPlayers = false;
+    public static boolean coop = false;
 
     /**
      * An overloaded class that repaints this view in a separate thread.
@@ -584,14 +585,14 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
                     rowObj.add(obj);
                     st.append((obj==null)?" ":c).append(" ");
                 }
-                Log.d("STAGE", st.toString() + " " + String.valueOf(levelBushes.size()));
+//                Log.d("STAGE", st.toString() + " " + String.valueOf(levelBushes.size()));
                 levelObjects.add(rowObj);
             }
 
 
         }
         catch (Exception e) {
-            Log.d("CONSTRUCTION", "Construction level failed to load");
+//            Log.d("CONSTRUCTION", "Construction level failed to load");
             e.printStackTrace();
         }
 
@@ -601,14 +602,14 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
         }
         eagle = new Eagle();
         constructionStageFinished = true;
-        Log.d("CONSTRUCTION", "Construction level loaded");
+//        Log.d("CONSTRUCTION", "Construction level loaded");
     }
 
     @Override
     public void onLoadConstructionStage(char[][] stage) {
         constructionStageReceived = true;
         loadConstructionLevel(stage);
-        Log.d("CONSTRUCTION", "Construction stage loaded");
+//        Log.d("CONSTRUCTION", "Construction stage loaded");
     }
 
     public void resetConstructionState() {
@@ -2287,6 +2288,265 @@ public class TankView extends View implements RemoteMessageListener, OnConstruct
         }
         else if((((!twoPlayers && P1.lives <= 0) || (twoPlayers && P1.lives <= 0 && P2.lives <= 0)) || (eagle != null && eagle.isDestroyed()) || notifyGameOver) && !gameover) {
 
+            if(eagle != null && eagle.isDestroyed()) {
+                TankView.EVENT = TankView.GAME_OVER;
+                sendPlayerInfo(GAME_OVER);
+                doGameOver();
+            }
+
+            else {
+                if ( CHECKING_RETRY == 0) {
+                    pauseNoAds();
+                    doCheckRetry();
+                } else if (CHECKING_RETRY == 2 || CHECKING_RETRY == 3) {
+                    // Got new life
+                    CHECKING_RETRY = 0;
+                } else if (CHECKING_RETRY == 4) {
+                    // Did not get new life
+                    CHECKING_RETRY = 0;
+                    SoundManager.stopGameSounds();
+                    TankView.EVENT = TankView.GAME_OVER;
+                    sendPlayerInfo(GAME_OVER);
+                    doGameOver();
+                }
+            }
+
+        }
+
+        if((gameover || stageComplete) && showScoreTmr == 5) {
+            if(!showingScore) {
+
+                pauseNoAds();
+                if(CheckAdd.getInstance().transition(0.5f)) {
+                    float sel = (float)Math.random();
+                    if (((TankActivity) context).mInterstitialAd == null) {
+                        if(sel < 0.4) {
+                            ((TankActivity) context).loadRewardedInterstitialAd();
+                        }
+                        else {
+                            ((TankActivity) context).loadInterstitialAd();
+                        }
+                    }
+                    if(sel < 0.4) {
+                        ((TankActivity) context).showRewardedInterstitialAd(false);
+                    }
+                    else {
+                        ((TankActivity) context).showInterstitialAd();
+                    }
+                }
+                else {
+                    resumeNoAds();
+                }
+                SoundManager.stopGameSounds();
+            }
+        }
+
+        if((gameover || stageComplete) && showScoreTmr <= 0) {
+            showScores();
+        }
+        else if ((gameover || stageComplete) && !showingScore) {
+            --showScoreTmr;
+        }
+        if(showingScore) {
+            return;
+        }
+//        checkCollisionTwoTanks(P1,P2);
+        if(drawStarted && !startSound) {
+            SoundManager.playSound(Sounds.TANK.GAMESTART,1,3);
+//            Log.d("SOUND", "Played start sound");
+            startSound = true;
+        }
+
+//        sendToWifi();
+        moveCurtain();
+        if(movingCurting && curtainFrame >= 13) {
+            closingCurtain = false;
+            openingCurtain = true;
+            curtainFrame = 0;
+            curtainPauseTmr = curtainPauseTime;
+            curtainPause = true;
+            ((TankActivity)context).curtainTxt.setText("STAGE " + level);
+            ((TankActivity)context).curtainTxt.setVisibility(View.VISIBLE);
+        }
+        if(movingCurting && curtainFrame >= 12 && openingCurtain) {
+            movingCurting = false;
+        }
+
+        if(freeze && freezeTmr > 0) {
+            --freezeTmr;
+        }
+        else {
+            freeze = false;
+        }
+
+
+        if(protectEagle && protectEagleTmr > 0) {
+            --protectEagleTmr;
+        }
+        else if(protectEagle){
+            for (int[] eaglePo : eaglePos) {
+                levelObjects.get(eaglePo[1]).set(eaglePo[0], new Brick(eaglePo[0], eaglePo[1]));
+            }
+            protectEagle = false;
+            eagle.protection = 2;
+        }
+
+        // todo commented to stop HVE viewing
+        if((HVE.IS_AVAILABLE && HVE.isViewing()) || notifyHVEViewing){
+            // return here is necessary to ensure that game is not running when HVE is viewing
+            // however, we still need to send information for P2
+            sendToWifi();
+            return;
+        }
+
+        if(twoPlayers) {
+            levelObjectsUpdate.clear();
+            levelBushesUpdate.clear();
+        }
+
+        if(!twoPlayers || WifiDirectManager.getInstance().isServer()) {
+            for (int i = 0; i < Enemies.length; i++) {
+                if (Enemies[i] != null && Enemies[i].recycle) {
+                    Enemies[i] = null;
+                }
+            }
+
+            generateEnemy();
+
+//            checkCollisionPlayer(P1);
+            checkCollisionPlayerBullet(P1);
+            checkCollisionPlayerWithBonus(P1, bonus);
+            checkCollisionEnemyWithBonus(bonus);
+            checkCollisionEnemyBullet(P1); // Checks collision of enemy bullet with all objects including Player
+//            checkCollisionPlayerBomb(P1);
+//            if(twoPlayers){
+//                checkCollisionEnemyBulletWithPlayer(P2);
+//            }
+
+        }
+
+        if(twoPlayers && !WifiDirectManager.getInstance().isServer()) {
+            checkCollisionPlayerBullet(P1);
+            checkCollisionPlayerWithBonus(P1, bonus);
+//            checkCollisionEnemyBulletWithPlayer(P1); // Checks collision of enemy bullet with only player
+            checkCollisionP2EnemyBullet(P1);
+        }
+
+        checkCollisionPlayerMine(P1);
+        checkCollisionPlayer(P1);
+        checkCollisionPlayerWithGold();
+        P1.update();
+
+        if(twoPlayers) {
+            P2.updateBullets();
+            P2.updateMine();
+        }
+
+        if(!twoPlayers || WifiDirectManager.getInstance().isServer()) {
+            // Get target
+
+//            Rect pRect = P1.getRect();
+            Point targ;
+            for (Enemy e : Enemies) {
+                if(e == null) {
+                    continue;
+                }
+                targ = getTarget(e);
+                e.setTarget(targ);
+            }
+
+            for (Enemy e : Enemies) {
+                if(e == null) {
+                    continue;
+                }
+                e.changeDirection();
+            }
+
+            checkCollisionEnemy();
+
+            for (Enemy e : Enemies) {
+                if(e == null) {
+                    continue;
+                }
+                e.update(false);
+            }
+        }
+        else {
+            checkCollisionEnemy();
+            for (Enemy e : Enemies) {
+                if(e == null) {
+                    continue;
+                }
+                e.update(true);
+            }
+        }
+
+        //todo update enemy bullets
+        Enemy.updateActiveBullets();
+
+        //todo commented to stop HVE viewing
+        if(HVE.IS_AVAILABLE) {
+            for (Enemy e : Enemies) {
+                if(e == null) {
+                    continue;
+                }
+                if (e instanceof HVE && !((HVE) e).hasTarget()) {
+                    if(twoPlayers) {
+                        Log.d("HVE","Getting view");
+                        ((HVE) e).getView(P1.lives > 0 ? P1:null,P2.lives > 0 ? P2 : null);
+                    }
+                    else{
+                        ((HVE) e).getView(P1);
+                    }
+                }
+            }
+        }
+
+        sendToWifi();
+    }
+
+    private void do1Pv2PGameLogic(){
+//        if(notifyGiftLife) {
+//            notifyGiftLife = false;
+//            sendPlayerInfo(GIFT_LIFE);
+//            P1.loseLife();
+//        }
+//        if(notifyReceivedLife) {
+//            notifyReceivedLife = false;
+//            Log.d("LIFE: ", "Received message for gifting life");
+//            ((TankActivity)context).enableBonusStack();
+//            P1.applyTank();
+//        }
+        if(notifyRetryStage) {
+            int games  = ((TankActivity)context).settings.getInt(SettingsManager.RETRY_COUNT,0);
+            long game6h = ((TankActivity)context).settings.getLong(SettingsManager.LIFE_TIME_3H,0);
+            if(System.currentTimeMillis() < game6h) {
+                games = CONST.Tank.MAX_GAME_COUNT;
+            }
+            else {
+                games--;
+                games = Math.max(games, 0);
+            }
+            SharedPreferences.Editor editor;
+            editor = ((TankActivity)context).settings.edit();
+            editor.putInt(SettingsManager.RETRY_COUNT,games);
+            editor.commit();
+            retryStage();
+            return;
+        }
+        if(notifyEndGame) {
+            notifyEndGame = false;
+            TankView.EVENT = TankView.END_GAME;
+            ((TankActivity)context).endGame();
+        }
+
+//        if(((Enemy.lives <= 0 && Enemy.EnemyCount <= 0 && (!twoPlayers || WifiDirectManager.getInstance().isServer())) || notifyStageComplete) && !stageComplete) {
+//            TankView.EVENT = TankView.STAGE_COMPLETE;
+//            sendPlayerInfo(STAGE_COMPLETE);
+//            doStageComplete();
+//        }
+//        if((((!twoPlayers && P1.lives <= 0) || (twoPlayers && P1.lives <= 0 && P2.lives <= 0)) || (eagle != null && eagle.isDestroyed()) || notifyGameOver) && !gameover) {
+        if(P1.lives <= 0 || P2.lives <= 0){
             if(eagle != null && eagle.isDestroyed()) {
                 TankView.EVENT = TankView.GAME_OVER;
                 sendPlayerInfo(GAME_OVER);

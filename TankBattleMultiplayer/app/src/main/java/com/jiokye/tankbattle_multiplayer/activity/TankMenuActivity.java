@@ -74,7 +74,8 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
 
     static boolean downloaded = false;
     static Intent intent = null;
-    ImageView p1Btn, p2Btn, cnstBtn, setBtn, infoBtn;
+    boolean coop = false;
+    ImageView p1Btn, p2Btn, p1p2Btn, cnstBtn, setBtn, infoBtn;
     Button backBtn, rateBtn;
     TextView goldTxt, retryTxt, retryTmr, adCoinTxt;
     ImageView retryImg, adcoincountImg, puzzleImg;
@@ -88,6 +89,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
 
 
     public static final String TWO_PLAYERS = "two players";
+    public static final String COOP = "coop";
     public static final String
             PREF_MUTED = "muted",
             PREF_VIBRATE = "vibrate",
@@ -153,6 +155,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         rateBtn = findViewById(R.id.ratebtn);
         p1Btn = findViewById(R.id.p1btn);
         p2Btn = findViewById(R.id.p2btn);
+        p1p2Btn = findViewById(R.id.p1p2btn);
         cnstBtn = findViewById(R.id.cnstbtn);
         setBtn = findViewById(R.id.setbtn);
         infoBtn = findViewById(R.id.infobtn);
@@ -161,6 +164,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
         rateBtn.setOnClickListener(buttonListener);
         p1Btn.setOnClickListener(buttonListener);
         p2Btn.setOnClickListener(buttonListener);
+        p1p2Btn.setOnClickListener(buttonListener);
         cnstBtn.setOnClickListener(buttonListener);
         setBtn.setOnClickListener(buttonListener);
         infoBtn.setOnClickListener(buttonListener);
@@ -257,9 +261,11 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                         finish();
                     }
                     else if(id == R.id.p1btn) {
-                        openStages(false);
+                        coop = false;
+                        openStages(false, false);
                     }
-                    else if(id == R.id.p2btn) {
+                    else if(id == R.id.p2btn || id == R.id.p1p2btn) {
+                        coop = id == R.id.p2btn;
                         if(CheckAdd.getInstance().transition(0.5f) && showInterstitial()) {
                             p2 = true;
                             notice = true;
@@ -269,7 +275,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                                 openWifiNotice();
                             }
                             else {
-                                openStages(true);
+                                openStages(true, coop);
                             }
                         }
                     }
@@ -526,21 +532,22 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
     }
 
 
-    public void startGame(boolean twoPlayers) {
+    public void startGame(boolean twoPlayers, boolean coop) {
         SoundManager.stopSound(Sounds.TANK.GAME_BACKGROUND);
         Intent i = new Intent(this, TankActivity.class);
         i.putExtra(TankMenuActivity.TWO_PLAYERS, twoPlayers);
+        i.putExtra(TankMenuActivity.COOP, coop);
         startActivity(i);
         finish();
     }
 
 
 
-    private void openStages(boolean twoPlayers) {
+    private void openStages(boolean twoPlayers, boolean coop) {
         Log.d("Stage Fragment", "Opening fragment");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragmentFrame,new TankStageFragment(this, twoPlayers));
+        fragmentTransaction.replace(R.id.fragmentFrame,new TankStageFragment(this, twoPlayers, coop));
         fragmentTransaction.addToBackStack("cFragment");
         fragmentTransaction.commit();
     }
@@ -585,7 +592,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
             @Override
             public void finish(boolean ok) {
                 if(ok) {
-                    openStages(true);
+                    openStages(true, coop);
                 }
             }
         });
@@ -728,7 +735,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                                                 openWifiNotice();
                                             }
                                             else {
-                                                openStages(true);
+                                                openStages(true, coop);
                                             }
                                         }
                                         loadInterstitialAD();
@@ -746,7 +753,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                                                 openWifiNotice();
                                             }
                                             else {
-                                                openStages(true);
+                                                openStages(true, coop);
                                             }
                                         }
                                         loadInterstitialAD();
@@ -902,7 +909,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                                 openWifiNotice();
                             }
                             else {
-                                openStages(true);
+                                openStages(true, coop);
                             }
                         }
                         loadRewardedInterstitialAd();
@@ -937,7 +944,7 @@ public class TankMenuActivity extends AppCompatActivity implements ServiceListen
                         }
 
                         if(p2) {
-                            openStages(true);
+                            openStages(true, coop);
                         }
                     }
                 });
