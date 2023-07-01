@@ -88,7 +88,7 @@ public class BoardView {
         boardLayout = new int[20][20];
         storeLoc = new ArrayList<>();
         BufferedReader reader;
-//        randLevel = 1;
+//        randLevel = 0;
         int row_count = 0;
         try {
             InputStream inputStream = activity.getAssets().open("sokstages/" + level + "/" + randLevel);
