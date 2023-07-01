@@ -1,5 +1,6 @@
 package com.jiokye.tankbattle_multiplayer.puzzles.sokoban;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 public class BoardView {
     AppCompatActivity activity;
     protected Bitmap image;
+    SharedPreferences settings;
 
 
     protected ArrayList<ArrayList<Drawable>> cellImage;
@@ -52,6 +54,7 @@ public class BoardView {
         this.image = image;
 
         this.boardView = boardView;
+        settings = activity.getSharedPreferences("TankSettings", 0);
 
 //        sounds = new SoundPool(5, AudioManager.STREAM_MUSIC,0);
 //        movesound = sounds.load(activity, R.raw.movecard, 1);
@@ -88,6 +91,15 @@ public class BoardView {
         boardLayout = new int[20][20];
         storeLoc = new ArrayList<>();
         BufferedReader reader;
+
+        boolean firstime = settings.getBoolean("PUZZLE",true);
+        if(firstime) {
+            randLevel = 0;
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("PUZZLE", false);
+            editor.commit();
+        }
+
 //        randLevel = 0;
         int row_count = 0;
         try {
