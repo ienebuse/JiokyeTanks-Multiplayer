@@ -222,6 +222,7 @@ func fire() -> void:
 	bullets.append(bullet)
 	reload_timer = RELOAD_TIME
 	bullet_fired.emit(bullet)
+	SoundManager.play_sound("tnkfire.wav")
 
 func drop_mine() -> void:
 	if mine_count <= 0 or is_respawning:

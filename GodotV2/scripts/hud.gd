@@ -128,6 +128,7 @@ func _update_score_animation(delta: float) -> void:
 	if current < target:
 		# Increment one kill at a time
 		score_display_kills[current_type] = current + 1
+		SoundManager.play_sound("tnkscore.wav")
 		_update_score_text()
 	else:
 		# Move to next tank type

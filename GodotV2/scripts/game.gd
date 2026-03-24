@@ -877,6 +877,7 @@ func check_enemy_bullets_collision() -> void:
 				else:
 					player.take_hit()
 					bullet.destroy()
+					SoundManager.play_sound("tnkexplosion.wav")
 					if hud:
 						hud.update_lives(player.lives)
 				continue
@@ -942,6 +943,7 @@ func check_player_bonus_collision() -> void:
 		apply_bonus(active_bonus.bonus_type)
 		active_bonus.queue_free()
 		active_bonus = null
+		SoundManager.play_sound("tnkpowerup.wav")
 
 func spawn_bonus() -> void:
 	if active_bonus != null and is_instance_valid(active_bonus):
@@ -987,6 +989,7 @@ func apply_bonus(bonus_type: int) -> void:
 		GameData.BonusType.TANK:
 			if player:
 				player.lives += 1
+				SoundManager.play_sound("tnk1up.wav")
 				if hud:
 					hud.update_lives(player.lives)
 		GameData.BonusType.STAR:
@@ -1067,6 +1070,7 @@ func remove_eagle_protection() -> void:
 
 func pause_game() -> void:
 	state = GameState.PAUSED
+	SoundManager.play_sound("tnkpause.wav")
 	if hud:
 		hud.show_pause_menu()
 		if hud.touch_controls:
