@@ -8,6 +8,7 @@ var is_finished: bool = false
 @onready var hud: CanvasLayer = $HUD
 
 func _ready() -> void:
+    set_process_input(false)
     player.destroyed.connect(_on_player_destroyed)
     for enemy in enemies.get_children():
         enemy.target = player
@@ -21,9 +22,12 @@ func _process(_delta: float) -> void:
         _finish_battle(true)
 
 func _on_enemy_destroyed(enemy: Node) -> void:
+    if is_finished:
+        return
     score += 100
     hud.update_hud(player.health, score)
-    enemy.queue_free()
+    if is_instance_valid(enemy):
+        enemy.queue_free()
 
 func _on_player_destroyed() -> void:
     _finish_battle(false)
@@ -42,4 +46,6 @@ func _input(event: InputEvent) -> void:
     if not is_finished:
         return
     if event.is_action_pressed("ui_accept") or event.is_action_pressed("shoot"):
-        get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn")
+        var tree := get_tree()
+        if tree != null:
+            tree.change_scene_to_file("res://scenes/ui/main_menu.tscn")

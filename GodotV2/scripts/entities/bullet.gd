@@ -2,7 +2,7 @@ extends Area2D
 
 var speed: float = 900.0
 var direction: Vector2 = Vector2.RIGHT
-var owner: Node = null
+var shooter: Node = null
 
 func _ready() -> void:
     body_entered.connect(_on_body_entered)
@@ -18,7 +18,7 @@ func _physics_process(delta: float) -> void:
         queue_free()
 
 func _on_body_entered(body: Node) -> void:
-    if body == owner:
+    if body == shooter:
         return
     if body.has_method("apply_hit"):
         body.apply_hit()

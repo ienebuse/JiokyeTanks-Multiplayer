@@ -31,11 +31,16 @@ func _physics_process(delta: float) -> void:
 
 func _fire_bullet() -> void:
     var bullet: Area2D = BULLET_SCENE.instantiate()
+    if bullet == null:
+        return
+    var scene_root := get_tree().current_scene
+    if scene_root == null:
+        return
     bullet.global_position = global_position + Vector2.RIGHT.rotated(rotation) * 30.0
     bullet.direction = Vector2.RIGHT.rotated(rotation)
-    bullet.owner = self
+    bullet.shooter = self
     bullet.speed = 760.0
-    get_tree().current_scene.add_child(bullet)
+    scene_root.add_child(bullet)
 
 func apply_hit() -> void:
     health -= 1

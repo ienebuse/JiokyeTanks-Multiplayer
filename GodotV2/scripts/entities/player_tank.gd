@@ -22,15 +22,23 @@ func _physics_process(delta: float) -> void:
 
 func _fire_bullet() -> void:
     var bullet: Area2D = BULLET_SCENE.instantiate()
+    if bullet == null:
+        return
+    var scene_root := get_tree().current_scene
+    if scene_root == null:
+        return
     bullet.global_position = global_position + Vector2.RIGHT.rotated(rotation) * 36.0
     bullet.direction = Vector2.RIGHT.rotated(rotation)
-    bullet.owner = self
-    get_tree().current_scene.add_child(bullet)
+    bullet.shooter = self
+    scene_root.add_child(bullet)
 
 func apply_hit() -> void:
     health -= 1
-    if get_parent().has_node("HUD"):
-        get_parent().get_node("HUD").update_hud(health, get_parent().score)
+    var parent_node := get_parent()
+    if parent_node != null and parent_node.has_node("HUD"):
+        var hud_node := parent_node.get_node("HUD")
+        if hud_node != null and hud_node.has_method("update_hud"):
+            hud_node.update_hud(health, parent_node.score)
     if health <= 0:
         destroyed.emit()
         queue_free()
