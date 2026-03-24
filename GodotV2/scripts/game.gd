@@ -344,6 +344,10 @@ func process_curtain_pause(delta: float) -> void:
 	if curtain_progress >= 2.0:
 		state = GameState.CURTAIN_OPEN
 		curtain_label.visible = false
+		# Play sounds when curtain begins opening (matching Java)
+		SoundManager.play_sound("tnkgamestart.wav")
+		current_scene_sound = FIGHT_SCENES[randi() % FIGHT_SCENES.size()]
+		SoundManager.play_sound(current_scene_sound, true, -10.0)
 
 func process_curtain_open(delta: float) -> void:
 	curtain_progress += delta * curtain_speed
@@ -353,10 +357,6 @@ func process_curtain_open(delta: float) -> void:
 		curtain_top.visible = false
 		curtain_bottom.visible = false
 		state = GameState.PLAYING
-		SoundManager.play_sound("tnkgamestart.wav")
-		# Start random fight scene background music (matching Java nextRound)
-		current_scene_sound = FIGHT_SCENES[randi() % FIGHT_SCENES.size()]
-		SoundManager.play_sound(current_scene_sound, true, -10.0)
 
 func update_curtain_position() -> void:
 	var vp = get_viewport_rect().size

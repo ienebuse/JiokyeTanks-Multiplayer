@@ -79,9 +79,9 @@ func _calculate_layout() -> void:
 	var scale_factor = min(vp.x, vp.y) / 600.0
 
 	# Joystick - bottom left, inset from edges (matching Java layout)
-	joystick_outer_radius = 85.0 * scale_factor
-	stick_radius = 28.0 * scale_factor
-	var joy_margin = 40.0 * scale_factor
+	joystick_outer_radius = 95.0 * scale_factor
+	stick_radius = 32.0 * scale_factor
+	var joy_margin = 55.0 * scale_factor
 	joystick_center = Vector2(
 		joy_margin + joystick_outer_radius,
 		vp.y - joy_margin - joystick_outer_radius
@@ -92,10 +92,10 @@ func _calculate_layout() -> void:
 		Vector2(joystick_outer_radius * 2, joystick_outer_radius * 2)
 	)
 
-	# Shoot button - bottom right (large, 100dp equivalent), matching Java marginEnd=40dp marginBottom=30dp
-	var shoot_size = 100.0 * scale_factor
-	var shoot_margin_x = 50.0 * scale_factor
-	var shoot_margin_y = 40.0 * scale_factor
+	# Shoot button - bottom right (large, matching Java marginEnd/marginBottom)
+	var shoot_size = 110.0 * scale_factor
+	var shoot_margin_x = 60.0 * scale_factor
+	var shoot_margin_y = 50.0 * scale_factor
 	shoot_rect = Rect2(
 		vp.x - shoot_margin_x - shoot_size,
 		vp.y - shoot_margin_y - shoot_size,
@@ -104,8 +104,8 @@ func _calculate_layout() -> void:
 	)
 
 	# Java layout: bomb (50dp) is above shoot at right edge, build (50dp) is to the LEFT of bomb
-	var small_btn_size = 55.0 * scale_factor
-	var btn_gap = 5.0 * scale_factor
+	var small_btn_size = 65.0 * scale_factor
+	var btn_gap = 8.0 * scale_factor
 
 	# Mine/Bomb button - above shoot button, aligned to right edge of shoot
 	mine_rect = Rect2(

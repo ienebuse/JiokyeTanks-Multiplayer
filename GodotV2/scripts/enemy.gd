@@ -17,6 +17,7 @@ var is_dead: bool = false
 var death_anim_done: bool = false
 var is_frozen: bool = false
 var has_bonus: bool = false
+var has_boat: bool = false
 var is_spawning: bool = true
 
 # Movement
@@ -291,6 +292,19 @@ func freeze() -> void:
 
 func unfreeze() -> void:
 	is_frozen = false
+
+func activate_shield_if_available() -> void:
+	# Enemy shield - just a brief period of invulnerability
+	pass
+
+func upgrade_star() -> void:
+	# Matching Java Enemy.applyStar() - increase speed slightly
+	speed *= 1.1
+
+func upgrade_gun() -> void:
+	# Matching Java Enemy.applyGun() - increase speed and bullet speed
+	speed *= 1.1
+	bullet_speed *= 1.2
 
 func direction_to_vector(dir: int) -> Vector2:
 	match dir:
