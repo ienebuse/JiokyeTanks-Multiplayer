@@ -1041,3 +1041,9 @@ func _on_hud_next() -> void:
 
 func _on_hud_quit() -> void:
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+func _draw() -> void:
+	# Draw a square border outline around the stage
+	var offset = GameData.board_offset
+	var border_rect = Rect2(offset, board_size)
+	draw_rect(border_rect, Color.GRAY, false, 2.0)

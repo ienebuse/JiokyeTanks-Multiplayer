@@ -9,7 +9,7 @@ signal mine_dropped(mine_node: Node2D)
 var player_num: int = 1
 var lives: int = 3
 var is_respawning: bool = false
-const BASE_SPEED_TILES_PER_SEC: float = 3.2  # Base movement speed in tiles per second
+const BASE_SPEED_TILES_PER_SEC: float = 6.0  # Matches Java DEFAULT_SPEED = tile_dim*6/FPS (per-second equivalent)
 
 # Movement
 var direction: int = GameData.Direction.UP
@@ -270,6 +270,7 @@ func respawn() -> void:
 	break_wall = false
 	clear_bush = false
 	max_bullets = 1
+	bullet_speed_multiplier = 1.0
 	speed = tile_dim * BASE_SPEED_TILES_PER_SEC
 	activate_shield()
 
@@ -280,22 +281,39 @@ func activate_shield() -> void:
 	shield_frame_timer = 0.0
 
 func upgrade_star() -> void:
+	# Matching Java Player.applyStar():
+	# Each star: speed *= 1.2 (cap at base*1.35), bulletSpeed = 1.3,
+	# star>=2 → max_bullets=2, star>=3 → break_wall, star>3 → clear_bush
 	star_count += 1
-	match star_count:
-		1:
-			speed *= 1.1
-		2:
-			max_bullets = 2
-			armour = min(armour + 1, 3)
-		3:
-			clear_bush = true
-			armour = min(armour + 1, 3)
+	if star_count > 3:
+		clear_bush = true
+		star_count = 4
+	if star_count >= 3:
+		break_wall = true
+	bullet_speed_multiplier = 1.3
+	if star_count >= 2:
+		max_bullets = 2
+	armour = min(armour + 1, 3)
+	var max_speed = tile_dim * BASE_SPEED_TILES_PER_SEC * 1.35
+	speed *= 1.2
+	if speed > max_speed:
+		speed = max_speed
 
 func upgrade_gun() -> void:
+	# Matching Java Player.applyGun():
+	# speed *= 1.3 (cap at base*1.35), bulletSpeed = 1.3, break_wall, armour=3
+	bullet_speed_multiplier = 1.3
 	break_wall = true
+	var max_speed = tile_dim * BASE_SPEED_TILES_PER_SEC * 1.35
+	speed *= 1.3
+	if speed > max_speed:
+		speed = max_speed
+	star_count += 3
+	if star_count > 3:
+		clear_bush = true
+		star_count = 4
 	max_bullets = 2
-	speed *= 1.05
-	bullet_speed_multiplier = 1.15
+	armour = 3
 
 func snap_to_grid() -> void:
 	var half_tile = tile_dim / 2.0

@@ -32,8 +32,8 @@ func init_bullet(td: float, dir: int, player: bool, brk: bool = false, clr: bool
 	break_wall = brk
 	clear_bush = clr
 	size = tile_dim * 0.4
-	# Bullet speed: ~15 tiles/sec matches original feel
-	speed = tile_dim * 12.0 * speed_mult
+	# Bullet speed matching Java: DEFAULT_SPEED = tile_dim*15/FPS (per-second equivalent)
+	speed = tile_dim * 15.0 * speed_mult
 	explode_texture = load("res://assets/sprites/tanktexture.png")
 
 func get_collision_rect() -> Rect2:

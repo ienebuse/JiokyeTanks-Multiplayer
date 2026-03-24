@@ -95,7 +95,7 @@ func init_enemy(td: float, type: int, grp: int, eid: int, hve: bool = false, v: 
 	if is_hve:
 		hve_speed_mult = v
 		hve_bullet_mult = bv
-		speed = tile_dim * 3.2 * hve_speed_mult
+		speed = tile_dim * 6.0 * hve_speed_mult  # Base matches Java DEFAULT_SPEED
 		bullet_speed = hve_bullet_mult
 		color = Color(0.5, 0, 0.5)
 		fire_interval = 0.8
@@ -107,7 +107,7 @@ func init_enemy(td: float, type: int, grp: int, eid: int, hve: bool = false, v: 
 		type_val = tank_type - GameData.ObjectType.ST_TANK_A  # ST_TANK_A=1, so type_val=0
 		
 		var speed_mult = GameData.ENEMY_SPEEDS.get(type, 1.0)
-		speed = tile_dim * 3.2 * speed_mult
+		speed = tile_dim * 6.0 * speed_mult  # Base matches Java DEFAULT_SPEED
 		
 		match type:
 			GameData.ObjectType.ST_TANK_A:
