@@ -303,26 +303,21 @@ func _draw() -> void:
 		return
 	
 	# Draw using tank sprite from tanktexture.png
-	# The spritesheet has tanks arranged in rows of frames
-	# Player 1 tank is in the first row (y=0) of the spritesheet
-	# Each frame is 28px wide (based on the Java sprite setup: w*28 columns)
-	# The spritesheet is 1216x512, tank frame size is ~16x16 at original scale
+	# The spritesheet is 1216x512
+	# Original Java: each tank frame is 32x32 pixels, 28 frames per row, 8 rows
 	
 	if tank_texture:
-		# Tank sprite from spritesheet
-		# Original layout: Each tank row has frames for different directions
-		# We use a simple 16x16 region from the texture, row 0 for player
-		var frame_w = 16
-		var frame_h = 16
+		# Tank sprite from spritesheet (tanktexture.png is 1216x512)
+		# Original Java: sprite is 32x32 per frame, 2 anim frames, 8 rows
+		# Row layout: each row has 28 frames across, 8 rows of 32px each
+		# Row 0 = player 1 UP frames, etc.
+		var frame_w = 32
+		var frame_h = 32
 		var src_x = anim_frame * frame_w
-		var src_y = 0  # Row 0 = player 1 base tank
+		var src_y = 0  # Row 0 = player 1 base tank (facing UP)
 		
-		# Draw tank from spritesheet
+		# Draw tank from spritesheet with rotation for direction
 		var src_rect = Rect2(src_x, src_y, frame_w, frame_h)
-		var dest_rect = Rect2(Vector2.ZERO, Vector2(tank_size, tank_size))
-		
-		# Apply direction by rotation or mirroring
-		# For simplicity, draw with a rotation transform
 		var center = Vector2(tank_size / 2, tank_size / 2)
 		draw_set_transform(center, deg_to_rad(direction * 90.0), Vector2.ONE)
 		draw_texture_rect_region(tank_texture, Rect2(-tank_size/2, -tank_size/2, tank_size, tank_size), src_rect)

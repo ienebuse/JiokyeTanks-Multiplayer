@@ -30,22 +30,25 @@ func take_damage(dir: int) -> void:
 	damage_state += 1
 	if damage_state == 1:
 		damage_direction = dir
-		# Shrink collision rect based on bullet direction (matching Java)
+		# Shrink collision rect based on bullet direction (matching Java Brick.collidsWithBullet)
+		# The half the bullet hits FIRST is destroyed; the far half remains
 		match dir:
 			GameData.Direction.UP:
-				# Bullet from below hit top - top half destroyed, bottom remains
+				# Bullet moving up hits bottom of brick - bottom half destroyed, top remains
 				col_size.y = tile_dim / 2.0
-				col_offset.y = tile_dim / 2.0
+				# col_offset stays (0,0) - top half remains at original position
 			GameData.Direction.DOWN:
-				# Bullet from above hit bottom - bottom half destroyed, top remains
+				# Bullet moving down hits top of brick - top half destroyed, bottom remains
 				col_size.y = tile_dim / 2.0
+				col_offset.y = tile_dim / 2.0  # bottom half starts at midpoint
 			GameData.Direction.LEFT:
-				# Bullet from right hit left - left half destroyed, right remains
+				# Bullet moving left hits right of brick - right half destroyed, left remains
 				col_size.x = tile_dim / 2.0
-				col_offset.x = tile_dim / 2.0
+				# col_offset stays (0,0) - left half remains at original position
 			GameData.Direction.RIGHT:
-				# Bullet from left hit right - right half destroyed, left remains
+				# Bullet moving right hits left of brick - left half destroyed, right remains
 				col_size.x = tile_dim / 2.0
+				col_offset.x = tile_dim / 2.0  # right half starts at midpoint
 		queue_redraw()
 	elif damage_state >= 2:
 		destroyed = true
@@ -65,29 +68,33 @@ func _draw() -> void:
 		else:
 			_draw_fallback_full()
 	else:
-		# Half brick - draw only the remaining half
+		# Half brick - draw only the remaining half (matching Java d1bitmaps)
 		if brick_texture:
 			match damage_direction:
 				GameData.Direction.UP:
-					# Top destroyed, bottom half remains
-					draw_texture_rect_region(brick_texture,
-						Rect2(0, tile_dim / 2, tile_dim, tile_dim / 2),
-						Rect2(0, 8, 16, 8))
-				GameData.Direction.DOWN:
-					# Bottom destroyed, top half remains
+					# Bottom destroyed by UP bullet, top half remains
+					# d1bitmaps[0] = top half of sprite
 					draw_texture_rect_region(brick_texture,
 						Rect2(0, 0, tile_dim, tile_dim / 2),
 						Rect2(0, 0, 16, 8))
-				GameData.Direction.LEFT:
-					# Left destroyed, right half remains
+				GameData.Direction.DOWN:
+					# Top destroyed by DOWN bullet, bottom half remains
+					# d1bitmaps[2] = bottom half of sprite
 					draw_texture_rect_region(brick_texture,
-						Rect2(tile_dim / 2, 0, tile_dim / 2, tile_dim),
-						Rect2(8, 0, 8, 16))
-				GameData.Direction.RIGHT:
-					# Right destroyed, left half remains
+						Rect2(0, tile_dim / 2, tile_dim, tile_dim / 2),
+						Rect2(0, 8, 16, 8))
+				GameData.Direction.LEFT:
+					# Right destroyed by LEFT bullet, left half remains
+					# d1bitmaps[3] = left half of sprite
 					draw_texture_rect_region(brick_texture,
 						Rect2(0, 0, tile_dim / 2, tile_dim),
 						Rect2(0, 0, 8, 16))
+				GameData.Direction.RIGHT:
+					# Left destroyed by RIGHT bullet, right half remains
+					# d1bitmaps[1] = right half of sprite
+					draw_texture_rect_region(brick_texture,
+						Rect2(tile_dim / 2, 0, tile_dim / 2, tile_dim),
+						Rect2(8, 0, 8, 16))
 		else:
 			_draw_fallback_damaged()
 
