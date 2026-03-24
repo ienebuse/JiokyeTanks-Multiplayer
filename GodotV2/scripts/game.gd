@@ -62,6 +62,16 @@ var kills: Dictionary = {
 var show_score_timer: float = 0.0
 const SHOW_SCORE_DELAY: float = 3.0
 
+# Background music (fight scene)
+const FIGHT_SCENES: Array = [
+	"tnk_fightscene1.wav",
+	"tnk_fightscene2.wav",
+	"tnk_fightscene3.wav",
+	"tnk_fightscene4.wav",
+	"tnk_fightscene5.wav",
+]
+var current_scene_sound: String = ""
+
 # References
 var tile_dim: float = 0.0
 var board_size: Vector2 = Vector2.ZERO
@@ -344,6 +354,9 @@ func process_curtain_open(delta: float) -> void:
 		curtain_bottom.visible = false
 		state = GameState.PLAYING
 		SoundManager.play_sound("tnkgamestart.wav")
+		# Start random fight scene background music (matching Java nextRound)
+		current_scene_sound = FIGHT_SCENES[randi() % FIGHT_SCENES.size()]
+		SoundManager.play_sound(current_scene_sound, true, -10.0)
 
 func update_curtain_position() -> void:
 	var vp = get_viewport_rect().size
@@ -1071,6 +1084,9 @@ func remove_eagle_protection() -> void:
 func pause_game() -> void:
 	state = GameState.PAUSED
 	SoundManager.play_sound("tnkpause.wav")
+	# Pause fight scene music (matching Java pauseNoAds)
+	if current_scene_sound != "":
+		SoundManager.pause_sound(current_scene_sound)
 	if hud:
 		hud.show_pause_menu()
 		if hud.touch_controls:
@@ -1078,6 +1094,9 @@ func pause_game() -> void:
 
 func resume_game() -> void:
 	state = GameState.PLAYING
+	# Resume fight scene music (matching Java resumeNoAds)
+	if current_scene_sound != "":
+		SoundManager.resume_sound(current_scene_sound)
 	if hud:
 		hud.hide_pause_menu()
 		if hud.touch_controls and DisplayServer.is_touchscreen_available():
