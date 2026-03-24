@@ -23,11 +23,9 @@ if enemies.get_child_count() == 0:
 _finish_battle(true)
 
 func _on_enemy_destroyed(enemy: Node) -> void:
-if not is_instance_valid(enemy):
-return
-score += 100
-hud.update_hud(player.health, score)
-enemy.queue_free()
+	score += 100
+	hud.update_hud(player.health, score)
+	enemy.queue_free()
 
 func _on_player_destroyed() -> void:
 _finish_battle(false)

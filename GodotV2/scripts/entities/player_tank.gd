@@ -7,20 +7,18 @@ const BULLET_SCENE := preload("res://scenes/entities/bullet.tscn")
 @export var move_speed: float = 320.0
 @export var health: int = 5
 
-var _cooldown: float = 0.0
+var _shoot_cooldown: float = 0.0
 
 func _physics_process(delta: float) -> void:
-if health <= 0:
-return
-var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-velocity = input_vector * move_speed
-move_and_slide()
-if input_vector.length_squared() > 0.001:
-rotation = input_vector.angle()
-_cooldown = max(0.0, _cooldown - delta)
-if Input.is_action_pressed("shoot") and _cooldown <= 0.0:
-_fire_bullet()
-_cooldown = 0.22
+	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	velocity = input_vector * move_speed
+	move_and_slide()
+	if input_vector.length_squared() > 0.001:
+		rotation = input_vector.angle()
+	_shoot_cooldown = max(0.0, _shoot_cooldown - delta)
+	if Input.is_action_pressed("shoot") and _shoot_cooldown <= 0.0:
+		_fire_bullet()
+		_shoot_cooldown = 0.22
 
 func _fire_bullet() -> void:
 var bullet: Area2D = BULLET_SCENE.instantiate()

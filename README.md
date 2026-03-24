@@ -9,7 +9,7 @@ This repository now contains two implementations:
 
 1. Open Godot 4.x.
 2. Import the project from:
-   `/home/runner/work/JiokyeTanks-Multiplayer/JiokyeTanks-Multiplayer/GodotV2/project.godot`
+   `GodotV2/project.godot`
 3. Run the main scene (`scenes/ui/main_menu.tscn`).
 
 ### V2 Controls
