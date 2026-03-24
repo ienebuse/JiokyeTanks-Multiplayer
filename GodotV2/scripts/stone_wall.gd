@@ -9,6 +9,7 @@ var stone_texture: Texture2D = null
 func init_stone(td: float) -> void:
 	tile_dim = td
 	stone_texture = load("res://assets/sprites/stone.png")
+	queue_redraw()
 
 func _draw() -> void:
 	if stone_texture:

@@ -9,6 +9,7 @@ var bush_texture: Texture2D = null
 func init_bush(td: float) -> void:
 	tile_dim = td
 	bush_texture = load("res://assets/sprites/bush.png")
+	queue_redraw()
 
 func _draw() -> void:
 	if bush_texture:

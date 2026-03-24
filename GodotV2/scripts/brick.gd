@@ -20,6 +20,7 @@ func init_brick(td: float) -> void:
 	col_offset = Vector2.ZERO
 	col_size = Vector2(tile_dim, tile_dim)
 	brick_texture = load("res://assets/sprites/brick.png")
+	queue_redraw()
 
 func get_collision_rect() -> Rect2:
 	return Rect2(position + col_offset, col_size)

@@ -9,6 +9,7 @@ var ice_texture: Texture2D = null
 func init_ice(td: float) -> void:
 	tile_dim = td
 	ice_texture = load("res://assets/sprites/ice.png")
+	queue_redraw()
 
 func _draw() -> void:
 	if ice_texture:

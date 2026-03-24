@@ -25,6 +25,7 @@ const EAGLE_SRC_H: int = 32
 func init_eagle(td: float) -> void:
 	tile_dim = td
 	eagle_texture = load("res://assets/sprites/tanktexture.png")
+	queue_redraw()
 
 func take_damage() -> void:
 	if is_destroyed:

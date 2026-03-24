@@ -12,6 +12,7 @@ var water_texture: Texture2D = null
 func init_water(td: float) -> void:
 	tile_dim = td
 	water_texture = load("res://assets/sprites/water.png")
+	queue_redraw()
 
 func _process(delta: float) -> void:
 	anim_timer += delta
