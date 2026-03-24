@@ -343,6 +343,7 @@ func process_curtain_open(delta: float) -> void:
 		curtain_top.visible = false
 		curtain_bottom.visible = false
 		state = GameState.PLAYING
+		SoundManager.play_sound("tnkgamestart.wav")
 
 func update_curtain_position() -> void:
 	var vp = get_viewport_rect().size
@@ -397,10 +398,15 @@ func process_game(delta: float) -> void:
 	check_game_state()
 
 func check_game_state() -> void:
-	# Stage complete: all enemies dead
-	if enemy_lives <= 0 and enemy_count <= 0 and state == GameState.PLAYING:
-		do_stage_complete()
-		return
+	# Stage complete: all enemies dead - count actual live enemies to avoid counter bugs
+	if enemy_lives <= 0 and state == GameState.PLAYING:
+		var live_enemies = 0
+		for enemy in enemies:
+			if is_instance_valid(enemy) and not enemy.is_dead:
+				live_enemies += 1
+		if live_enemies <= 0:
+			do_stage_complete()
+			return
 	
 	# Game over: player dead or eagle destroyed
 	if player and player.lives <= 0:
@@ -422,6 +428,7 @@ func do_game_over() -> void:
 	show_score_timer = SHOW_SCORE_DELAY
 	game_over.emit()
 	SoundManager.stop_all_sounds()
+	SoundManager.play_sound("tnkgameover.wav")
 	if hud:
 		hud.show_game_over()
 
@@ -772,12 +779,14 @@ func check_player_bullets() -> void:
 										level_objects[r][c] = null
 									bullet.destroy()
 									hit_terrain = true
+									SoundManager.play_sound("tnkbrick.wav")
 								"stone":
 									if bullet.break_wall:
 										obj.queue_free()
 										level_objects[r][c] = null
 									bullet.destroy()
 									hit_terrain = true
+									SoundManager.play_sound("tnksteel.wav")
 								"bush":
 									if bullet.clear_bush:
 										obj.queue_free()
@@ -796,6 +805,7 @@ func check_player_bullets() -> void:
 				var killed = enemy.take_hit(bullet)
 				bullet.destroy()
 				if killed:
+					SoundManager.play_sound("tnkexplosion.wav")
 					var score = GameData.ENEMY_SCORES.get(enemy.tank_type, 100)
 					stage_score += score
 					total_score += score

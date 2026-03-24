@@ -78,10 +78,10 @@ func _calculate_layout() -> void:
 	var vp = get_viewport_rect().size
 	var scale_factor = min(vp.x, vp.y) / 600.0
 
-	# Joystick - bottom left (larger, 150dp equivalent)
+	# Joystick - bottom left, inset from edges (matching Java layout)
 	joystick_outer_radius = 85.0 * scale_factor
 	stick_radius = 28.0 * scale_factor
-	var joy_margin = 20.0 * scale_factor
+	var joy_margin = 40.0 * scale_factor
 	joystick_center = Vector2(
 		joy_margin + joystick_outer_radius,
 		vp.y - joy_margin - joystick_outer_radius
@@ -92,10 +92,10 @@ func _calculate_layout() -> void:
 		Vector2(joystick_outer_radius * 2, joystick_outer_radius * 2)
 	)
 
-	# Shoot button - bottom right (large, 100dp equivalent)
+	# Shoot button - bottom right (large, 100dp equivalent), matching Java marginEnd=40dp marginBottom=30dp
 	var shoot_size = 100.0 * scale_factor
-	var shoot_margin_x = 30.0 * scale_factor
-	var shoot_margin_y = 20.0 * scale_factor
+	var shoot_margin_x = 50.0 * scale_factor
+	var shoot_margin_y = 40.0 * scale_factor
 	shoot_rect = Rect2(
 		vp.x - shoot_margin_x - shoot_size,
 		vp.y - shoot_margin_y - shoot_size,
@@ -103,23 +103,24 @@ func _calculate_layout() -> void:
 		shoot_size
 	)
 
-	# Mine button - above shoot button (medium, 60dp equivalent)
-	var mine_size = 60.0 * scale_factor
-	var btn_gap = 8.0 * scale_factor
+	# Java layout: bomb (50dp) is above shoot at right edge, build (50dp) is to the LEFT of bomb
+	var small_btn_size = 55.0 * scale_factor
+	var btn_gap = 5.0 * scale_factor
+
+	# Mine/Bomb button - above shoot button, aligned to right edge of shoot
 	mine_rect = Rect2(
-		shoot_rect.position.x + (shoot_size - mine_size) / 2.0,
-		shoot_rect.position.y - mine_size - btn_gap,
-		mine_size,
-		mine_size
+		shoot_rect.position.x + shoot_size - small_btn_size,
+		shoot_rect.position.y - small_btn_size - btn_gap,
+		small_btn_size,
+		small_btn_size
 	)
 
-	# Build button - above mine button (medium, 60dp equivalent)
-	var build_size = 60.0 * scale_factor
+	# Build button - to the LEFT of mine/bomb button (matching Java layout_toStartOf bombAlign)
 	build_rect = Rect2(
-		shoot_rect.position.x + (shoot_size - build_size) / 2.0,
-		mine_rect.position.y - build_size - btn_gap,
-		build_size,
-		build_size
+		mine_rect.position.x - small_btn_size - btn_gap,
+		mine_rect.position.y,
+		small_btn_size,
+		small_btn_size
 	)
 
 	stick_position = Vector2.ZERO
@@ -133,10 +134,14 @@ func disable_controls() -> void:
 	controls_enabled = false
 	# Release any active touches
 	_release_all()
+	# Make control transparent to GUI events so score panel buttons can be tapped
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	queue_redraw()
 
 func enable_controls() -> void:
 	controls_enabled = true
+	# Restore mouse filter to pass events through
+	mouse_filter = Control.MOUSE_FILTER_PASS
 	queue_redraw()
 
 func _release_all() -> void:
