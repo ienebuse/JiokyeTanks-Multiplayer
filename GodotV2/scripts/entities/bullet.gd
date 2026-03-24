@@ -9,8 +9,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     global_position += direction * speed * delta
-    var viewport_rect := get_viewport_rect()
-    var cull_margin := 100.0
+    var viewport_rect: Rect2 = get_viewport_rect()
+    var cull_margin: float = 100.0
     if global_position.x < -cull_margin \
         or global_position.x > viewport_rect.size.x + cull_margin \
         or global_position.y < -cull_margin \

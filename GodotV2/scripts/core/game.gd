@@ -53,6 +53,6 @@ func _input(event: InputEvent) -> void:
         return
     if event.is_action_pressed("ui_accept") or event.is_action_pressed("shoot"):
         _pending_return_to_menu = true
-        var tree := get_tree()
+        var tree: SceneTree = get_tree()
         if tree != null:
             tree.change_scene_to_file("res://scenes/ui/main_menu.tscn")

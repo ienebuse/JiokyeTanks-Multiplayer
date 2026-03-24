@@ -11,7 +11,7 @@ var _shoot_cooldown: float = 0.0
 var _is_destroyed: bool = false
 
 func _physics_process(delta: float) -> void:
-    var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+    var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
     velocity = input_vector * move_speed
     move_and_slide()
     if input_vector.length_squared() > 0.001:
@@ -25,7 +25,7 @@ func _fire_bullet() -> void:
     var bullet: Area2D = BULLET_SCENE.instantiate()
     if bullet == null:
         return
-    var scene_root := get_tree().current_scene
+    var scene_root: Node = get_tree().current_scene
     if scene_root == null:
         return
     bullet.global_position = global_position + Vector2.RIGHT.rotated(rotation) * 36.0
@@ -37,12 +37,12 @@ func apply_hit() -> void:
     if _is_destroyed:
         return
     health -= 1
-    var parent_node := get_parent()
+    var parent_node: Node = get_parent()
     if parent_node != null and parent_node.has_node("HUD"):
-        var hud_node := parent_node.get_node("HUD")
+        var hud_node: Node = parent_node.get_node("HUD")
         if hud_node != null and hud_node.has_method("update_hud"):
-            var current_score := 0
-            var score_value := parent_node.get("score")
+            var current_score: int = 0
+            var score_value: Variant = parent_node.get("score")
             if typeof(score_value) == TYPE_INT:
                 current_score = score_value
             hud_node.update_hud(health, current_score)

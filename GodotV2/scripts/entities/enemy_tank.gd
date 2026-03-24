@@ -15,7 +15,7 @@ func _physics_process(delta: float) -> void:
     if health <= 0:
         return
     if target and is_instance_valid(target):
-        var to_target := target.global_position - global_position
+        var to_target: Vector2 = target.global_position - global_position
         if to_target.length() > 220.0:
             velocity = to_target.normalized() * move_speed
         else:
@@ -34,7 +34,7 @@ func _fire_bullet() -> void:
     var bullet: Area2D = BULLET_SCENE.instantiate()
     if bullet == null:
         return
-    var scene_root := get_tree().current_scene
+    var scene_root: Node = get_tree().current_scene
     if scene_root == null:
         return
     bullet.global_position = global_position + Vector2.RIGHT.rotated(rotation) * 30.0
