@@ -9,6 +9,7 @@ const BULLET_SCENE := preload("res://scenes/entities/bullet.tscn")
 
 var target: Node2D = null
 var _shoot_timer: float = 0.0
+var _is_destroyed: bool = false
 
 func _physics_process(delta: float) -> void:
     if health <= 0:
@@ -43,6 +44,10 @@ func _fire_bullet() -> void:
     scene_root.add_child(bullet)
 
 func apply_hit() -> void:
+    if _is_destroyed:
+        return
     health -= 1
     if health <= 0:
+        _is_destroyed = true
         destroyed.emit(self)
+        queue_free()

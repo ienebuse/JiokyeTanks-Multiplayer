@@ -8,6 +8,7 @@ const BULLET_SCENE := preload("res://scenes/entities/bullet.tscn")
 @export var health: int = 5
 
 var _shoot_cooldown: float = 0.0
+var _is_destroyed: bool = false
 
 func _physics_process(delta: float) -> void:
     var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -33,6 +34,8 @@ func _fire_bullet() -> void:
     scene_root.add_child(bullet)
 
 func apply_hit() -> void:
+    if _is_destroyed:
+        return
     health -= 1
     var parent_node := get_parent()
     if parent_node != null and parent_node.has_node("HUD"):
@@ -44,5 +47,6 @@ func apply_hit() -> void:
                 current_score = score_value
             hud_node.update_hud(health, current_score)
     if health <= 0:
+        _is_destroyed = true
         destroyed.emit()
         queue_free()

@@ -2,6 +2,7 @@ extends Node2D
 
 var score: int = 0
 var is_finished: bool = false
+var _pending_return_to_menu: bool = false
 
 @onready var player: CharacterBody2D = $Player
 @onready var enemies: Node2D = $EnemyContainer
@@ -38,6 +39,7 @@ func _finish_battle(victory: bool) -> void:
     if is_finished:
         return
     is_finished = true
+    _pending_return_to_menu = false
     if victory:
         hud.set_state_text("VICTORY - Press Enter")
     else:
@@ -47,7 +49,10 @@ func _finish_battle(victory: bool) -> void:
 func _input(event: InputEvent) -> void:
     if not is_finished:
         return
+    if _pending_return_to_menu:
+        return
     if event.is_action_pressed("ui_accept") or event.is_action_pressed("shoot"):
+        _pending_return_to_menu = true
         var tree := get_tree()
         if tree != null:
             tree.change_scene_to_file("res://scenes/ui/main_menu.tscn")
