@@ -160,6 +160,9 @@ func start_level(lvl: int) -> void:
 		hud.update_enemy_count(enemy_lives)
 		hud.update_lives(player.lives if player else 3)
 		hud.update_score(total_score)
+		# Re-show touch controls for gameplay
+		if hud.touch_controls and DisplayServer.is_touchscreen_available():
+			hud.touch_controls.visible = true
 	
 	# Show curtain - label shown during curtain pause phase
 	curtain_label.text = "STAGE " + str(level)
@@ -360,9 +363,6 @@ func process_game(delta: float) -> void:
 		pause_game()
 		return
 	
-	# Check win/lose conditions
-	check_game_state()
-	
 	# Freeze timer
 	if is_frozen:
 		freeze_timer -= delta
@@ -383,7 +383,7 @@ func process_game(delta: float) -> void:
 	# Update enemies
 	update_enemies(delta)
 	
-	# Check collisions
+	# Check collisions (includes bonus pickup)
 	check_all_collisions()
 	
 	# Update bonus
@@ -391,6 +391,9 @@ func process_game(delta: float) -> void:
 	
 	# Update HUD
 	update_hud()
+	
+	# Check win/lose conditions AFTER collisions so bonuses can still be collected
+	check_game_state()
 
 func check_game_state() -> void:
 	# Stage complete: all enemies dead
@@ -422,6 +425,9 @@ func do_game_over() -> void:
 		hud.show_game_over()
 
 func process_stage_complete(delta: float) -> void:
+	# Allow player to still move and collect bonuses during delay
+	if player and is_instance_valid(player) and player.lives > 0:
+		check_player_bonus_collision()
 	show_score_timer -= delta
 	if show_score_timer <= 0:
 		show_scores()
@@ -435,6 +441,9 @@ func show_scores() -> void:
 	var was_stage_complete = (state == GameState.STAGE_COMPLETE)
 	state = GameState.SHOWING_SCORE
 	if hud:
+		# Hide touch controls so score panel buttons can be tapped
+		if hud.touch_controls:
+			hud.touch_controls.visible = false
 		hud.show_score_screen(kills, stage_score, total_score, level, was_stage_complete)
 
 # Enemy generation matching Java generateEnemy()
@@ -1021,11 +1030,15 @@ func pause_game() -> void:
 	state = GameState.PAUSED
 	if hud:
 		hud.show_pause_menu()
+		if hud.touch_controls:
+			hud.touch_controls.visible = false
 
 func resume_game() -> void:
 	state = GameState.PLAYING
 	if hud:
 		hud.hide_pause_menu()
+		if hud.touch_controls and DisplayServer.is_touchscreen_available():
+			hud.touch_controls.visible = true
 
 func next_level() -> void:
 	level += 1

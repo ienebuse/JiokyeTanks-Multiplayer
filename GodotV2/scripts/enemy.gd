@@ -328,11 +328,15 @@ func _draw() -> void:
 		var src_rect = Rect2(col * frame_w, row * frame_h, frame_w, frame_h)
 		draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
 	elif is_hve and enemy_texture:
-		# HVE uses separate PNG with rotation
-		var center = Vector2(tank_size / 2, tank_size / 2)
-		draw_set_transform(center, deg_to_rad(direction * 90.0), Vector2.ONE)
-		draw_texture_rect(enemy_texture, Rect2(-tank_size/2, -tank_size/2, tank_size, tank_size), false)
-		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+		# HVE uses separate spritesheet: 4 columns (directions) × 2 rows (anim frames)
+		var tex_w = enemy_texture.get_width()
+		var tex_h = enemy_texture.get_height()
+		var frame_w = tex_w / 4.0
+		var frame_h = tex_h / 2.0
+		var col = direction  # UP=0, RIGHT=1, DOWN=2, LEFT=3
+		var row = anim_frame  # 0 or 1
+		var src_rect = Rect2(col * frame_w, row * frame_h, frame_w, frame_h)
+		draw_texture_rect_region(enemy_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
 	else:
 		_draw_procedural()
 	

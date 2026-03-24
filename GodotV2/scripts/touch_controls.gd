@@ -1,9 +1,9 @@
 extends Control
 
 # Virtual touch controls matching the Java game layout:
-# - Joystick (left side) for directional movement
-# - Shoot button (large, bottom-right)
-# - Mine/Bomb button (smaller, above shoot)
+# - Joystick with stickview.png background and navstick.png thumb (left side)
+# - Shoot button with shoot_btn.png (large, bottom-right)
+# - Mine/Bomb button with mine_btn.png (smaller, above shoot)
 
 signal direction_changed(direction: int)  # -1 = no direction
 signal fire_pressed
@@ -30,32 +30,47 @@ var mine_rect: Rect2 = Rect2()
 var joystick_outer_radius: float = 75.0
 var stick_radius: float = 22.0
 
-# Colors
+# Textures (loaded from Java game assets)
+var tex_stickview: Texture2D = null
+var tex_navstick: Texture2D = null
+var tex_shoot: Texture2D = null
+var tex_shoot_pressed: Texture2D = null
+var tex_mine: Texture2D = null
+var tex_mine_pressed: Texture2D = null
+
+# Fallback colors (used if textures not found)
 const JOY_BG_COLOR = Color(0.3, 0.3, 0.3, 0.4)
 const JOY_STICK_COLOR = Color(0.7, 0.7, 0.7, 0.6)
 const JOY_STICK_ACTIVE_COLOR = Color(0.9, 0.9, 0.9, 0.8)
-const BTN_COLOR = Color(0.3, 0.3, 0.3, 0.5)
-const BTN_PRESSED_COLOR = Color(0.5, 0.5, 0.5, 0.7)
-const SHOOT_COLOR = Color(0.8, 0.2, 0.2, 0.5)
-const SHOOT_PRESSED_COLOR = Color(1.0, 0.3, 0.3, 0.7)
-const MINE_COLOR = Color(0.2, 0.6, 0.2, 0.5)
-const MINE_PRESSED_COLOR = Color(0.3, 0.8, 0.3, 0.7)
-const LABEL_COLOR = Color(1, 1, 1, 0.8)
 const DIR_INDICATOR_COLOR = Color(1, 1, 1, 0.3)
 const DIR_INDICATOR_ACTIVE_COLOR = Color(1, 1, 1, 0.7)
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
+	_load_textures()
 	_calculate_layout()
+
+func _load_textures() -> void:
+	tex_stickview = _try_load("res://assets/sprites/stickview.png")
+	tex_navstick = _try_load("res://assets/sprites/navstick.png")
+	tex_shoot = _try_load("res://assets/sprites/shoot_btn.png")
+	tex_shoot_pressed = _try_load("res://assets/sprites/shoot_btn_pressed.png")
+	tex_mine = _try_load("res://assets/sprites/mine_btn.png")
+	tex_mine_pressed = _try_load("res://assets/sprites/mine_btn_pressed.png")
+
+func _try_load(path: String) -> Texture2D:
+	if ResourceLoader.exists(path):
+		return load(path)
+	return null
 
 func _calculate_layout() -> void:
 	var vp = get_viewport_rect().size
 	var scale_factor = min(vp.x, vp.y) / 600.0
 
-	# Joystick - bottom left
+	# Joystick - bottom left (150dp equivalent)
 	joystick_outer_radius = 65.0 * scale_factor
 	stick_radius = 20.0 * scale_factor
-	var joy_margin = 30.0 * scale_factor
+	var joy_margin = 20.0 * scale_factor
 	joystick_center = Vector2(
 		joy_margin + joystick_outer_radius,
 		vp.y - joy_margin - joystick_outer_radius
@@ -66,8 +81,8 @@ func _calculate_layout() -> void:
 		Vector2(joystick_outer_radius * 2, joystick_outer_radius * 2)
 	)
 
-	# Shoot button - bottom right (large)
-	var shoot_size = 80.0 * scale_factor
+	# Shoot button - bottom right (large, 100dp equivalent)
+	var shoot_size = 85.0 * scale_factor
 	var shoot_margin_x = 40.0 * scale_factor
 	var shoot_margin_y = 30.0 * scale_factor
 	shoot_rect = Rect2(
@@ -77,7 +92,7 @@ func _calculate_layout() -> void:
 		shoot_size
 	)
 
-	# Mine button - above shoot button (smaller)
+	# Mine button - above shoot button (smaller, 50dp equivalent)
 	var mine_size = 50.0 * scale_factor
 	mine_rect = Rect2(
 		shoot_rect.position.x + (shoot_size - mine_size) / 2.0,
@@ -173,17 +188,10 @@ func _update_joystick(touch_pos: Vector2) -> void:
 	stick_position = rel
 
 	# Determine direction using diagonal partitioning (matching Java getDir)
-	# Two diagonal lines: y = x and y = -x through center
 	var deadzone = joystick_radius * 0.2
 	if dist < deadzone:
 		_set_direction(-1)
 	else:
-		# Java uses: yL1 = x - cx + cy, yL2 = cx - x + cy
-		# Relative: yL1 = relX, yL2 = -relX
-		# DOWN: relY > relX AND relY > -relX  (below both diagonals)
-		# LEFT: relY > relX AND relY < -relX
-		# UP: relY < relX AND relY < -relX (above both diagonals)
-		# RIGHT: relY < relX AND relY > -relX
 		if rel.y > rel.x and rel.y > -rel.x:
 			_set_direction(GameData.Direction.DOWN)
 		elif rel.y > rel.x and rel.y < -rel.x:
@@ -223,8 +231,11 @@ func _draw() -> void:
 	if not visible:
 		return
 
-	# --- Joystick Background ---
-	draw_circle(joystick_center, joystick_outer_radius, JOY_BG_COLOR)
+	# --- Joystick Background (stickview.png or fallback circle) ---
+	if tex_stickview:
+		draw_texture_rect(tex_stickview, joystick_rect, false, Color(1, 1, 1, 0.7))
+	else:
+		draw_circle(joystick_center, joystick_outer_radius, JOY_BG_COLOR)
 
 	# Direction indicator ticks on the outer ring
 	var tick_len = joystick_outer_radius * 0.15
@@ -243,34 +254,35 @@ func _draw() -> void:
 		var inner = joystick_center + dir_vec * (joystick_outer_radius - 2 - tick_len)
 		draw_line(inner, outer, color, tick_w)
 
-	# --- Joystick Thumb ---
+	# --- Joystick Thumb (navstick.png or fallback circle) ---
 	var stick_pos = joystick_center + stick_position
-	var stick_color = JOY_STICK_ACTIVE_COLOR if joystick_active else JOY_STICK_COLOR
-	draw_circle(stick_pos, stick_radius, stick_color)
+	if tex_navstick:
+		var stick_size = stick_radius * 2.0
+		var stick_rect = Rect2(stick_pos - Vector2(stick_size / 2, stick_size / 2), Vector2(stick_size, stick_size))
+		var alpha = 0.9 if joystick_active else 0.7
+		draw_texture_rect(tex_navstick, stick_rect, false, Color(1, 1, 1, alpha))
+	else:
+		var stick_color = JOY_STICK_ACTIVE_COLOR if joystick_active else JOY_STICK_COLOR
+		draw_circle(stick_pos, stick_radius, stick_color)
 
-	# --- Shoot Button ---
-	var shoot_color = SHOOT_PRESSED_COLOR if shoot_touch_index >= 0 else SHOOT_COLOR
-	_draw_rounded_rect(shoot_rect, shoot_color)
-	# "FIRE" label
-	var shoot_center = shoot_rect.get_center()
-	_draw_label(shoot_center, "FIRE", shoot_rect.size.x * 0.2)
+	# --- Shoot Button (shoot_btn.png or fallback rect) ---
+	var shoot_pressed = shoot_touch_index >= 0
+	var shoot_tex = tex_shoot_pressed if shoot_pressed and tex_shoot_pressed else tex_shoot
+	if shoot_tex:
+		var alpha = 1.0 if shoot_pressed else 0.8
+		draw_texture_rect(shoot_tex, shoot_rect, false, Color(1, 1, 1, alpha))
+	else:
+		var shoot_color = Color(1.0, 0.3, 0.3, 0.7) if shoot_pressed else Color(0.8, 0.2, 0.2, 0.5)
+		draw_rect(shoot_rect, shoot_color)
+		draw_rect(shoot_rect, shoot_color.lightened(0.3), false, 2.0)
 
-	# --- Mine Button ---
-	var mine_color = MINE_PRESSED_COLOR if mine_touch_index >= 0 else MINE_COLOR
-	_draw_rounded_rect(mine_rect, mine_color)
-	var mine_center = mine_rect.get_center()
-	_draw_label(mine_center, "MINE", mine_rect.size.x * 0.2)
-
-func _draw_rounded_rect(rect: Rect2, color: Color) -> void:
-	var radius = min(rect.size.x, rect.size.y) * 0.15
-	# Draw as simple filled rect with slightly rounded feel (border + fill)
-	draw_rect(rect, color)
-	draw_rect(rect, color.lightened(0.3), false, 2.0)
-
-func _draw_label(center: Vector2, text: String, font_size: float) -> void:
-	var font = ThemeDB.fallback_font
-	if font:
-		var fs = int(font_size)
-		var text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, fs)
-		var pos = center - Vector2(text_size.x / 2.0, -text_size.y / 4.0)
-		draw_string(font, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, LABEL_COLOR)
+	# --- Mine Button (mine_btn.png or fallback rect) ---
+	var mine_pressed = mine_touch_index >= 0
+	var mine_tex = tex_mine_pressed if mine_pressed and tex_mine_pressed else tex_mine
+	if mine_tex:
+		var alpha = 1.0 if mine_pressed else 0.8
+		draw_texture_rect(mine_tex, mine_rect, false, Color(1, 1, 1, alpha))
+	else:
+		var mine_color = Color(0.3, 0.8, 0.3, 0.7) if mine_pressed else Color(0.2, 0.6, 0.2, 0.5)
+		draw_rect(mine_rect, mine_color)
+		draw_rect(mine_rect, mine_color.lightened(0.3), false, 2.0)

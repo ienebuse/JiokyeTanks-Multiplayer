@@ -186,8 +186,8 @@ func handle_input(delta: float) -> void:
 			ice_sliding = true
 			ice_direction = direction
 	
-	# Fire
-	if Input.is_action_just_pressed("fire"):
+	# Fire - continuous while held (matching Java's startShooting/stopShooting)
+	if Input.is_action_pressed("fire"):
 		fire()
 	
 	# Mine
