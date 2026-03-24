@@ -62,7 +62,7 @@ func init_enemy(td: float, type: int, grp: int, eid: int, hve: bool = false, v: 
 	if is_hve:
 		hve_speed_mult = v
 		hve_bullet_mult = bv
-		speed = tile_dim * 6.0 / GameData.FPS * GameData.FPS * hve_speed_mult
+		speed = tile_dim * 6.0 * hve_speed_mult
 		bullet_speed = hve_bullet_mult
 		color = GameData.COLOR_HVE
 		fire_interval = 0.8
@@ -70,7 +70,7 @@ func init_enemy(td: float, type: int, grp: int, eid: int, hve: bool = false, v: 
 		hve_max_health = 20
 	else:
 		var speed_mult = GameData.ENEMY_SPEEDS.get(type, 1.0)
-		speed = tile_dim * 6.0 / GameData.FPS * GameData.FPS * speed_mult
+		speed = tile_dim * 6.0 * speed_mult
 		
 		match type:
 			GameData.ObjectType.ST_TANK_A:

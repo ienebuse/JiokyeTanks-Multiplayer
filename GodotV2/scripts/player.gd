@@ -11,6 +11,7 @@ var lives: int = 3
 var is_respawning: bool = false
 var respawn_timer: float = 0.0
 const RESPAWN_TIME: float = 2.0
+const BASE_SPEED_TILES_PER_SEC: float = 6.0  # Base movement speed in tiles per second
 
 # Movement
 var direction: int = GameData.Direction.UP
@@ -60,7 +61,7 @@ func init_player(td: float, p_num: int) -> void:
 	tile_dim = td
 	player_num = p_num
 	tank_size = tile_dim * 2
-	speed = tile_dim * 6.0 / GameData.FPS * GameData.FPS  # pixels per second
+	speed = tile_dim * BASE_SPEED_TILES_PER_SEC
 	color = GameData.COLOR_PLAYER1 if p_num == 1 else GameData.COLOR_PLAYER2
 	activate_shield()
 	last_valid_position = position
@@ -236,13 +237,14 @@ func respawn() -> void:
 	break_wall = false
 	clear_bush = false
 	max_bullets = 1
-	speed = tile_dim * 6.0 / GameData.FPS * GameData.FPS
+	speed = tile_dim * BASE_SPEED_TILES_PER_SEC
 	activate_shield()
 
 func activate_shield() -> void:
 	has_shield = true
 	shield_timer = GameData.SHIELD_TIME
 	shield_blink = true
+	shield_blink_timer = 0.0
 
 func upgrade_star() -> void:
 	star_count += 1

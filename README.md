@@ -11,7 +11,7 @@ A recreation of the original game using the Godot 4 engine with GDScript.
 
 **Features recreated:**
 - 26×26 grid-based game board matching original stage layouts
-- 35 levels loaded from original stage data files
+- 36 levels loaded from original stage data files
 - Player tank with movement, grid-snapping, and ice slippage
 - 4 enemy tank types (A/B/C/D) with AI targeting
 - HVE boss enemy with health system

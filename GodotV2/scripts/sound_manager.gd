@@ -27,9 +27,9 @@ func play_sound(sound_name: String, loop: bool = false, volume_db: float = 0.0) 
 	player.volume_db = volume_db
 	add_child(player)
 	if loop:
-		# For looping, we connect finished to replay
-		player.finished.connect(func(): 
-			if player.is_inside_tree() and loop:
+		player.set_meta("looping", true)
+		player.finished.connect(func():
+			if player.is_inside_tree() and player.get_meta("looping", false):
 				player.play()
 			else:
 				player.queue_free()

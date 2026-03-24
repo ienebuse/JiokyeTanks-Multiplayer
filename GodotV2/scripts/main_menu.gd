@@ -13,7 +13,7 @@ func _on_start_btn_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func _on_continue_btn_pressed() -> void:
-	GameData.current_level = GameData.unlocked_level + 1
+	GameData.current_level = max(1, GameData.unlocked_level)
 	if GameData.current_level > GameData.NUM_LEVELS:
 		GameData.current_level = 1
 	get_tree().change_scene_to_file("res://scenes/game.tscn")

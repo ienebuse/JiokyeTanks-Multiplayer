@@ -42,6 +42,7 @@ var freeze_timer: float = 0.0
 var is_frozen: bool = false
 var eagle_protect_timer: float = 0.0
 var is_eagle_protected: bool = false
+var eagle_protect_original: Array = []  # Stores original terrain during eagle protection
 
 # Curtain animation
 var curtain_progress: float = 0.0
@@ -128,7 +129,8 @@ func start_level(lvl: int) -> void:
 	for key in kills:
 		kills[key] = 0
 	
-	# Calculate HVE count for this level
+	# Calculate HVE count for this level using exponential scaling
+	# Formula grows from ~1 HVE at early levels to MAX_HVE at the final level
 	var num_hve_calc = pow(10, level * log(GameData.MAX_HVE) / log(10) / GameData.NUM_LEVELS)
 	num_hve = int(floor(num_hve_calc + 0.5))
 	hve_lives = num_hve
@@ -153,9 +155,9 @@ func start_level(lvl: int) -> void:
 		hud.update_lives(player.lives if player else 3)
 		hud.update_score(total_score)
 	
-	# Show curtain
+	# Show curtain - label shown during curtain pause phase
 	curtain_label.text = "STAGE " + str(level)
-	curtain_label.visible = false
+	curtain_label.visible = false  # Will be shown in CURTAIN_PAUSE state
 
 func clear_level() -> void:
 	# Clear terrain
@@ -424,9 +426,10 @@ func process_game_over(delta: float) -> void:
 		show_scores()
 
 func show_scores() -> void:
+	var was_stage_complete = (state == GameState.STAGE_COMPLETE)
 	state = GameState.SHOWING_SCORE
 	if hud:
-		hud.show_score_screen(kills, stage_score, total_score, level, state == GameState.STAGE_COMPLETE)
+		hud.show_score_screen(kills, stage_score, total_score, level, was_stage_complete)
 
 # Enemy generation matching Java generateEnemy()
 func generate_enemy(delta: float) -> void:
@@ -660,6 +663,7 @@ func check_player_bullets() -> void:
 								"bush":
 									if bullet.clear_bush:
 										obj.queue_free()
+										# Bushes don't stop bullets in original
 		
 		# Check against enemies
 		for enemy in enemies:
@@ -875,7 +879,8 @@ func unfreeze_enemies() -> void:
 func protect_eagle() -> void:
 	is_eagle_protected = true
 	eagle_protect_timer = GameData.EAGLE_PROTECT_TIME
-	# Place stone walls around eagle
+	eagle_protect_original.clear()
+	# Place stone walls around eagle, saving original terrain
 	if eagle_node and is_instance_valid(eagle_node):
 		var eagle_col = int(eagle_node.position.x / tile_dim)
 		var eagle_row = int(eagle_node.position.y / tile_dim)
@@ -888,27 +893,27 @@ func protect_eagle() -> void:
 			var c = pos[0]
 			var r = pos[1]
 			if r >= 0 and r < level_objects.size() and c >= 0 and c < level_objects[0].size():
+				# Save original terrain character for restoration
+				var original_ch = "."
+				if r < level_grid.size() and c < level_grid[r].size():
+					original_ch = level_grid[r][c]
+				eagle_protect_original.append({"c": c, "r": r, "ch": original_ch})
 				if level_objects[r][c] != null and is_instance_valid(level_objects[r][c]):
 					level_objects[r][c].queue_free()
 				level_objects[r][c] = create_stone(Vector2(c * tile_dim, r * tile_dim), c, r)
 
 func remove_eagle_protection() -> void:
-	# Replace stone walls around eagle with bricks
-	if eagle_node and is_instance_valid(eagle_node):
-		var eagle_col = int(eagle_node.position.x / tile_dim)
-		var eagle_row = int(eagle_node.position.y / tile_dim)
-		var protect_positions = [
-			[eagle_col - 1, eagle_row - 1], [eagle_col, eagle_row - 1], [eagle_col + 1, eagle_row - 1], [eagle_col + 2, eagle_row - 1],
-			[eagle_col - 1, eagle_row], [eagle_col - 1, eagle_row + 1],
-			[eagle_col + 2, eagle_row], [eagle_col + 2, eagle_row + 1],
-		]
-		for pos in protect_positions:
-			var c = pos[0]
-			var r = pos[1]
-			if r >= 0 and r < level_objects.size() and c >= 0 and c < level_objects[0].size():
-				if level_objects[r][c] != null and is_instance_valid(level_objects[r][c]):
-					level_objects[r][c].queue_free()
-				level_objects[r][c] = create_brick(Vector2(c * tile_dim, r * tile_dim), c, r)
+	# Restore original terrain around eagle (matching Java: replaces with bricks)
+	for entry in eagle_protect_original:
+		var c = entry["c"]
+		var r = entry["r"]
+		var ch = entry["ch"]
+		if r >= 0 and r < level_objects.size() and c >= 0 and c < level_objects[0].size():
+			if level_objects[r][c] != null and is_instance_valid(level_objects[r][c]):
+				level_objects[r][c].queue_free()
+			# Restore as brick (matching original Java behavior)
+			level_objects[r][c] = create_brick(Vector2(c * tile_dim, r * tile_dim), c, r)
+	eagle_protect_original.clear()
 
 func pause_game() -> void:
 	state = GameState.PAUSED
