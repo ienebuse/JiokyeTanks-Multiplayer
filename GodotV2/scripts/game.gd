@@ -88,6 +88,12 @@ func _ready() -> void:
 	tile_dim = GameData.tile_dim
 	board_size = Vector2(GameData.board_width, GameData.board_height)
 	
+	# Offset all game layers so the board is centered on screen
+	var offset = GameData.board_offset
+	terrain_layer.position = offset
+	entity_layer.position = offset
+	bush_layer.position = offset
+	
 	setup_curtain()
 	level = GameData.current_level
 	start_level(level)

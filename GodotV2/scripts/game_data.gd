@@ -20,6 +20,7 @@ const MAX_HVE: int = 8
 var tile_dim: float = 0.0
 var board_width: float = 0.0
 var board_height: float = 0.0
+var board_offset: Vector2 = Vector2.ZERO
 
 # Object types
 enum ObjectType {
@@ -109,9 +110,19 @@ func _ready() -> void:
 	load_settings()
 
 func calculate_dimensions(viewport_size: Vector2) -> void:
-	board_height = viewport_size.y
-	tile_dim = board_height / GRID_SIZE
+	# The game board is a square (26x26 grid). Size it to 90% of the smaller
+	# screen dimension so it fits on any device, then center it.
+	var min_dim = min(viewport_size.x, viewport_size.y)
+	var board_dim = min_dim * 0.9
+	# Quantize tile_dim so sprites stay pixel-aligned
+	tile_dim = floor(board_dim / GRID_SIZE)
 	board_width = tile_dim * GRID_SIZE
+	board_height = tile_dim * GRID_SIZE
+	# Offset to center the square board on the viewport
+	board_offset = Vector2(
+		(viewport_size.x - board_width) / 2.0,
+		(viewport_size.y - board_height) / 2.0
+	)
 
 func save_settings() -> void:
 	var config = ConfigFile.new()
