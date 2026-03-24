@@ -9,8 +9,6 @@ signal mine_dropped(mine_node: Node2D)
 var player_num: int = 1
 var lives: int = 3
 var is_respawning: bool = false
-var respawn_timer: float = 0.0
-const RESPAWN_TIME: float = 2.0
 const BASE_SPEED_TILES_PER_SEC: float = 3.2  # Base movement speed in tiles per second
 
 # Movement
@@ -47,10 +45,28 @@ var builder_count: int = 0
 # Visual
 var tank_size: float = 0.0
 var color: Color = Color(1.0, 0.85, 0.0)
-var shield_blink: bool = true
-var shield_blink_timer: float = 0.0
-var respawn_blink: bool = true
-var respawn_blink_timer: float = 0.0
+var shield_frame: int = 0
+var shield_frame_timer: float = 0.0
+
+# Spawn (creation) animation - ST_CREATE from spritesheet
+var spawn_frame: int = 0
+var spawn_frame_timer: float = 0.0
+const SPAWN_FRAME_COUNT: int = 10
+const SPAWN_FRAME_TIME: float = 1.0 / 32.0  # 1 game tick at 32 FPS
+# ST_CREATE sprite: position (1008, 0), 32x32 per frame, 10 frames vertically stacked
+const SPAWN_SRC_X: int = 1008
+const SPAWN_SRC_Y: int = 0
+const SPAWN_SRC_W: int = 32
+const SPAWN_SRC_H: int = 32
+
+# Shield sprite - ST_SHIELD from spritesheet
+# Position (976, 0), 32x32 per frame, 2 frames vertically stacked
+const SHIELD_SRC_X: int = 976
+const SHIELD_SRC_Y: int = 0
+const SHIELD_SRC_W: int = 32
+const SHIELD_SRC_H: int = 32
+const SHIELD_FRAME_COUNT: int = 2
+const SHIELD_FRAME_TIME: float = 2.0 / 32.0  # 2 game ticks at 32 FPS
 
 # Animation
 var anim_frame: int = 0
@@ -74,18 +90,24 @@ func init_player(td: float, p_num: int) -> void:
 	# Load tank texture from tanktexture.png spritesheet
 	tank_texture = load("res://assets/sprites/tanktexture.png")
 	
+	# Start with spawn animation (matching Java: player starts in respawn state)
+	is_respawning = true
+	spawn_frame = 0
+	spawn_frame_timer = 0.0
+	
 	activate_shield()
 	last_valid_position = position
 
 func _process(delta: float) -> void:
 	if is_respawning:
-		respawn_timer -= delta
-		respawn_blink_timer += delta
-		if respawn_blink_timer >= 0.1:
-			respawn_blink = not respawn_blink
-			respawn_blink_timer = 0.0
-		if respawn_timer <= 0:
+		# Advance spawn animation frames
+		spawn_frame_timer += delta
+		if spawn_frame_timer >= SPAWN_FRAME_TIME:
+			spawn_frame += 1
+			spawn_frame_timer = 0.0
+		if spawn_frame >= SPAWN_FRAME_COUNT:
 			is_respawning = false
+			spawn_frame = 0
 		queue_redraw()
 		return
 	
@@ -98,10 +120,10 @@ func _process(delta: float) -> void:
 	# Shield timer
 	if has_shield:
 		shield_timer -= delta
-		shield_blink_timer += delta
-		if shield_blink_timer >= 0.15:
-			shield_blink = not shield_blink
-			shield_blink_timer = 0.0
+		shield_frame_timer += delta
+		if shield_frame_timer >= SHIELD_FRAME_TIME:
+			shield_frame = (shield_frame + 1) % SHIELD_FRAME_COUNT
+			shield_frame_timer = 0.0
 		if shield_timer <= 0:
 			has_shield = false
 	
@@ -232,7 +254,8 @@ func take_hit() -> void:
 
 func respawn() -> void:
 	is_respawning = true
-	respawn_timer = RESPAWN_TIME
+	spawn_frame = 0
+	spawn_frame_timer = 0.0
 	
 	# Reset position
 	var px = int(4.0 * GameData.GRID_SIZE / 13.0) * tile_dim
@@ -253,8 +276,8 @@ func respawn() -> void:
 func activate_shield() -> void:
 	has_shield = true
 	shield_timer = GameData.SHIELD_TIME
-	shield_blink = true
-	shield_blink_timer = 0.0
+	shield_frame = 0
+	shield_frame_timer = 0.0
 
 func upgrade_star() -> void:
 	star_count += 1
@@ -299,7 +322,11 @@ func _draw() -> void:
 	if lives <= 0:
 		return
 	
-	if is_respawning and not respawn_blink:
+	if is_respawning:
+		# Draw ST_CREATE spawn animation from spritesheet
+		if tank_texture and spawn_frame < SPAWN_FRAME_COUNT:
+			var src_rect = Rect2(SPAWN_SRC_X, SPAWN_SRC_Y + spawn_frame * SPAWN_SRC_H, SPAWN_SRC_W, SPAWN_SRC_H)
+			draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
 		return
 	
 	# Draw using tank sprite from tanktexture.png (1216x512)
@@ -322,12 +349,10 @@ func _draw() -> void:
 	else:
 		_draw_procedural()
 	
-	# Draw shield
-	if has_shield and shield_blink:
-		var shield_alpha = 0.4
-		var shield_color = Color(0.3, 0.6, 1.0, shield_alpha)
-		draw_rect(Rect2(-2, -2, tank_size + 4, tank_size + 4), shield_color, false, 2.0)
-		draw_rect(Rect2(-1, -1, tank_size + 2, tank_size + 2), Color(0.5, 0.8, 1.0, shield_alpha * 0.5), false, 1.0)
+	# Draw shield using ST_SHIELD sprite from spritesheet
+	if has_shield and tank_texture:
+		var src_rect = Rect2(SHIELD_SRC_X, SHIELD_SRC_Y + shield_frame * SHIELD_SRC_H, SHIELD_SRC_W, SHIELD_SRC_H)
+		draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
 
 func _draw_procedural() -> void:
 	# Fallback procedural drawing for the tank
