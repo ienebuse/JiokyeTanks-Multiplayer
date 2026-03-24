@@ -690,6 +690,7 @@ func check_all_collisions() -> void:
 	check_player_bullets()
 	check_enemy_bullets_collision()
 	check_player_bonus_collision()
+	check_enemy_bonus_collision()
 
 func check_player_collision() -> void:
 	if not is_instance_valid(player) or player.is_respawning:
@@ -957,6 +958,56 @@ func check_player_bonus_collision() -> void:
 		active_bonus.queue_free()
 		active_bonus = null
 		SoundManager.play_sound("tnkpowerup.wav")
+
+func check_enemy_bonus_collision() -> void:
+	# Matching Java checkCollisionEnemyWithBonus - enemies can collect bonuses
+	if active_bonus == null or not is_instance_valid(active_bonus):
+		return
+	var bonus_rect = Rect2(active_bonus.position, Vector2(tile_dim * 2, tile_dim * 2))
+	for enemy in enemies:
+		if not is_instance_valid(enemy) or enemy.is_dead or enemy.is_spawning:
+			continue
+		var enemy_rect = Rect2(enemy.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if enemy_rect.intersects(bonus_rect):
+			apply_enemy_bonus(active_bonus.bonus_type, enemy)
+			active_bonus.queue_free()
+			active_bonus = null
+			break
+
+func apply_enemy_bonus(bonus_type: int, enemy: Node2D) -> void:
+	# Matching Java Enemy.collidsWithBonus - reversed effects for enemy
+	match bonus_type:
+		GameData.BonusType.GRENADE:
+			# Enemy gets grenade → kills the player (matching Java P1.setDestroyed())
+			if player and is_instance_valid(player) and not player.is_respawning:
+				player.take_hit()
+				SoundManager.play_sound("tnkexplosion.wav")
+				if hud:
+					hud.update_lives(player.lives)
+		GameData.BonusType.HELMET:
+			# Enemy gets shield
+			enemy.activate_shield_if_available()
+		GameData.BonusType.CLOCK:
+			# Enemy gets clock → freezes the player (matching Java P1.freeze())
+			if player and is_instance_valid(player):
+				player.freeze()
+		GameData.BonusType.SHOVEL:
+			# Enemy gets shovel → protects eagle (benefits enemy side)
+			protect_eagle()
+		GameData.BonusType.TANK:
+			# Enemy gets extra life → spawn an extra enemy
+			enemy_lives += 1
+			if hud:
+				hud.update_enemy_count(enemy_lives)
+		GameData.BonusType.STAR:
+			# Enemy gets star → upgrade enemy
+			enemy.upgrade_star()
+		GameData.BonusType.GUN:
+			# Enemy gets gun → upgrade enemy
+			enemy.upgrade_gun()
+		GameData.BonusType.BOAT:
+			# Enemy gets boat
+			enemy.has_boat = true
 
 func spawn_bonus() -> void:
 	if active_bonus != null and is_instance_valid(active_bonus):

@@ -47,6 +47,16 @@ var color: Color = Color(0.8, 0.8, 0.8)
 var death_timer: float = 0.0
 const DEATH_ANIM_TIME: float = 0.5
 
+# Death explosion animation - ST_DESTROY_TANK from spritesheet (matching Java)
+var death_frame: int = 0
+var death_frame_timer: float = 0.0
+const DEATH_FRAME_COUNT: int = 7
+const DEATH_FRAME_TIME: float = 1.0 / 32.0  # 1 game tick at 32 FPS
+const DEATH_SRC_X: int = 1040
+const DEATH_SRC_Y: int = 0
+const DEATH_SRC_W: int = 64
+const DEATH_SRC_H: int = 64
+
 # Bonus blinking - cycles 0,1,2; when >0 uses red flash (group 0) sprite
 var life_frame: int = 0
 var life_frame_timer: float = 0.0
@@ -257,7 +267,8 @@ func take_hit(bullet) -> bool:
 
 func die() -> void:
 	is_dead = true
-	death_timer = DEATH_ANIM_TIME
+	death_frame = 0
+	death_frame_timer = DEATH_FRAME_TIME
 	destroyed.emit(self)
 
 func handle_collision() -> void:
@@ -291,21 +302,24 @@ func direction_to_vector(dir: int) -> Vector2:
 
 func _process(delta: float) -> void:
 	if is_dead:
-		death_timer -= delta
-		if death_timer <= 0:
-			death_anim_done = true
+		if not death_anim_done:
+			death_frame_timer -= delta
+			if death_frame_timer <= 0:
+				death_frame += 1
+				death_frame_timer = DEATH_FRAME_TIME
+				if death_frame >= DEATH_FRAME_COUNT:
+					death_anim_done = true
 		queue_redraw()
 
 func _draw() -> void:
 	if is_dead:
-		if not death_anim_done:
-			# Death explosion animation
-			var progress = 1.0 - (death_timer / DEATH_ANIM_TIME)
-			var radius = tank_size * (0.5 + progress * 0.8)
-			var center = Vector2(tank_size / 2, tank_size / 2)
-			draw_circle(center, radius, Color(1, 0.4, 0, 0.7 * (1 - progress)))
-			draw_circle(center, radius * 0.6, Color(1, 0.8, 0, 0.5 * (1 - progress)))
-			draw_circle(center, radius * 0.3, Color(1, 1, 0.5, 0.4 * (1 - progress)))
+		if not death_anim_done and tank_texture and death_frame < DEATH_FRAME_COUNT:
+			# Sprite-based explosion from tanktexture.png (matching Java ST_DESTROY_TANK)
+			var src_rect = Rect2(DEATH_SRC_X, DEATH_SRC_Y + death_frame * DEATH_SRC_H, DEATH_SRC_W, DEATH_SRC_H)
+			# Explosion is 64×64 in spritesheet, drawn centered on tank (which is 2×tile_dim)
+			var explosion_size = tank_size * 2.0
+			var offset = (tank_size - explosion_size) / 2.0
+			draw_texture_rect_region(tank_texture, Rect2(Vector2(offset, offset), Vector2(explosion_size, explosion_size)), src_rect)
 		return
 	
 	if is_spawning:

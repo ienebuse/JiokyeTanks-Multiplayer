@@ -281,6 +281,14 @@ func activate_shield() -> void:
 	shield_frame = 0
 	shield_frame_timer = 0.0
 
+func freeze() -> void:
+	move_enabled = false
+	fire_enabled = false
+
+func unfreeze() -> void:
+	move_enabled = true
+	fire_enabled = true
+
 func upgrade_star() -> void:
 	# Matching Java Player.applyStar():
 	# Each star: speed *= 1.2 (cap at base*1.35), bulletSpeed = 1.3,
