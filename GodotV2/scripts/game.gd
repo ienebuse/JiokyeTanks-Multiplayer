@@ -552,7 +552,11 @@ func check_enemy_collision(enemy: Node2D) -> void:
 			if r < level_objects.size() and c < level_objects[r].size():
 				var obj = level_objects[r][c]
 				if obj != null and is_instance_valid(obj):
-					var obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
+					var obj_rect: Rect2
+					if obj.has_method("get_collision_rect"):
+						obj_rect = obj.get_collision_rect()
+					else:
+						obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
 					if enemy_rect.intersects(obj_rect):
 						var obj_type = obj.get_meta("type") if obj.has_meta("type") else ""
 						if obj_type in ["brick", "stone", "water"]:
@@ -595,7 +599,12 @@ func check_player_collision() -> void:
 			if r < level_objects.size() and c < level_objects[r].size():
 				var obj = level_objects[r][c]
 				if obj != null and is_instance_valid(obj):
-					var obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
+					# Use brick's own collision rect if available
+					var obj_rect: Rect2
+					if obj.has_method("get_collision_rect"):
+						obj_rect = obj.get_collision_rect()
+					else:
+						obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
 					if player_rect.intersects(obj_rect):
 						var obj_type = obj.get_meta("type") if obj.has_meta("type") else ""
 						match obj_type:
@@ -635,35 +644,62 @@ func check_player_bullets() -> void:
 			bullets_to_remove.append(bullet)
 			continue
 		
-		var bullet_rect = Rect2(bullet.position, Vector2(bullet.size, bullet.size))
+		# Use expanded collision rect (matching Java Bullet.collides_with)
+		var bullet_rect = bullet.get_collision_rect()
+		
+		# Check board boundaries first
+		if bullet.position.x < 0 or bullet.position.x > board_size.x or \
+		   bullet.position.y < 0 or bullet.position.y > board_size.y:
+			bullet.destroy()
+			continue
 		
 		# Check against terrain
 		var grid_col = int(bullet.position.x / tile_dim)
 		var grid_row = int(bullet.position.y / tile_dim)
+		var hit_terrain = false
 		
-		for r in range(max(0, grid_row - 1), min(level_objects.size(), grid_row + 2)):
-			for c in range(max(0, grid_col - 1), min(level_objects[0].size() if level_objects.size() > 0 else 0, grid_col + 2)):
+		for r in range(max(0, grid_row - 1), min(level_objects.size(), grid_row + 3)):
+			if hit_terrain:
+				break
+			for c in range(max(0, grid_col - 1), min(level_objects[0].size() if level_objects.size() > 0 else 0, grid_col + 3)):
 				if r < level_objects.size() and c < level_objects[r].size():
 					var obj = level_objects[r][c]
 					if obj != null and is_instance_valid(obj):
-						var obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
+						# Use brick's own collision rect if available
+						var obj_rect: Rect2
+						if obj.has_method("get_collision_rect"):
+							obj_rect = obj.get_collision_rect()
+						else:
+							obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
+						
 						if bullet_rect.intersects(obj_rect):
 							var obj_type = obj.get_meta("type") if obj.has_meta("type") else ""
 							match obj_type:
 								"brick":
-									obj.take_damage(bullet.direction)
+									# Matching Java: brick takes directional damage
+									var still_alive = obj.take_damage(bullet.direction)
 									if obj.is_destroyed():
 										level_objects[r][c] = null
+									# If player has break_wall, destroy brick entirely
+									if bullet.break_wall and not obj.is_destroyed():
+										obj.queue_free()
+										level_objects[r][c] = null
 									bullet.destroy()
+									hit_terrain = true
 								"stone":
 									if bullet.break_wall:
 										obj.queue_free()
 										level_objects[r][c] = null
 									bullet.destroy()
+									hit_terrain = true
 								"bush":
 									if bullet.clear_bush:
 										obj.queue_free()
+										level_objects[r][c] = null
 										# Bushes don't stop bullets in original
+		
+		if bullet.is_destroyed:
+			continue
 		
 		# Check against enemies
 		for enemy in enemies:
@@ -685,10 +721,8 @@ func check_player_bullets() -> void:
 						spawn_bonus()
 				break
 		
-		# Check against board boundaries
-		if bullet.position.x < 0 or bullet.position.x > board_size.x or \
-		   bullet.position.y < 0 or bullet.position.y > board_size.y:
-			bullet.destroy()
+		if bullet.is_destroyed:
+			continue
 		
 		# Check against eagle
 		if eagle_node and is_instance_valid(eagle_node) and not eagle_node.is_destroyed:
@@ -699,6 +733,9 @@ func check_player_bullets() -> void:
 				else:
 					eagle_node.take_damage()
 					bullet.destroy()
+		
+		if bullet.is_destroyed:
+			continue
 		
 		# Check against enemy bullets
 		for eb in enemy_bullets:
@@ -723,7 +760,14 @@ func check_enemy_bullets_collision() -> void:
 			to_remove.append(bullet)
 			continue
 		
-		var bullet_rect = Rect2(bullet.position, Vector2(bullet.size, bullet.size))
+		# Use expanded collision rect (matching Java Bullet.collides_with)
+		var bullet_rect = bullet.get_collision_rect()
+		
+		# Check board boundaries first
+		if bullet.position.x < 0 or bullet.position.x > board_size.x or \
+		   bullet.position.y < 0 or bullet.position.y > board_size.y:
+			bullet.destroy()
+			continue
 		
 		# Check against player
 		if player and is_instance_valid(player) and not player.is_respawning and player.lives > 0:
@@ -741,13 +785,21 @@ func check_enemy_bullets_collision() -> void:
 		# Check against terrain
 		var grid_col = int(bullet.position.x / tile_dim)
 		var grid_row = int(bullet.position.y / tile_dim)
+		var hit_terrain = false
 		
-		for r in range(max(0, grid_row - 1), min(level_objects.size(), grid_row + 2)):
-			for c in range(max(0, grid_col - 1), min(level_objects[0].size() if level_objects.size() > 0 else 0, grid_col + 2)):
+		for r in range(max(0, grid_row - 1), min(level_objects.size(), grid_row + 3)):
+			if hit_terrain:
+				break
+			for c in range(max(0, grid_col - 1), min(level_objects[0].size() if level_objects.size() > 0 else 0, grid_col + 3)):
 				if r < level_objects.size() and c < level_objects[r].size():
 					var obj = level_objects[r][c]
 					if obj != null and is_instance_valid(obj):
-						var obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
+						var obj_rect: Rect2
+						if obj.has_method("get_collision_rect"):
+							obj_rect = obj.get_collision_rect()
+						else:
+							obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
+						
 						if bullet_rect.intersects(obj_rect):
 							var obj_type = obj.get_meta("type") if obj.has_meta("type") else ""
 							match obj_type:
@@ -756,8 +808,13 @@ func check_enemy_bullets_collision() -> void:
 									if obj.is_destroyed():
 										level_objects[r][c] = null
 									bullet.destroy()
+									hit_terrain = true
 								"stone":
 									bullet.destroy()
+									hit_terrain = true
+		
+		if bullet.is_destroyed:
+			continue
 		
 		# Check against eagle
 		if eagle_node and is_instance_valid(eagle_node) and not eagle_node.is_destroyed:
@@ -768,11 +825,6 @@ func check_enemy_bullets_collision() -> void:
 				else:
 					eagle_node.take_damage()
 					bullet.destroy()
-		
-		# Check board boundaries
-		if bullet.position.x < 0 or bullet.position.x > board_size.x or \
-		   bullet.position.y < 0 or bullet.position.y > board_size.y:
-			bullet.destroy()
 	
 	for bullet in to_remove:
 		enemy_bullets.erase(bullet)

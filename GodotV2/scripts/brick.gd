@@ -1,26 +1,58 @@
 extends Node2D
 
 # Brick wall - matches Brick.java
-# Destructible wall with directional damage
+# Destructible wall with directional damage and collision rect resizing
 
 var tile_dim: float = 0.0
 var damage_state: int = 0  # 0 = full, 1 = half, 2+ = destroyed
-var damage_direction: int = -1  # Direction of first hit
+var damage_direction: int = -1  # Direction of bullet that caused first hit
 var destroyed: bool = false
+
+# Collision rect - shrinks when damaged (matching Java Brick.collidsWithBullet)
+var col_offset: Vector2 = Vector2.ZERO  # Offset for collision rect relative to position
+var col_size: Vector2 = Vector2.ZERO     # Size of the collision rect
+
+# Sprite
+var brick_texture: Texture2D = null
 
 func init_brick(td: float) -> void:
 	tile_dim = td
+	col_offset = Vector2.ZERO
+	col_size = Vector2(tile_dim, tile_dim)
+	brick_texture = load("res://assets/sprites/brick.png")
 
-func take_damage(dir: int) -> void:
+func get_collision_rect() -> Rect2:
+	return Rect2(position + col_offset, col_size)
+
+func take_damage(dir: int) -> bool:
 	if destroyed:
-		return
+		return false
 	damage_state += 1
 	if damage_state == 1:
 		damage_direction = dir
-	if damage_state >= 2:
+		# Shrink collision rect based on bullet direction (matching Java)
+		match dir:
+			GameData.Direction.UP:
+				# Bullet from below hit top - top half destroyed, bottom remains
+				col_size.y = tile_dim / 2.0
+				col_offset.y = tile_dim / 2.0
+			GameData.Direction.DOWN:
+				# Bullet from above hit bottom - bottom half destroyed, top remains
+				col_size.y = tile_dim / 2.0
+			GameData.Direction.LEFT:
+				# Bullet from right hit left - left half destroyed, right remains
+				col_size.x = tile_dim / 2.0
+				col_offset.x = tile_dim / 2.0
+			GameData.Direction.RIGHT:
+				# Bullet from left hit right - right half destroyed, left remains
+				col_size.x = tile_dim / 2.0
+		queue_redraw()
+		return true
+	elif damage_state >= 2:
 		destroyed = true
 		visible = false
-	queue_redraw()
+		return false
+	return true
 
 func is_destroyed() -> bool:
 	return destroyed
@@ -29,30 +61,49 @@ func _draw() -> void:
 	if destroyed:
 		return
 	
-	var brick_color = GameData.COLOR_BRICK
-	var mortar_color = brick_color.darkened(0.3)
-	
 	if damage_state == 0:
-		# Full brick
-		draw_rect(Rect2(Vector2.ZERO, Vector2(tile_dim, tile_dim)), brick_color)
-		# Draw brick pattern
-		var line_width = max(1.0, tile_dim * 0.05)
-		# Horizontal lines
-		draw_line(Vector2(0, tile_dim / 2), Vector2(tile_dim, tile_dim / 2), mortar_color, line_width)
-		# Vertical lines (offset)
-		draw_line(Vector2(tile_dim / 2, 0), Vector2(tile_dim / 2, tile_dim / 2), mortar_color, line_width)
-		draw_line(Vector2(tile_dim / 4, tile_dim / 2), Vector2(tile_dim / 4, tile_dim), mortar_color, line_width)
-		draw_line(Vector2(tile_dim * 3 / 4, tile_dim / 2), Vector2(tile_dim * 3 / 4, tile_dim), mortar_color, line_width)
+		# Full brick - draw sprite scaled to tile_dim
+		if brick_texture:
+			draw_texture_rect(brick_texture, Rect2(Vector2.ZERO, Vector2(tile_dim, tile_dim)), false)
+		else:
+			_draw_fallback_full()
 	else:
-		# Half brick (based on damage direction)
-		match damage_direction:
-			GameData.Direction.UP:
-				draw_rect(Rect2(0, tile_dim / 2, tile_dim, tile_dim / 2), brick_color)
-			GameData.Direction.DOWN:
-				draw_rect(Rect2(0, 0, tile_dim, tile_dim / 2), brick_color)
-			GameData.Direction.LEFT:
-				draw_rect(Rect2(tile_dim / 2, 0, tile_dim / 2, tile_dim), brick_color)
-			GameData.Direction.RIGHT:
-				draw_rect(Rect2(0, 0, tile_dim / 2, tile_dim), brick_color)
-			_:
-				draw_rect(Rect2(0, 0, tile_dim, tile_dim / 2), brick_color)
+		# Half brick - draw only the remaining half
+		if brick_texture:
+			match damage_direction:
+				GameData.Direction.UP:
+					# Top destroyed, bottom half remains
+					draw_texture_rect_region(brick_texture,
+						Rect2(0, tile_dim / 2, tile_dim, tile_dim / 2),
+						Rect2(0, 8, 16, 8))
+				GameData.Direction.DOWN:
+					# Bottom destroyed, top half remains
+					draw_texture_rect_region(brick_texture,
+						Rect2(0, 0, tile_dim, tile_dim / 2),
+						Rect2(0, 0, 16, 8))
+				GameData.Direction.LEFT:
+					# Left destroyed, right half remains
+					draw_texture_rect_region(brick_texture,
+						Rect2(tile_dim / 2, 0, tile_dim / 2, tile_dim),
+						Rect2(8, 0, 8, 16))
+				GameData.Direction.RIGHT:
+					# Right destroyed, left half remains
+					draw_texture_rect_region(brick_texture,
+						Rect2(0, 0, tile_dim / 2, tile_dim),
+						Rect2(0, 0, 8, 16))
+		else:
+			_draw_fallback_damaged()
+
+func _draw_fallback_full() -> void:
+	var brick_color = Color(0.72, 0.33, 0.0)
+	var mortar_color = Color(0.45, 0.22, 0.0)
+	draw_rect(Rect2(Vector2.ZERO, Vector2(tile_dim, tile_dim)), brick_color)
+	var lw = max(1.0, tile_dim * 0.06)
+	draw_line(Vector2(0, tile_dim / 2), Vector2(tile_dim, tile_dim / 2), mortar_color, lw)
+	draw_line(Vector2(tile_dim / 2, 0), Vector2(tile_dim / 2, tile_dim / 2), mortar_color, lw)
+	draw_line(Vector2(tile_dim / 4, tile_dim / 2), Vector2(tile_dim / 4, tile_dim), mortar_color, lw)
+	draw_line(Vector2(tile_dim * 3 / 4, tile_dim / 2), Vector2(tile_dim * 3 / 4, tile_dim), mortar_color, lw)
+
+func _draw_fallback_damaged() -> void:
+	var brick_color = Color(0.72, 0.33, 0.0)
+	draw_rect(Rect2(col_offset, col_size), brick_color)

@@ -1,6 +1,6 @@
 extends Node2D
 
-# Enemy tank - matches Enemy.java and HVE.java
+# Enemy tank - matches Enemy.java and HVE.java with sprite-based rendering
 
 signal bullet_fired(bullet: Node2D)
 signal destroyed(enemy: Node2D)
@@ -41,13 +41,20 @@ var hve_speed_mult: float = 1.0
 var hve_bullet_mult: float = 1.0
 
 # Visual
-var color: Color = GameData.COLOR_ENEMY_A
+var color: Color = Color(0.8, 0.8, 0.8)
 var death_timer: float = 0.0
 const DEATH_ANIM_TIME: float = 0.5
+
+# Animation
+var anim_frame: int = 0
+var anim_timer: float = 0.0
+const ANIM_SPEED: float = 0.12
 
 # Collision
 var last_valid_position: Vector2 = Vector2.ZERO
 
+# Textures
+var enemy_texture: Texture2D = null
 var BulletScene = preload("res://scenes/bullet.tscn")
 
 func init_enemy(td: float, type: int, grp: int, eid: int, hve: bool = false, v: float = 0.0, bv: float = 0.0) -> void:
@@ -62,32 +69,37 @@ func init_enemy(td: float, type: int, grp: int, eid: int, hve: bool = false, v: 
 	if is_hve:
 		hve_speed_mult = v
 		hve_bullet_mult = bv
-		speed = tile_dim * 6.0 * hve_speed_mult
+		speed = tile_dim * 3.2 * hve_speed_mult
 		bullet_speed = hve_bullet_mult
-		color = GameData.COLOR_HVE
+		color = Color(0.5, 0, 0.5)
 		fire_interval = 0.8
 		hve_health = 20
 		hve_max_health = 20
+		enemy_texture = load("res://assets/sprites/hve.png")
 	else:
 		var speed_mult = GameData.ENEMY_SPEEDS.get(type, 1.0)
-		speed = tile_dim * 6.0 * speed_mult
+		speed = tile_dim * 3.2 * speed_mult
 		
 		match type:
 			GameData.ObjectType.ST_TANK_A:
-				color = GameData.COLOR_ENEMY_A
+				color = Color(0.8, 0.8, 0.8)
 				fire_interval = 2.0
+				enemy_texture = load("res://assets/sprites/enemy_a.png")
 			GameData.ObjectType.ST_TANK_B:
-				color = GameData.COLOR_ENEMY_B
+				color = Color(0.85, 0.6, 0.2)
 				fire_interval = 1.5
+				enemy_texture = load("res://assets/sprites/enemy_b.png")
 			GameData.ObjectType.ST_TANK_C:
-				color = GameData.COLOR_ENEMY_C
+				color = Color(0.2, 0.7, 0.5)
 				fire_interval = 1.0
 				bullet_speed = 1.15
+				enemy_texture = load("res://assets/sprites/enemy_c.png")
 			GameData.ObjectType.ST_TANK_D:
-				color = GameData.COLOR_ENEMY_D
+				color = Color(0.7, 0.2, 0.2)
 				fire_interval = 1.2
+				enemy_texture = load("res://assets/sprites/enemy_d.png")
 	
-	# Higher group = more armor, shown by darker color
+	# Higher group = more armor
 	if group > 1:
 		color = color.darkened(0.1 * (group - 1))
 	
@@ -111,6 +123,12 @@ func update_ai(delta: float) -> void:
 	var move_vec = direction_to_vector(direction) * speed * delta
 	position += move_vec
 	
+	# Animate treads
+	anim_timer += delta
+	if anim_timer >= ANIM_SPEED:
+		anim_frame = (anim_frame + 1) % 2
+		anim_timer = 0.0
+	
 	# Fire
 	fire_timer += delta
 	if fire_timer >= fire_interval:
@@ -123,22 +141,14 @@ func change_direction() -> void:
 	var target_prob = 0.85 if is_hve else 0.80
 	
 	if randf() < target_prob and target != Vector2.ZERO:
-		# Target player
 		var dx = target.x - position.x
 		var dy = target.y - position.y
 		
 		if abs(dx) > abs(dy):
-			if dx > 0:
-				direction = GameData.Direction.RIGHT
-			else:
-				direction = GameData.Direction.LEFT
+			direction = GameData.Direction.RIGHT if dx > 0 else GameData.Direction.LEFT
 		else:
-			if dy > 0:
-				direction = GameData.Direction.DOWN
-			else:
-				direction = GameData.Direction.UP
+			direction = GameData.Direction.DOWN if dy > 0 else GameData.Direction.UP
 		
-		# Add some randomness
 		if randf() < 0.2:
 			direction = randi() % 4
 	else:
@@ -151,7 +161,7 @@ func fire() -> void:
 	var bullet = BulletScene.instantiate()
 	var bullet_pos = position
 	var half_tank = tank_size / 2.0
-	var bullet_size = tile_dim * 0.5
+	var bullet_size = tile_dim * 0.4
 	
 	match direction:
 		GameData.Direction.UP:
@@ -181,16 +191,15 @@ func take_hit(bullet) -> bool:
 	else:
 		if group > 1:
 			group -= 1
-			# Lighten color as armor decreases
 			match tank_type:
 				GameData.ObjectType.ST_TANK_A:
-					color = GameData.COLOR_ENEMY_A.darkened(0.1 * (group - 1))
+					color = Color(0.8, 0.8, 0.8).darkened(0.1 * (group - 1))
 				GameData.ObjectType.ST_TANK_B:
-					color = GameData.COLOR_ENEMY_B.darkened(0.1 * (group - 1))
+					color = Color(0.85, 0.6, 0.2).darkened(0.1 * (group - 1))
 				GameData.ObjectType.ST_TANK_C:
-					color = GameData.COLOR_ENEMY_C.darkened(0.1 * (group - 1))
+					color = Color(0.2, 0.7, 0.5).darkened(0.1 * (group - 1))
 				GameData.ObjectType.ST_TANK_D:
-					color = GameData.COLOR_ENEMY_D.darkened(0.1 * (group - 1))
+					color = Color(0.7, 0.2, 0.2).darkened(0.1 * (group - 1))
 			queue_redraw()
 			return false
 		else:
@@ -236,51 +245,23 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if is_dead:
 		if not death_anim_done:
-			# Death animation - expanding circle
+			# Death explosion animation
 			var progress = 1.0 - (death_timer / DEATH_ANIM_TIME)
-			var radius = tank_size * progress
+			var radius = tank_size * (0.5 + progress * 0.8)
 			var center = Vector2(tank_size / 2, tank_size / 2)
-			draw_circle(center, radius, Color(1, 0.5, 0, 0.8 * (1 - progress)))
-			draw_circle(center, radius * 0.6, Color(1, 1, 0, 0.6 * (1 - progress)))
+			draw_circle(center, radius, Color(1, 0.4, 0, 0.7 * (1 - progress)))
+			draw_circle(center, radius * 0.6, Color(1, 0.8, 0, 0.5 * (1 - progress)))
+			draw_circle(center, radius * 0.3, Color(1, 1, 0.5, 0.4 * (1 - progress)))
 		return
 	
-	# Draw tank body
-	var body_rect = Rect2(Vector2.ZERO, Vector2(tank_size, tank_size))
-	draw_rect(body_rect, color)
-	
-	# Draw direction indicator (barrel)
-	var barrel_color = color.lightened(0.3)
-	var center = Vector2(tank_size / 2, tank_size / 2)
-	var barrel_width = tile_dim * 0.4
-	
-	match direction:
-		GameData.Direction.UP:
-			draw_rect(Rect2(center.x - barrel_width / 2, 0, barrel_width, center.y), barrel_color)
-		GameData.Direction.DOWN:
-			draw_rect(Rect2(center.x - barrel_width / 2, center.y, barrel_width, center.y), barrel_color)
-		GameData.Direction.LEFT:
-			draw_rect(Rect2(0, center.y - barrel_width / 2, center.x, barrel_width), barrel_color)
-		GameData.Direction.RIGHT:
-			draw_rect(Rect2(center.x, center.y - barrel_width / 2, center.x, barrel_width), barrel_color)
-	
-	# Draw treads
-	var tread_color = color.darkened(0.3)
-	var tread_width = tile_dim * 0.3
-	match direction:
-		GameData.Direction.UP, GameData.Direction.DOWN:
-			draw_rect(Rect2(0, 0, tread_width, tank_size), tread_color)
-			draw_rect(Rect2(tank_size - tread_width, 0, tread_width, tank_size), tread_color)
-		GameData.Direction.LEFT, GameData.Direction.RIGHT:
-			draw_rect(Rect2(0, 0, tank_size, tread_width), tread_color)
-			draw_rect(Rect2(0, tank_size - tread_width, tank_size, tread_width), tread_color)
-	
-	# Group/armor indicator
-	if group > 1 or is_hve:
-		var indicator_color = Color.WHITE
-		var count = group if not is_hve else min(hve_health / 5 + 1, 4)
-		for i in range(count):
-			var dot_pos = Vector2(tank_size / 2 - (count - 1) * 3 + i * 6, tank_size - 4)
-			draw_circle(dot_pos, 2, indicator_color)
+	# Draw enemy sprite or procedural tank
+	if enemy_texture:
+		var center = Vector2(tank_size / 2, tank_size / 2)
+		draw_set_transform(center, deg_to_rad(direction * 90.0), Vector2.ONE)
+		draw_texture_rect(enemy_texture, Rect2(-tank_size/2, -tank_size/2, tank_size, tank_size), false)
+		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+	else:
+		_draw_procedural()
 	
 	# HVE health bar
 	if is_hve:
@@ -290,7 +271,7 @@ func _draw() -> void:
 		draw_rect(Rect2(0, -6, bar_width, bar_height), Color.RED)
 		draw_rect(Rect2(0, -6, bar_width * health_pct, bar_height), Color.GREEN)
 	
-	# Bonus indicator
+	# Bonus indicator (red blinking overlay)
 	if has_bonus:
 		var blink = fmod(Time.get_ticks_msec() / 200.0, 2.0) > 1.0
 		if blink:
@@ -299,3 +280,60 @@ func _draw() -> void:
 	# Frozen indicator
 	if is_frozen:
 		draw_rect(Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), Color(0, 0.5, 1, 0.3))
+
+func _draw_procedural() -> void:
+	var body_color = color
+	var barrel_color = color.lightened(0.3)
+	var tread_color = color.darkened(0.3)
+	var center = Vector2(tank_size / 2, tank_size / 2)
+	var barrel_w = tile_dim * 0.35
+	var tread_w = tile_dim * 0.25
+	
+	# Treads
+	match direction:
+		GameData.Direction.UP, GameData.Direction.DOWN:
+			draw_rect(Rect2(0, 0, tread_w, tank_size), tread_color)
+			draw_rect(Rect2(tank_size - tread_w, 0, tread_w, tank_size), tread_color)
+			# Tread marks
+			for i in range(4):
+				var y = tile_dim * 0.5 * i + (anim_frame * tile_dim * 0.25)
+				if y < tank_size:
+					draw_line(Vector2(0, y), Vector2(tread_w, y), body_color.darkened(0.5), 1)
+					draw_line(Vector2(tank_size - tread_w, y), Vector2(tank_size, y), body_color.darkened(0.5), 1)
+		GameData.Direction.LEFT, GameData.Direction.RIGHT:
+			draw_rect(Rect2(0, 0, tank_size, tread_w), tread_color)
+			draw_rect(Rect2(0, tank_size - tread_w, tank_size, tread_w), tread_color)
+			for i in range(4):
+				var x = tile_dim * 0.5 * i + (anim_frame * tile_dim * 0.25)
+				if x < tank_size:
+					draw_line(Vector2(x, 0), Vector2(x, tread_w), body_color.darkened(0.5), 1)
+					draw_line(Vector2(x, tank_size - tread_w), Vector2(x, tank_size), body_color.darkened(0.5), 1)
+	
+	# Body
+	var body_inset = tread_w * 0.8
+	match direction:
+		GameData.Direction.UP, GameData.Direction.DOWN:
+			draw_rect(Rect2(body_inset, body_inset * 0.5, tank_size - body_inset * 2, tank_size - body_inset), body_color)
+		GameData.Direction.LEFT, GameData.Direction.RIGHT:
+			draw_rect(Rect2(body_inset * 0.5, body_inset, tank_size - body_inset, tank_size - body_inset * 2), body_color)
+	
+	# Barrel
+	match direction:
+		GameData.Direction.UP:
+			draw_rect(Rect2(center.x - barrel_w / 2, 0, barrel_w, center.y), barrel_color)
+		GameData.Direction.DOWN:
+			draw_rect(Rect2(center.x - barrel_w / 2, center.y, barrel_w, center.y), barrel_color)
+		GameData.Direction.LEFT:
+			draw_rect(Rect2(0, center.y - barrel_w / 2, center.x, barrel_w), barrel_color)
+		GameData.Direction.RIGHT:
+			draw_rect(Rect2(center.x, center.y - barrel_w / 2, center.x, barrel_w), barrel_color)
+	
+	# Center turret
+	draw_circle(center, tile_dim * 0.35, body_color.lightened(0.15))
+	
+	# Group/armor indicator dots
+	if group > 1:
+		var count = group
+		for i in range(count):
+			var dot_pos = Vector2(tank_size / 2 - (count - 1) * 3 + i * 6, tank_size - 3)
+			draw_circle(dot_pos, 1.5, Color.WHITE)

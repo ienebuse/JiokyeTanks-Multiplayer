@@ -1,6 +1,6 @@
 extends Node2D
 
-# Bullet - matches Bullet.java
+# Bullet - matches Bullet.java with proper collision expansion
 
 var direction: int = GameData.Direction.UP
 var speed: float = 0.0
@@ -10,7 +10,6 @@ var from_player: bool = false
 var break_wall: bool = false
 var clear_bush: bool = false
 var is_destroyed: bool = false
-var color: Color = GameData.COLOR_BULLET
 
 # Explosion animation
 var exploding: bool = false
@@ -23,13 +22,22 @@ func init_bullet(td: float, dir: int, player: bool, brk: bool = false, clr: bool
 	from_player = player
 	break_wall = brk
 	clear_bush = clr
-	size = tile_dim * 0.5
-	speed = tile_dim * 15.0 / GameData.FPS * GameData.FPS * speed_mult
-	
-	if from_player:
-		color = Color.WHITE
-	else:
-		color = Color(1.0, 0.6, 0.2)
+	size = tile_dim * 0.4
+	# Bullet speed: ~15 tiles/sec matches original feel
+	speed = tile_dim * 12.0 * speed_mult
+
+func get_collision_rect() -> Rect2:
+	# Matching Java Bullet.collides_with: expand perpendicular to direction
+	var rect = Rect2(position, Vector2(size, size))
+	var offset = max(1, int(tile_dim / 4))
+	match direction:
+		GameData.Direction.UP, GameData.Direction.DOWN:
+			rect.position.x -= offset
+			rect.size.x += offset * 2
+		GameData.Direction.LEFT, GameData.Direction.RIGHT:
+			rect.position.y -= offset
+			rect.size.y += offset * 2
+	return rect
 
 func _process(delta: float) -> void:
 	if is_destroyed:
@@ -62,15 +70,26 @@ func direction_to_vector(dir: int) -> Vector2:
 
 func _draw() -> void:
 	if is_destroyed and exploding:
-		# Explosion effect
+		# Explosion effect - orange/yellow expanding circle
 		var progress = 1.0 - (explode_timer / EXPLODE_TIME)
-		var radius = size * (1 + progress * 2)
-		draw_circle(Vector2(size / 2, size / 2), radius, Color(1, 0.5, 0, 0.8 * (1 - progress)))
-		draw_circle(Vector2(size / 2, size / 2), radius * 0.5, Color(1, 1, 0, 0.6 * (1 - progress)))
+		var radius = size * (1 + progress * 2.5)
+		var center = Vector2(size / 2, size / 2)
+		draw_circle(center, radius, Color(1, 0.4, 0, 0.7 * (1 - progress)))
+		draw_circle(center, radius * 0.5, Color(1, 0.8, 0, 0.5 * (1 - progress)))
 		return
 	
 	if is_destroyed:
 		return
 	
-	# Draw bullet
-	draw_rect(Rect2(Vector2.ZERO, Vector2(size, size)), color)
+	# Draw bullet as a small directional shape
+	var half = size / 2.0
+	var center = Vector2(half, half)
+	
+	if from_player:
+		# White/yellow bullet for player
+		draw_circle(center, half * 0.7, Color(1.0, 1.0, 0.8))
+		draw_circle(center, half * 0.4, Color(1.0, 1.0, 1.0))
+	else:
+		# Orange bullet for enemy
+		draw_circle(center, half * 0.7, Color(1.0, 0.5, 0.1))
+		draw_circle(center, half * 0.4, Color(1.0, 0.7, 0.3))

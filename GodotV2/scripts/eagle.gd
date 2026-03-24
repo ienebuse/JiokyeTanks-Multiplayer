@@ -1,7 +1,7 @@
 extends Node2D
 
-# Eagle - matches Eagle.java
-# Game objective to protect
+# Eagle - the base that must be protected (matches Eagle.java)
+# Uses sprite-like procedural drawing to look like the original
 
 var tile_dim: float = 0.0
 var is_destroyed: bool = false
@@ -12,8 +12,11 @@ var death_anim_timer: float = 0.0
 const DEATH_ANIM_TIME: float = 1.0
 var death_frame: int = 0
 
+var fire_texture: Texture2D = null
+
 func init_eagle(td: float) -> void:
 	tile_dim = td
+	fire_texture = load("res://assets/sprites/fire.png")
 
 func take_damage() -> void:
 	if is_destroyed:
@@ -27,38 +30,39 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 func _draw() -> void:
-	var size = tile_dim * 2
+	var sz = tile_dim * 2
 	
 	if is_destroyed:
-		# Destroyed eagle
-		var progress = 1.0 - (death_anim_timer / DEATH_ANIM_TIME)
-		draw_rect(Rect2(Vector2.ZERO, Vector2(size, size)), Color(0.3, 0.3, 0.3))
+		# Destroyed eagle - dark grey with X
+		draw_rect(Rect2(2, 2, sz - 4, sz - 4), Color(0.15, 0.15, 0.15))
+		draw_rect(Rect2(sz * 0.1, sz * 0.1, sz * 0.8, sz * 0.8), Color(0.25, 0.12, 0.0))
 		if death_anim_timer > 0:
-			var radius = size * 0.5 * progress
-			draw_circle(Vector2(size / 2, size / 2), radius, Color(1, 0.5, 0, 0.5 * (1 - progress)))
-		# Draw X over destroyed eagle
-		var line_w = max(2.0, tile_dim * 0.15)
-		draw_line(Vector2(2, 2), Vector2(size - 2, size - 2), Color.RED, line_w)
-		draw_line(Vector2(size - 2, 2), Vector2(2, size - 2), Color.RED, line_w)
+			var progress = 1.0 - (death_anim_timer / DEATH_ANIM_TIME)
+			var center = Vector2(sz / 2, sz / 2)
+			var radius = sz * 0.5 * progress
+			draw_circle(center, radius, Color(1, 0.4, 0, 0.6 * (1 - progress)))
 		return
 	
-	# Draw eagle body
-	var eagle_color = GameData.COLOR_EAGLE
-	draw_rect(Rect2(Vector2.ZERO, Vector2(size, size)), Color.BLACK)
+	# Draw alive eagle - classic red/gold shield icon
+	# Background
+	draw_rect(Rect2(1, 1, sz - 2, sz - 2), Color(0.08, 0.08, 0.08))
 	
-	# Eagle symbol (simplified bird shape)
-	var center = Vector2(size / 2, size / 2)
+	# Shield base (deep red)
+	draw_rect(Rect2(sz * 0.08, sz * 0.08, sz * 0.84, sz * 0.84), Color(0.6, 0.0, 0.0))
 	
-	# Body
-	draw_circle(center, size * 0.3, eagle_color)
+	# Inner body (golden orange)
+	draw_rect(Rect2(sz * 0.22, sz * 0.18, sz * 0.56, sz * 0.64), Color(0.9, 0.5, 0.0))
 	
-	# Wings
-	var wing_color = eagle_color.lightened(0.2)
-	draw_rect(Rect2(size * 0.1, size * 0.3, size * 0.25, size * 0.15), wing_color)
-	draw_rect(Rect2(size * 0.65, size * 0.3, size * 0.25, size * 0.15), wing_color)
+	# Eagle head (golden)
+	var cx = sz / 2.0
+	draw_circle(Vector2(cx, sz * 0.28), sz * 0.14, Color(1.0, 0.7, 0.0))
 	
-	# Head
-	draw_circle(Vector2(center.x, size * 0.25), size * 0.12, eagle_color.lightened(0.1))
+	# Wings (darker orange, spread out)
+	draw_rect(Rect2(sz * 0.04, sz * 0.32, sz * 0.22, sz * 0.28), Color(0.85, 0.4, 0.0))
+	draw_rect(Rect2(sz * 0.74, sz * 0.32, sz * 0.22, sz * 0.28), Color(0.85, 0.4, 0.0))
 	
-	# Border
-	draw_rect(Rect2(Vector2.ZERO, Vector2(size, size)), Color.WHITE, false, max(1.0, tile_dim * 0.08))
+	# Tail
+	draw_rect(Rect2(sz * 0.35, sz * 0.7, sz * 0.3, sz * 0.15), Color(0.75, 0.35, 0.0))
+	
+	# Eye
+	draw_circle(Vector2(cx, sz * 0.26), sz * 0.035, Color.WHITE)
