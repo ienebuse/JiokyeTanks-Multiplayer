@@ -54,6 +54,8 @@ grow_vertical = 2
 text = "STAGE 1"
 horizontal_alignment = 1
 vertical_alignment = 1
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
 
 [node name="HUD" type="Control" parent="UILayer"]
 layout_mode = 3
@@ -81,18 +83,26 @@ theme_override_constants/separation = 30
 [node name="ScoreLabel" type="Label" parent="UILayer/HUD/MarginContainer/TopBar"]
 layout_mode = 2
 text = "SCORE: 0"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
 
 [node name="LivesLabel" type="Label" parent="UILayer/HUD/MarginContainer/TopBar"]
 layout_mode = 2
 text = "LIVES: 3"
+theme_override_colors/font_color = Color(1, 0.85, 0, 1)
+theme_override_font_sizes/font_size = 14
 
 [node name="StageLabel" type="Label" parent="UILayer/HUD/MarginContainer/TopBar"]
 layout_mode = 2
 text = "STAGE: 1"
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
 
 [node name="EnemyLabel" type="Label" parent="UILayer/HUD/MarginContainer/TopBar"]
 layout_mode = 2
 text = "ENEMIES: 20"
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 14
 
 [node name="GameOverLabel" type="Label" parent="UILayer/HUD"]
 layout_mode = 1
@@ -110,6 +120,8 @@ grow_vertical = 2
 text = "GAME OVER"
 horizontal_alignment = 1
 vertical_alignment = 1
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 28
 
 [node name="PausePanel" type="Panel" parent="UILayer/HUD"]
 visible = false

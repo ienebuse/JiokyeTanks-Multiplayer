@@ -283,9 +283,9 @@ func create_eagle() -> void:
 func create_player() -> void:
 	player = Node2D.new()
 	player.set_script(preload("res://scripts/player.gd"))
-	# Player spawns at bottom center (4/13 width from left)
+	# Player spawns at bottom (matching original: 4/13 width, row 24)
 	var px = int(4.0 * GameData.GRID_SIZE / 13.0) * tile_dim
-	var py = (GameData.GRID_SIZE - 1) * tile_dim
+	var py = (GameData.GRID_SIZE - 2) * tile_dim
 	player.position = Vector2(px, py)
 	entity_layer.add_child(player)
 	player.init_player(tile_dim, 1)
@@ -479,10 +479,11 @@ func generate_enemy(delta: float) -> void:
 			is_hve = true
 			hve_lives -= 1
 	
-	# Spawn position (top of map, 3 possible positions)
+	# Spawn position (top of map, 3 possible positions matching original)
+	# Original: positions at 0, 12, 24 * tile_dim (equally spaced across 26 grid)
+	var spawn_positions = [0.0, 12.0 * tile_dim, (GameData.GRID_SIZE - 2) * tile_dim]
 	var spawn_pos_idx = randi() % 3
-	var spawn_x = spawn_pos_idx * 6 * tile_dim * 2  # 6 tiles apart * 2 for full tile
-	spawn_x = min(spawn_x, board_size.x - tile_dim * 2)
+	var spawn_x = spawn_positions[spawn_pos_idx]
 	var spawn_y = 0.0
 	
 	# Create enemy
