@@ -141,14 +141,15 @@ func load_settings() -> void:
 		vibrate_enabled = config.get_value("game", "vibrate_enabled", true)
 
 func load_stage(level_num: int) -> Array:
-	var path = "res://assets/stages/" + str(level_num)
-	var file = FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		push_error("Failed to load stage: " + path)
+	# Use embedded stage data so levels work in exported builds (mobile).
+	# Raw stage files without extensions are not included in the PCK.
+	var StageData = preload("res://scripts/stage_data.gd")
+	if not StageData.STAGES.has(level_num):
+		push_error("Stage not found: " + str(level_num))
 		return []
+	var lines: Array = StageData.STAGES[level_num]
 	var grid: Array = []
-	while not file.eof_reached():
-		var line = file.get_line()
+	for line in lines:
 		if line.length() > 0:
 			var row: Array = []
 			for ch in line:
