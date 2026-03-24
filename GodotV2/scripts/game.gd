@@ -540,7 +540,7 @@ func update_enemies(delta: float) -> void:
 			enemy.queue_free()
 
 func check_enemy_collision(enemy: Node2D) -> void:
-	if not is_instance_valid(enemy) or enemy.is_dead:
+	if not is_instance_valid(enemy) or enemy.is_dead or enemy.is_spawning:
 		return
 	var enemy_rect = Rect2(enemy.position, Vector2(tile_dim * 2, tile_dim * 2))
 	
@@ -571,7 +571,7 @@ func check_enemy_collision(enemy: Node2D) -> void:
 	
 	# Check against other enemies
 	for other in enemies:
-		if other == enemy or not is_instance_valid(other) or other.is_dead:
+		if other == enemy or not is_instance_valid(other) or other.is_dead or other.is_spawning:
 			continue
 		var other_rect = Rect2(other.position, Vector2(tile_dim * 2, tile_dim * 2))
 		if enemy_rect.intersects(other_rect):
@@ -635,7 +635,7 @@ func check_player_collision() -> void:
 	
 	# Check enemy collision
 	for enemy in enemies:
-		if not is_instance_valid(enemy) or enemy.is_dead:
+		if not is_instance_valid(enemy) or enemy.is_dead or enemy.is_spawning:
 			continue
 		var enemy_rect = Rect2(enemy.position, Vector2(tile_dim * 2, tile_dim * 2))
 		if player_rect.intersects(enemy_rect):
@@ -716,7 +716,7 @@ func check_player_bullets() -> void:
 		
 		# Check against enemies
 		for enemy in enemies:
-			if not is_instance_valid(enemy) or enemy.is_dead:
+			if not is_instance_valid(enemy) or enemy.is_dead or enemy.is_spawning:
 				continue
 			var enemy_rect = Rect2(enemy.position, Vector2(tile_dim * 2, tile_dim * 2))
 			if bullet_rect.intersects(enemy_rect):
