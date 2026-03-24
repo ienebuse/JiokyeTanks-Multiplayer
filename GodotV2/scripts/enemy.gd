@@ -141,6 +141,9 @@ func update_ai(delta: float) -> void:
 		if spawn_frame >= SPAWN_FRAME_COUNT:
 			is_spawning = false
 			spawn_frame = 0
+			# Force direction change on spawn complete to avoid overlap stalling
+			change_direction()
+			last_valid_position = position
 		queue_redraw()
 		return
 	
@@ -263,6 +266,11 @@ func handle_collision() -> void:
 	if collision_count > 2:
 		change_direction()
 		collision_count = 0
+
+func push_out(push_dir: Vector2, amount: float) -> void:
+	# Used by game.gd to separate overlapping tanks after spawn
+	position += push_dir * amount
+	last_valid_position = position
 
 func set_target(pos: Vector2) -> void:
 	target = pos

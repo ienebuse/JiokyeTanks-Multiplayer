@@ -492,6 +492,29 @@ func generate_enemy(delta: float) -> void:
 	var spawn_x = spawn_positions[spawn_pos_idx]
 	var spawn_y = 0.0
 	
+	# Check if spawn position is occupied by another tank; try alternate positions
+	var tank_sz = tile_dim * 2
+	var found_free = false
+	for attempt in range(3):
+		var test_idx = (spawn_pos_idx + attempt) % 3
+		var test_x = spawn_positions[test_idx]
+		var test_rect = Rect2(test_x, spawn_y, tank_sz, tank_sz)
+		var blocked = false
+		for other in enemies:
+			if is_instance_valid(other) and not other.is_dead:
+				var other_rect = Rect2(other.position, Vector2(tank_sz, tank_sz))
+				if test_rect.intersects(other_rect):
+					blocked = true
+					break
+		if not blocked:
+			spawn_x = test_x
+			found_free = true
+			break
+	if not found_free:
+		# All three positions occupied — skip this spawn attempt, try next tick
+		new_enemy_timer = GEN_ENEMY_TIME * 0.5
+		return
+	
 	# Create enemy
 	var enemy_node = EnemyScene.instantiate()
 	entity_layer.add_child(enemy_node)
@@ -581,7 +604,13 @@ func check_enemy_collision(enemy: Node2D) -> void:
 			continue
 		var other_rect = Rect2(other.position, Vector2(tile_dim * 2, tile_dim * 2))
 		if enemy_rect.intersects(other_rect):
-			enemy.handle_collision()
+			# If both tanks are stuck at the same position, push them apart
+			var diff = enemy.position - other.position
+			if diff.length() < 1.0:
+				# Exactly overlapping — push in their facing directions
+				enemy.push_out(enemy.direction_to_vector(enemy.direction), tile_dim)
+			else:
+				enemy.handle_collision()
 	
 	# Check against player
 	if player and is_instance_valid(player) and not player.is_respawning and player.lives > 0:

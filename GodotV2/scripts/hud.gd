@@ -25,6 +25,9 @@ func _ready() -> void:
 	game_over_label.visible = false
 	pause_panel.visible = false
 	score_panel.visible = false
+	# Show touch controls on devices with touchscreen
+	if touch_controls:
+		touch_controls.visible = DisplayServer.is_touchscreen_available()
 
 func update_score(score: int) -> void:
 	if score_label:

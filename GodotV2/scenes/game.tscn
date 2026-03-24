@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://game001"]
+[gd_scene load_steps=4 format=3 uid="uid://game001"]
 
 [ext_resource type="Script" path="res://scripts/game.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/hud.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/touch_controls.gd" id="3"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1")
@@ -216,11 +217,14 @@ custom_minimum_size = Vector2(80, 40)
 text = "QUIT"
 
 [node name="TouchControls" type="Control" parent="UILayer/HUD"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("3")
 
 [connection signal="resume_pressed" from="UILayer/HUD" to="." method="_on_hud_resume"]
 [connection signal="retry_pressed" from="UILayer/HUD" to="." method="_on_hud_retry"]
