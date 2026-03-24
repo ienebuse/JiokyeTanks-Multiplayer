@@ -576,6 +576,18 @@ func check_enemy_collision(enemy: Node2D) -> void:
 		var other_rect = Rect2(other.position, Vector2(tile_dim * 2, tile_dim * 2))
 		if enemy_rect.intersects(other_rect):
 			enemy.handle_collision()
+	
+	# Check against player
+	if player and is_instance_valid(player) and not player.is_respawning and player.lives > 0:
+		var player_rect = Rect2(player.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if enemy_rect.intersects(player_rect):
+			enemy.handle_collision()
+	
+	# Check against eagle
+	if eagle_node and is_instance_valid(eagle_node):
+		var eagle_rect = Rect2(eagle_node.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if enemy_rect.intersects(eagle_rect):
+			enemy.handle_collision()
 
 func check_all_collisions() -> void:
 	if not player or player.lives <= 0:
@@ -758,6 +770,9 @@ func check_enemy_bullets_collision() -> void:
 			to_remove.append(bullet)
 			continue
 		if bullet.is_destroyed:
+			# Only remove from tracking after explosion animation completes
+			if bullet.exploding:
+				continue
 			to_remove.append(bullet)
 			continue
 		
@@ -829,8 +844,7 @@ func check_enemy_bullets_collision() -> void:
 	
 	for bullet in to_remove:
 		enemy_bullets.erase(bullet)
-		if is_instance_valid(bullet):
-			bullet.queue_free()
+		# Don't queue_free() here - bullets self-destruct after explosion animation
 
 func check_player_bonus_collision() -> void:
 	if active_bonus == null or not is_instance_valid(active_bonus):

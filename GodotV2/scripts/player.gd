@@ -302,26 +302,23 @@ func _draw() -> void:
 	if is_respawning and not respawn_blink:
 		return
 	
-	# Draw using tank sprite from tanktexture.png
-	# The spritesheet is 1216x512
-	# Original Java: each tank frame is 32x32 pixels, 28 frames per row, 8 rows
+	# Draw using tank sprite from tanktexture.png (1216x512)
+	# Java layout: 28 columns × 8 rows of 32×32 frames
+	# Column = 4 * group + direction (group=5 for P1, group=6 for P2)
+	# Row = 2 * armour + anim_frame
+	# Direction is already encoded in the column, no rotation needed
 	
 	if tank_texture:
-		# Tank sprite from spritesheet (tanktexture.png is 1216x512)
-		# Original Java: sprite is 32x32 per frame, 2 anim frames, 8 rows
-		# Row layout: each row has 28 frames across, 8 rows of 32px each
-		# Row 0 = player 1 UP frames, etc.
 		var frame_w = 32
 		var frame_h = 32
-		var src_x = anim_frame * frame_w
-		var src_y = 0  # Row 0 = player 1 base tank (facing UP)
+		var group = 5 if player_num == 1 else 6
+		var col = 4 * group + direction
+		var row = 2 * armour + anim_frame
+		var src_x = col * frame_w
+		var src_y = row * frame_h
 		
-		# Draw tank from spritesheet with rotation for direction
 		var src_rect = Rect2(src_x, src_y, frame_w, frame_h)
-		var center = Vector2(tank_size / 2, tank_size / 2)
-		draw_set_transform(center, deg_to_rad(direction * 90.0), Vector2.ONE)
-		draw_texture_rect_region(tank_texture, Rect2(-tank_size/2, -tank_size/2, tank_size, tank_size), src_rect)
-		draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
+		draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
 	else:
 		_draw_procedural()
 	

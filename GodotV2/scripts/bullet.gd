@@ -13,8 +13,17 @@ var is_destroyed: bool = false
 
 # Explosion animation
 var exploding: bool = false
-var explode_timer: float = 0.0
-const EXPLODE_TIME: float = 0.15
+var explode_frame: int = 0
+var explode_frame_timer: float = 0.0
+const EXPLODE_FRAME_COUNT: int = 5
+const EXPLODE_FRAME_TIME: float = 0.03  # ~1 game tick at 32 FPS
+
+# Explosion sprite from tanktexture.png: ST_DESTROY_BULLET at (1108, 0, 32, 32), 5 frames vertical
+var explode_texture: Texture2D = null
+const EXPLODE_SRC_X: int = 1108
+const EXPLODE_SRC_Y: int = 0
+const EXPLODE_SRC_W: int = 32
+const EXPLODE_SRC_H: int = 32
 
 func init_bullet(td: float, dir: int, player: bool, brk: bool = false, clr: bool = false, speed_mult: float = 1.0) -> void:
 	tile_dim = td
@@ -25,6 +34,7 @@ func init_bullet(td: float, dir: int, player: bool, brk: bool = false, clr: bool
 	size = tile_dim * 0.4
 	# Bullet speed: ~15 tiles/sec matches original feel
 	speed = tile_dim * 12.0 * speed_mult
+	explode_texture = load("res://assets/sprites/tanktexture.png")
 
 func get_collision_rect() -> Rect2:
 	# Matching Java Bullet.collides_with: expand perpendicular to direction
@@ -42,8 +52,12 @@ func get_collision_rect() -> Rect2:
 func _process(delta: float) -> void:
 	if is_destroyed:
 		if exploding:
-			explode_timer -= delta
-			if explode_timer <= 0:
+			explode_frame_timer += delta
+			if explode_frame_timer >= EXPLODE_FRAME_TIME:
+				explode_frame += 1
+				explode_frame_timer = 0.0
+			if explode_frame >= EXPLODE_FRAME_COUNT:
+				exploding = false
 				queue_free()
 			queue_redraw()
 		return
@@ -58,7 +72,8 @@ func destroy() -> void:
 		return
 	is_destroyed = true
 	exploding = true
-	explode_timer = EXPLODE_TIME
+	explode_frame = 0
+	explode_frame_timer = 0.0
 
 func direction_to_vector(dir: int) -> Vector2:
 	match dir:
@@ -70,12 +85,19 @@ func direction_to_vector(dir: int) -> Vector2:
 
 func _draw() -> void:
 	if is_destroyed and exploding:
-		# Explosion effect - orange/yellow expanding circle
-		var progress = 1.0 - (explode_timer / EXPLODE_TIME)
-		var radius = size * (1 + progress * 2.5)
-		var center = Vector2(size / 2, size / 2)
-		draw_circle(center, radius, Color(1, 0.4, 0, 0.7 * (1 - progress)))
-		draw_circle(center, radius * 0.5, Color(1, 0.8, 0, 0.5 * (1 - progress)))
+		# Draw explosion using spritesheet frames
+		var explode_size = tile_dim * 2  # Explosion is tank-sized (32px sprite → 2 tiles)
+		var center_offset = Vector2(size / 2 - explode_size / 2, size / 2 - explode_size / 2)
+		if explode_texture and explode_frame < EXPLODE_FRAME_COUNT:
+			var src_rect = Rect2(EXPLODE_SRC_X, EXPLODE_SRC_Y + explode_frame * EXPLODE_SRC_H, EXPLODE_SRC_W, EXPLODE_SRC_H)
+			draw_texture_rect_region(explode_texture, Rect2(center_offset, Vector2(explode_size, explode_size)), src_rect)
+		else:
+			# Fallback procedural explosion
+			var progress = float(explode_frame) / EXPLODE_FRAME_COUNT
+			var radius = explode_size * 0.5 * (0.5 + progress * 0.5)
+			var center = Vector2(size / 2, size / 2)
+			draw_circle(center, radius, Color(1, 0.4, 0, 0.7 * (1 - progress)))
+			draw_circle(center, radius * 0.5, Color(1, 0.8, 0, 0.5 * (1 - progress)))
 		return
 	
 	if is_destroyed:
