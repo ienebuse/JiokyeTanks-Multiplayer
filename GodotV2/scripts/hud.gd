@@ -21,6 +21,28 @@ signal quit_pressed
 
 var game_ref: Node2D = null
 
+# Animated score display state (matching Java showScores())
+var score_anim_active: bool = false
+var score_anim_timer: float = 0.0
+const SCORE_FRAME_TIME: float = 0.1  # 0.1 seconds per frame increment (matching Java)
+var score_enemy_frame: int = 0  # Which tank type we're animating (0=A, 1=B, 2=C, 3=D, 4=total)
+var score_display_kills: Dictionary = {}  # Current displayed kill counts
+var score_actual_kills: Dictionary = {}   # Target kill counts
+var score_stage: int = 0
+var score_stage_score: int = 0
+var score_total_score: int = 0
+var score_is_complete: bool = false
+
+# Tank type order for animation
+const SCORE_TYPES = [
+	GameData.ObjectType.ST_TANK_A,
+	GameData.ObjectType.ST_TANK_B,
+	GameData.ObjectType.ST_TANK_C,
+	GameData.ObjectType.ST_TANK_D,
+]
+const SCORE_VALUES = [100, 200, 300, 400]
+const TYPE_NAMES = ["TANK A", "TANK B", "TANK C", "TANK D"]
+
 func _ready() -> void:
 	game_over_label.visible = false
 	pause_panel.visible = false
@@ -28,6 +50,10 @@ func _ready() -> void:
 	# Show touch controls on devices with touchscreen
 	if touch_controls:
 		touch_controls.visible = DisplayServer.is_touchscreen_available()
+
+func _process(delta: float) -> void:
+	if score_anim_active:
+		_update_score_animation(delta)
 
 func update_score(score: int) -> void:
 	if score_label:
@@ -63,28 +89,75 @@ func show_score_screen(kills: Dictionary, stage_score: int, total_score: int, st
 		return
 	
 	score_panel.visible = true
+	
+	# Initialize animated score display
+	score_actual_kills = kills.duplicate()
+	score_stage = stage
+	score_stage_score = stage_score
+	score_total_score = total_score
+	score_is_complete = is_complete
+	score_enemy_frame = 0
+	score_anim_timer = 0.0
+	score_anim_active = true
+	
+	# Reset displayed kill counts to 0
+	score_display_kills = {}
+	for type in SCORE_TYPES:
+		score_display_kills[type] = 0
+	
+	# Show initial text (header only, kills will animate in)
+	_update_score_text()
+
+func _update_score_animation(delta: float) -> void:
+	score_anim_timer -= delta
+	if score_anim_timer > 0:
+		return
+	
+	score_anim_timer = SCORE_FRAME_TIME
+	
+	if score_enemy_frame >= SCORE_TYPES.size():
+		# Animation complete - show totals
+		score_anim_active = false
+		_update_score_text()
+		return
+	
+	var current_type = SCORE_TYPES[score_enemy_frame]
+	var target = score_actual_kills.get(current_type, 0)
+	var current = score_display_kills.get(current_type, 0)
+	
+	if current < target:
+		# Increment one kill at a time
+		score_display_kills[current_type] = current + 1
+		_update_score_text()
+	else:
+		# Move to next tank type
+		score_enemy_frame += 1
+		_update_score_text()
+
+func _update_score_text() -> void:
 	var text = ""
-	if is_complete:
-		text += "STAGE " + str(stage) + " COMPLETE!\n\n"
+	if score_is_complete:
+		text += "STAGE " + str(score_stage) + " COMPLETE!\n\n"
 	else:
 		text += "GAME OVER\n\n"
 	
-	text += "STAGE SCORE: " + str(stage_score) + "\n"
-	text += "TOTAL SCORE: " + str(total_score) + "\n\n"
-	text += "KILLS:\n"
+	text += "STAGE SCORE: " + str(score_stage_score) + "\n"
+	text += "TOTAL SCORE: " + str(score_total_score) + "\n\n"
 	
-	var type_names = {
-		GameData.ObjectType.ST_TANK_A: "TANK A",
-		GameData.ObjectType.ST_TANK_B: "TANK B",
-		GameData.ObjectType.ST_TANK_C: "TANK C",
-		GameData.ObjectType.ST_TANK_D: "TANK D",
-	}
+	# Show kills animated per type (only show types that have been reached)
+	var total_kills = 0
+	for i in range(SCORE_TYPES.size()):
+		if i > score_enemy_frame:
+			break  # Haven't reached this type yet
+		var type = SCORE_TYPES[i]
+		var count = score_display_kills.get(type, 0)
+		var score = count * SCORE_VALUES[i]
+		total_kills += count
+		text += TYPE_NAMES[i] + ":  " + str(count) + " x " + str(SCORE_VALUES[i]) + " = " + str(score) + "\n"
 	
-	for type in kills:
-		var name = type_names.get(type, "UNKNOWN")
-		var count = kills[type]
-		var score = count * GameData.ENEMY_SCORES.get(type, 100)
-		text += name + ": " + str(count) + " x " + str(GameData.ENEMY_SCORES.get(type, 100)) + " = " + str(score) + "\n"
+	# Show total line once animation is complete
+	if score_enemy_frame >= SCORE_TYPES.size():
+		text += "\nTOTAL KILLS: " + str(total_kills) + "\n"
 	
 	if score_detail_label:
 		score_detail_label.text = text
@@ -95,12 +168,15 @@ func _on_resume_btn_pressed() -> void:
 func _on_retry_btn_pressed() -> void:
 	score_panel.visible = false
 	game_over_label.visible = false
+	score_anim_active = false
 	retry_pressed.emit()
 
 func _on_next_btn_pressed() -> void:
 	score_panel.visible = false
 	game_over_label.visible = false
+	score_anim_active = false
 	next_pressed.emit()
 
 func _on_quit_btn_pressed() -> void:
+	score_anim_active = false
 	quit_pressed.emit()
