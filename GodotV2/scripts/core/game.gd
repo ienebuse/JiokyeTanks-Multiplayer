@@ -24,6 +24,8 @@ func _process(_delta: float) -> void:
 func _on_enemy_destroyed(enemy: Node) -> void:
     if is_finished:
         return
+    if not is_instance_valid(player):
+        return
     score += 100
     hud.update_hud(player.health, score)
     if is_instance_valid(enemy):

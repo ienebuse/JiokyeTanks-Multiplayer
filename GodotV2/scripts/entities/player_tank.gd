@@ -38,7 +38,11 @@ func apply_hit() -> void:
     if parent_node != null and parent_node.has_node("HUD"):
         var hud_node := parent_node.get_node("HUD")
         if hud_node != null and hud_node.has_method("update_hud"):
-            hud_node.update_hud(health, parent_node.score)
+            var current_score := 0
+            var score_value := parent_node.get("score")
+            if typeof(score_value) == TYPE_INT:
+                current_score = score_value
+            hud_node.update_hud(health, current_score)
     if health <= 0:
         destroyed.emit()
         queue_free()

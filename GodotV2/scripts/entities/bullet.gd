@@ -18,7 +18,7 @@ func _physics_process(delta: float) -> void:
         queue_free()
 
 func _on_body_entered(body: Node) -> void:
-    if body == shooter:
+    if shooter != null and is_instance_valid(shooter) and body == shooter:
         return
     if body.has_method("apply_hit"):
         body.apply_hit()
