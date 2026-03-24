@@ -11,7 +11,7 @@ var lives: int = 3
 var is_respawning: bool = false
 var respawn_timer: float = 0.0
 const RESPAWN_TIME: float = 2.0
-const BASE_SPEED_TILES_PER_SEC: float = 3.2  # Matches original ~3 tiles/sec at FPS=32
+const BASE_SPEED_TILES_PER_SEC: float = 3.2  # Base movement speed in tiles per second
 
 # Movement
 var direction: int = GameData.Direction.UP

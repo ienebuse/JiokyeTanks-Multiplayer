@@ -24,9 +24,9 @@ func init_brick(td: float) -> void:
 func get_collision_rect() -> Rect2:
 	return Rect2(position + col_offset, col_size)
 
-func take_damage(dir: int) -> bool:
+func take_damage(dir: int) -> void:
 	if destroyed:
-		return false
+		return
 	damage_state += 1
 	if damage_state == 1:
 		damage_direction = dir
@@ -47,12 +47,9 @@ func take_damage(dir: int) -> bool:
 				# Bullet from left hit right - right half destroyed, left remains
 				col_size.x = tile_dim / 2.0
 		queue_redraw()
-		return true
 	elif damage_state >= 2:
 		destroyed = true
 		visible = false
-		return false
-	return true
 
 func is_destroyed() -> bool:
 	return destroyed

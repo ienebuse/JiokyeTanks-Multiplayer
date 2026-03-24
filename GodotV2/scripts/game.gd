@@ -480,8 +480,8 @@ func generate_enemy(delta: float) -> void:
 			hve_lives -= 1
 	
 	# Spawn position (top of map, 3 possible positions matching original)
-	# Original: positions at 0, 12, 24 * tile_dim (equally spaced across 26 grid)
-	var spawn_positions = [0.0, 12.0 * tile_dim, (GameData.GRID_SIZE - 2) * tile_dim]
+	# Positions at grid columns 0, 12, 24
+	var spawn_positions = [0.0, 12.0 * tile_dim, 24.0 * tile_dim]
 	var spawn_pos_idx = randi() % 3
 	var spawn_x = spawn_positions[spawn_pos_idx]
 	var spawn_y = 0.0
@@ -678,7 +678,7 @@ func check_player_bullets() -> void:
 							match obj_type:
 								"brick":
 									# Matching Java: brick takes directional damage
-									var still_alive = obj.take_damage(bullet.direction)
+									obj.take_damage(bullet.direction)
 									if obj.is_destroyed():
 										level_objects[r][c] = null
 									# If player has break_wall, destroy brick entirely
