@@ -1185,6 +1185,10 @@ func _on_enemy_destroyed(enemy: Node2D) -> void:
 func _on_mine_dropped(mine_node: Node2D) -> void:
 	entity_layer.add_child(mine_node)
 
+func _on_pause_btn_pressed() -> void:
+	if state == GameState.PLAYING:
+		pause_game()
+
 func _on_hud_resume() -> void:
 	resume_game()
 

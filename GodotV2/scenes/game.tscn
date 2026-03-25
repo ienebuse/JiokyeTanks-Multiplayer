@@ -247,6 +247,7 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("3")
 
+[connection signal="pressed" from="UILayer/HUD/MarginContainer/TopBar/PauseBtn" to="." method="_on_pause_btn_pressed"]
 [connection signal="resume_pressed" from="UILayer/HUD" to="." method="_on_hud_resume"]
 [connection signal="retry_pressed" from="UILayer/HUD" to="." method="_on_hud_retry"]
 [connection signal="next_pressed" from="UILayer/HUD" to="." method="_on_hud_next"]

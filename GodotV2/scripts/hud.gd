@@ -13,6 +13,7 @@ signal quit_pressed
 @onready var enemy_count_label: Label = $MarginContainer/TopBar/EnemyLabel
 @onready var game_over_label: Label = $GameOverLabel
 @onready var pause_panel: Panel = $PausePanel
+@onready var pause_overlay: ColorRect = $PauseOverlay
 @onready var score_panel: Panel = $ScorePanel
 @onready var score_detail_label: Label = $ScorePanel/VBoxContainer/ScoreDetail
 
@@ -46,6 +47,8 @@ const TYPE_NAMES = ["TANK A", "TANK B", "TANK C", "TANK D"]
 func _ready() -> void:
 	game_over_label.visible = false
 	pause_panel.visible = false
+	if pause_overlay:
+		pause_overlay.visible = false
 	score_panel.visible = false
 	# Show touch controls on devices with touchscreen
 	if touch_controls:
@@ -77,10 +80,14 @@ func show_game_over() -> void:
 		game_over_label.text = "GAME OVER"
 
 func show_pause_menu() -> void:
+	if pause_overlay:
+		pause_overlay.visible = true
 	if pause_panel:
 		pause_panel.visible = true
 
 func hide_pause_menu() -> void:
+	if pause_overlay:
+		pause_overlay.visible = false
 	if pause_panel:
 		pause_panel.visible = false
 
