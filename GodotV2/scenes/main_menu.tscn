@@ -82,12 +82,18 @@ value = 1.0
 layout_mode = 2
 text = "GO"
 
+[node name="MultiplayerBtn" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(200, 50)
+text = "MULTIPLAYER"
+
 [node name="QuitBtn" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 custom_minimum_size = Vector2(200, 50)
 text = "QUIT"
 
 [connection signal="pressed" from="VBoxContainer/StartBtn" to="." method="_on_start_btn_pressed"]
+[connection signal="pressed" from="VBoxContainer/MultiplayerBtn" to="." method="_on_multiplayer_btn_pressed"]
 [connection signal="pressed" from="VBoxContainer/ContinueBtn" to="." method="_on_continue_btn_pressed"]
 [connection signal="pressed" from="VBoxContainer/LevelSelect/GoBtn" to="." method="_on_go_btn_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitBtn" to="." method="_on_quit_btn_pressed"]

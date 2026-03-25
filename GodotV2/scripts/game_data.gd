@@ -98,6 +98,7 @@ const BONUS_LIFETIME: float = 200.0 / FPS
 
 # Game state
 var current_level: int = 0
+var is_multiplayer: bool = false
 var hi_score: int = 0
 var unlocked_level: int = 0
 var sound_enabled: bool = true

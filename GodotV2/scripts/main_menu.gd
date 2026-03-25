@@ -23,5 +23,8 @@ func _on_go_btn_pressed() -> void:
 		GameData.current_level = int(level_spinbox.value)
 		get_tree().change_scene_to_file("res://scenes/game.tscn")
 
+func _on_multiplayer_btn_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/multiplayer_lobby.tscn")
+
 func _on_quit_btn_pressed() -> void:
 	get_tree().quit()

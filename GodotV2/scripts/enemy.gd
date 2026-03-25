@@ -19,6 +19,7 @@ var is_frozen: bool = false
 var has_bonus: bool = false
 var has_boat: bool = false
 var is_spawning: bool = true
+var network_controlled: bool = false  # True on client; skip AI, only render
 
 # Movement
 var direction: int = GameData.Direction.DOWN
@@ -436,3 +437,34 @@ func _draw_procedural() -> void:
 		for i in range(count):
 			var dot_pos = Vector2(tank_size / 2 - (count - 1) * 3 + i * 6, tank_size - 3)
 			draw_circle(dot_pos, 1.5, Color.WHITE)
+
+# --- Network sync helpers ---
+
+func get_sync_state() -> Array:
+	return [
+		enemy_id, position.x, position.y, direction,
+		int(is_dead), int(is_spawning), tank_type, group,
+		int(is_hve), anim_frame, int(has_bonus), int(has_boat),
+		int(is_frozen), spawn_frame, int(death_anim_done), death_frame,
+		life_frame, hve_health, hve_max_health,
+	]
+
+func apply_sync_state(data: Array) -> void:
+	if data.size() < 19:
+		return
+	position = Vector2(data[1], data[2])
+	direction = int(data[3])
+	is_dead = bool(data[4])
+	is_spawning = bool(data[5])
+	# tank_type and group are set at creation, skip
+	anim_frame = int(data[9])
+	has_bonus = bool(data[10])
+	has_boat = bool(data[11])
+	is_frozen = bool(data[12])
+	spawn_frame = int(data[13])
+	death_anim_done = bool(data[14])
+	death_frame = int(data[15])
+	life_frame = int(data[16])
+	hve_health = int(data[17])
+	hve_max_health = int(data[18])
+	queue_redraw()

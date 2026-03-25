@@ -14,6 +14,7 @@ config/icon="res://assets/sprites/icon.png"
 
 GameData="*res://scripts/game_data.gd"
 SoundManager="*res://scripts/sound_manager.gd"
+NetworkManager="*res://scripts/network_manager.gd"
 
 [display]
 
