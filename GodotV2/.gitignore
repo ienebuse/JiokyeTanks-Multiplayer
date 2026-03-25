@@ -1,0 +1,17 @@
+# Godot 4+ specific ignores
+.godot/
+*.import
+
+# Exported game builds
+export/
+*.apk
+*.aab
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
