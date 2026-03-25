@@ -79,6 +79,7 @@ const SYNC_RATE: float = 1.0 / 20.0
 var client_enemies: Dictionary = {}
 var client_p_bullets: Array = []
 var client_e_bullets: Array = []
+var pending_terrain_changes: Array = []  # Queued terrain changes to sync to client
 
 # References
 var tile_dim: float = 0.0
@@ -224,6 +225,7 @@ func clear_level() -> void:
 		if is_instance_valid(b):
 			b.queue_free()
 	client_e_bullets.clear()
+	pending_terrain_changes.clear()
 
 func build_level() -> void:
 	level_objects = []
@@ -476,6 +478,10 @@ func process_game(delta: float) -> void:
 	
 	# Multiplayer server: sync state to client
 	if GameData.is_multiplayer and NetworkManager.is_server():
+		# Send terrain changes immediately (reliable)
+		if pending_terrain_changes.size() > 0:
+			_receive_terrain_changes.rpc(pending_terrain_changes)
+			pending_terrain_changes.clear()
 		sync_timer += delta
 		if sync_timer >= SYNC_RATE:
 			sync_timer = 0.0
@@ -896,12 +902,14 @@ func check_player_bullets_for(p: Node2D) -> void:
 								"brick":
 									# Matching Java: brick takes directional damage
 									obj.take_damage(bullet.direction)
+									_record_terrain_change(r, c, "brick_damage", bullet.direction)
 									if obj.is_destroyed():
 										level_objects[r][c] = null
 									# If player has break_wall, destroy brick entirely
 									if bullet.break_wall and not obj.is_destroyed():
 										obj.queue_free()
 										level_objects[r][c] = null
+										_record_terrain_change(r, c, "brick_destroy")
 									bullet.destroy()
 									hit_terrain = true
 									SoundManager.play_sound("tnkbrick.wav")
@@ -909,6 +917,7 @@ func check_player_bullets_for(p: Node2D) -> void:
 									if bullet.break_wall:
 										obj.queue_free()
 										level_objects[r][c] = null
+										_record_terrain_change(r, c, "stone_destroy")
 									bullet.destroy()
 									hit_terrain = true
 									SoundManager.play_sound("tnksteel.wav")
@@ -916,6 +925,7 @@ func check_player_bullets_for(p: Node2D) -> void:
 									if bullet.clear_bush:
 										obj.queue_free()
 										level_objects[r][c] = null
+										_record_terrain_change(r, c, "bush_destroy")
 										# Bushes don't stop bullets in original
 		
 		if bullet.is_destroyed:
@@ -954,6 +964,9 @@ func check_player_bullets_for(p: Node2D) -> void:
 				else:
 					eagle_node.take_damage()
 					bullet.destroy()
+					var ec = int(eagle_node.position.x / tile_dim)
+					var er = int(eagle_node.position.y / tile_dim)
+					_record_terrain_change(er, ec, "eagle_destroy")
 		
 		if bullet.is_destroyed:
 			continue
@@ -1042,6 +1055,7 @@ func check_enemy_bullets_collision() -> void:
 							match obj_type:
 								"brick":
 									obj.take_damage(bullet.direction)
+									_record_terrain_change(r, c, "brick_damage", bullet.direction)
 									if obj.is_destroyed():
 										level_objects[r][c] = null
 									bullet.destroy()
@@ -1062,6 +1076,9 @@ func check_enemy_bullets_collision() -> void:
 				else:
 					eagle_node.take_damage()
 					bullet.destroy()
+					var ec = int(eagle_node.position.x / tile_dim)
+					var er = int(eagle_node.position.y / tile_dim)
+					_record_terrain_change(er, ec, "eagle_destroy")
 	
 	for bullet in to_remove:
 		enemy_bullets.erase(bullet)
@@ -1257,6 +1274,7 @@ func protect_eagle() -> void:
 				if level_objects[r][c] != null and is_instance_valid(level_objects[r][c]):
 					level_objects[r][c].queue_free()
 				level_objects[r][c] = create_stone(Vector2(c * tile_dim, r * tile_dim), c, r)
+				_record_terrain_change(r, c, "place_stone")
 
 func remove_eagle_protection() -> void:
 	# Restore original terrain around eagle (matching Java: replaces with bricks)
@@ -1269,6 +1287,7 @@ func remove_eagle_protection() -> void:
 				level_objects[r][c].queue_free()
 			# Restore as brick (matching original Java behavior)
 			level_objects[r][c] = create_brick(Vector2(c * tile_dim, r * tile_dim), c, r)
+			_record_terrain_change(r, c, "place_brick")
 	eagle_protect_original.clear()
 
 func pause_game() -> void:
@@ -1383,6 +1402,47 @@ func _receive_game_state(data: Dictionary) -> void:
 @rpc("authority", "reliable")
 func _receive_sound_event(sound_name: String) -> void:
 	SoundManager.play_sound(sound_name)
+
+func _record_terrain_change(row: int, col: int, action: String, direction: int = -1) -> void:
+	if GameData.is_multiplayer and NetworkManager.is_server():
+		pending_terrain_changes.append([row, col, action, direction])
+
+@rpc("authority", "reliable")
+func _receive_terrain_changes(changes: Array) -> void:
+	if not GameData.is_multiplayer or not NetworkManager.is_client():
+		return
+	for change in changes:
+		if change.size() < 4:
+			continue
+		var r = int(change[0])
+		var c = int(change[1])
+		var action = str(change[2])
+		var dir = int(change[3])
+		if r < 0 or r >= level_objects.size() or c < 0 or c >= level_objects[r].size():
+			continue
+		match action:
+			"brick_damage":
+				var obj = level_objects[r][c]
+				if obj != null and is_instance_valid(obj) and obj.has_method("take_damage"):
+					obj.take_damage(dir)
+					if obj.is_destroyed():
+						level_objects[r][c] = null
+			"brick_destroy", "stone_destroy", "bush_destroy":
+				var obj = level_objects[r][c]
+				if obj != null and is_instance_valid(obj):
+					obj.queue_free()
+					level_objects[r][c] = null
+			"place_stone":
+				if level_objects[r][c] != null and is_instance_valid(level_objects[r][c]):
+					level_objects[r][c].queue_free()
+				level_objects[r][c] = create_stone(Vector2(c * tile_dim, r * tile_dim), c, r)
+			"place_brick":
+				if level_objects[r][c] != null and is_instance_valid(level_objects[r][c]):
+					level_objects[r][c].queue_free()
+				level_objects[r][c] = create_brick(Vector2(c * tile_dim, r * tile_dim), c, r)
+			"eagle_destroy":
+				if eagle_node and is_instance_valid(eagle_node):
+					eagle_node.take_damage()
 
 func _build_game_state() -> Dictionary:
 	var data: Dictionary = {}
