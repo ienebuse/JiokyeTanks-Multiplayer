@@ -21,6 +21,7 @@ var bushes: Array = []
 
 # Entities
 var player: Node2D = null
+var player2: Node2D = null
 var enemies: Array = []
 var enemy_bullets: Array = []
 var bonuses: Array = []
@@ -71,6 +72,13 @@ const FIGHT_SCENES: Array = [
 	"tnk_fightscene5.wav",
 ]
 var current_scene_sound: String = ""
+
+# Multiplayer
+var sync_timer: float = 0.0
+const SYNC_RATE: float = 1.0 / 20.0
+var client_enemies: Dictionary = {}
+var client_p_bullets: Array = []
+var client_e_bullets: Array = []
 
 # References
 var tile_dim: float = 0.0
@@ -164,6 +172,9 @@ func start_level(lvl: int) -> void:
 	# Create player
 	create_player()
 	
+	if GameData.is_multiplayer:
+		create_player2()
+	
 	# Create bonus holder
 	active_bonus = null
 	
@@ -201,8 +212,18 @@ func clear_level() -> void:
 	bonuses.clear()
 	active_bonus = null
 	player = null
+	player2 = null
 	eagle_node = null
 	gold_node = null
+	client_enemies.clear()
+	for b in client_p_bullets:
+		if is_instance_valid(b):
+			b.queue_free()
+	client_p_bullets.clear()
+	for b in client_e_bullets:
+		if is_instance_valid(b):
+			b.queue_free()
+	client_e_bullets.clear()
 
 func build_level() -> void:
 	level_objects = []
@@ -315,6 +336,20 @@ func create_player() -> void:
 	player.bullet_fired.connect(_on_player_bullet_fired)
 	player.mine_dropped.connect(_on_mine_dropped)
 
+func create_player2() -> void:
+	player2 = Node2D.new()
+	player2.set_script(preload("res://scripts/player.gd"))
+	var px = int(9.0 * GameData.GRID_SIZE / 13.0) * tile_dim
+	var py = (GameData.GRID_SIZE - 2) * tile_dim
+	player2.position = Vector2(px, py)
+	entity_layer.add_child(player2)
+	player2.init_player(tile_dim, 2)
+	if NetworkManager.is_multiplayer_mode:
+		player2.is_local = NetworkManager.is_client()
+		player.is_local = NetworkManager.is_server()
+	player2.bullet_fired.connect(_on_player_bullet_fired)
+	player2.mine_dropped.connect(_on_mine_dropped)
+
 func _process(delta: float) -> void:
 	match state:
 		GameState.CURTAIN_CLOSE:
@@ -381,6 +416,16 @@ func process_game(delta: float) -> void:
 		pause_game()
 		return
 	
+	# Multiplayer client: send input to server, skip local game logic
+	if GameData.is_multiplayer and NetworkManager.is_client():
+		if player2 and player2.is_local:
+			var dir = player2.direction
+			var mov = player2.moving
+			var firing = Input.is_action_pressed("fire")
+			var mine_pressed = Input.is_action_just_pressed("mine")
+			_receive_player_input.rpc_id(1, dir, mov, firing, mine_pressed)
+		return
+	
 	# Freeze timer
 	if is_frozen:
 		freeze_timer -= delta
@@ -412,6 +457,14 @@ func process_game(delta: float) -> void:
 	
 	# Check win/lose conditions AFTER collisions so bonuses can still be collected
 	check_game_state()
+	
+	# Multiplayer server: sync state to client
+	if GameData.is_multiplayer and NetworkManager.is_server():
+		sync_timer += delta
+		if sync_timer >= SYNC_RATE:
+			sync_timer = 0.0
+			var game_state = _build_game_state()
+			_receive_game_state.rpc(game_state)
 
 func check_game_state() -> void:
 	# Stage complete: all enemies dead - count actual live enemies to avoid counter bugs
@@ -425,9 +478,16 @@ func check_game_state() -> void:
 			return
 	
 	# Game over: player dead or eagle destroyed
-	if player and player.lives <= 0:
-		do_game_over()
-		return
+	if GameData.is_multiplayer:
+		var p1_dead = not player or player.lives <= 0
+		var p2_dead = not player2 or player2.lives <= 0
+		if p1_dead and p2_dead:
+			do_game_over()
+			return
+	else:
+		if player and player.lives <= 0:
+			do_game_over()
+			return
 	
 	if eagle_node and eagle_node.is_destroyed:
 		do_game_over()
@@ -469,10 +529,13 @@ func process_stage_complete(delta: float) -> void:
 	
 	# Check collisions - player can still move and collect bonuses
 	if player and is_instance_valid(player) and player.lives > 0:
-		check_player_collision()
-		check_player_bullets()
+		check_player_collision_for(player)
+		check_player_bullets_for(player)
 		check_enemy_bullets_collision()
 		check_player_bonus_collision()
+	if player2 and is_instance_valid(player2) and player2.lives > 0:
+		check_player_collision_for(player2)
+		check_player_bullets_for(player2)
 	
 	# Update bonus
 	update_bonus(delta)
@@ -615,11 +678,16 @@ func update_enemies(delta: float) -> void:
 			continue
 		
 		if not enemy.is_dead and not is_frozen:
-			# Set target (player position)
-			if player and player.lives > 0:
-				enemy.set_target(player.position)
-			else:
-				enemy.set_target(Vector2(board_size.x / 2, board_size.y / 2))
+			# Set target (closest alive player position)
+			var target_pos = Vector2(board_size.x / 2, board_size.y / 2)
+			if player and player.lives > 0 and not player.is_respawning:
+				target_pos = player.position
+			if player2 and player2.lives > 0 and not player2.is_respawning:
+				var p2_dist = enemy.position.distance_squared_to(player2.position)
+				var p1_dist = enemy.position.distance_squared_to(target_pos)
+				if p2_dist < p1_dist or not (player and player.lives > 0 and not player.is_respawning):
+					target_pos = player2.position
+			enemy.set_target(target_pos)
 			
 			enemy.update_ai(delta)
 			check_enemy_collision(enemy)
@@ -681,6 +749,12 @@ func check_enemy_collision(enemy: Node2D) -> void:
 		if enemy_rect.intersects(player_rect):
 			enemy.handle_collision()
 	
+	# Check against player2
+	if player2 and is_instance_valid(player2) and not player2.is_respawning and player2.lives > 0:
+		var p2_rect = Rect2(player2.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if enemy_rect.intersects(p2_rect):
+			enemy.handle_collision()
+	
 	# Check against eagle
 	if eagle_node and is_instance_valid(eagle_node):
 		var eagle_rect = Rect2(eagle_node.position, Vector2(tile_dim * 2, tile_dim * 2))
@@ -688,23 +762,25 @@ func check_enemy_collision(enemy: Node2D) -> void:
 			enemy.handle_collision()
 
 func check_all_collisions() -> void:
-	if not player or player.lives <= 0:
-		return
+	if player and player.lives > 0:
+		check_player_collision_for(player)
+		check_player_bullets_for(player)
+	if player2 and player2.lives > 0:
+		check_player_collision_for(player2)
+		check_player_bullets_for(player2)
 	
-	check_player_collision()
-	check_player_bullets()
 	check_enemy_bullets_collision()
 	check_player_bonus_collision()
 	check_enemy_bonus_collision()
 
-func check_player_collision() -> void:
-	if not is_instance_valid(player) or player.is_respawning:
+func check_player_collision_for(p: Node2D) -> void:
+	if not is_instance_valid(p) or p.is_respawning:
 		return
-	var player_rect = Rect2(player.position, Vector2(tile_dim * 2, tile_dim * 2))
+	var p_rect = Rect2(p.position, Vector2(tile_dim * 2, tile_dim * 2))
 	
 	# Check terrain collisions
-	var grid_col = int(player.position.x / tile_dim)
-	var grid_row = int(player.position.y / tile_dim)
+	var grid_col = int(p.position.x / tile_dim)
+	var grid_row = int(p.position.y / tile_dim)
 	
 	for r in range(max(0, grid_row - 1), min(level_objects.size(), grid_row + 3)):
 		for c in range(max(0, grid_col - 1), min(level_objects[0].size() if level_objects.size() > 0 else 0, grid_col + 3)):
@@ -717,38 +793,45 @@ func check_player_collision() -> void:
 						obj_rect = obj.get_collision_rect()
 					else:
 						obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
-					if player_rect.intersects(obj_rect):
+					if p_rect.intersects(obj_rect):
 						var obj_type = obj.get_meta("type") if obj.has_meta("type") else ""
 						match obj_type:
 							"brick", "stone":
-								player.handle_terrain_collision(obj)
+								p.handle_terrain_collision(obj)
 							"water":
-								if not player.has_boat:
-									player.handle_terrain_collision(obj)
+								if not p.has_boat:
+									p.handle_terrain_collision(obj)
 							"ice":
-								player.on_ice = true
+								p.on_ice = true
 	
 	# Check board boundaries
-	player.position.x = clamp(player.position.x, 0, board_size.x - tile_dim * 2)
-	player.position.y = clamp(player.position.y, 0, board_size.y - tile_dim * 2)
+	p.position.x = clamp(p.position.x, 0, board_size.x - tile_dim * 2)
+	p.position.y = clamp(p.position.y, 0, board_size.y - tile_dim * 2)
 	
 	# Check enemy collision
 	for enemy in enemies:
 		if not is_instance_valid(enemy) or enemy.is_dead or enemy.is_spawning:
 			continue
 		var enemy_rect = Rect2(enemy.position, Vector2(tile_dim * 2, tile_dim * 2))
-		if player_rect.intersects(enemy_rect):
-			player.handle_terrain_collision(enemy)
+		if p_rect.intersects(enemy_rect):
+			p.handle_terrain_collision(enemy)
 	
 	# Check eagle collision
 	if eagle_node and is_instance_valid(eagle_node):
 		var eagle_rect = Rect2(eagle_node.position, Vector2(tile_dim * 2, tile_dim * 2))
-		if player_rect.intersects(eagle_rect):
-			player.handle_terrain_collision(eagle_node)
+		if p_rect.intersects(eagle_rect):
+			p.handle_terrain_collision(eagle_node)
+	
+	# Check collision with other player
+	var other = player2 if p == player else player
+	if other and is_instance_valid(other) and not other.is_respawning and other.lives > 0:
+		var other_rect = Rect2(other.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if p_rect.intersects(other_rect):
+			p.handle_terrain_collision(other)
 
-func check_player_bullets() -> void:
+func check_player_bullets_for(p: Node2D) -> void:
 	var bullets_to_remove: Array = []
-	for bullet in player.bullets:
+	for bullet in p.bullets:
 		if not is_instance_valid(bullet):
 			bullets_to_remove.append(bullet)
 			continue
@@ -863,7 +946,7 @@ func check_player_bullets() -> void:
 				break
 	
 	for bullet in bullets_to_remove:
-		player.bullets.erase(bullet)
+		p.bullets.erase(bullet)
 
 func check_enemy_bullets_collision() -> void:
 	var to_remove: Array = []
@@ -899,6 +982,18 @@ func check_enemy_bullets_collision() -> void:
 					SoundManager.play_sound("tnkexplosion.wav")
 					if hud:
 						hud.update_lives(player.lives)
+				continue
+		
+		# Check against player2
+		if player2 and is_instance_valid(player2) and not player2.is_respawning and player2.lives > 0:
+			var p2_rect = Rect2(player2.position, Vector2(tile_dim * 2, tile_dim * 2))
+			if bullet_rect.intersects(p2_rect):
+				if player2.has_shield:
+					bullet.destroy()
+				else:
+					player2.take_hit()
+					bullet.destroy()
+					SoundManager.play_sound("tnkexplosion.wav")
 				continue
 		
 		# Check against terrain
@@ -952,17 +1047,26 @@ func check_enemy_bullets_collision() -> void:
 func check_player_bonus_collision() -> void:
 	if active_bonus == null or not is_instance_valid(active_bonus):
 		return
-	if not is_instance_valid(player) or player.is_respawning:
-		return
 	
-	var player_rect = Rect2(player.position, Vector2(tile_dim * 2, tile_dim * 2))
 	var bonus_rect = Rect2(active_bonus.position, Vector2(tile_dim * 2, tile_dim * 2))
 	
-	if player_rect.intersects(bonus_rect):
-		apply_bonus(active_bonus.bonus_type)
-		active_bonus.queue_free()
-		active_bonus = null
-		SoundManager.play_sound("tnkpowerup.wav")
+	if player and is_instance_valid(player) and not player.is_respawning and player.lives > 0:
+		var player_rect = Rect2(player.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if player_rect.intersects(bonus_rect):
+			apply_bonus(active_bonus.bonus_type, player)
+			active_bonus.queue_free()
+			active_bonus = null
+			SoundManager.play_sound("tnkpowerup.wav")
+			return
+	
+	if player2 and is_instance_valid(player2) and not player2.is_respawning and player2.lives > 0:
+		var p2_rect = Rect2(player2.position, Vector2(tile_dim * 2, tile_dim * 2))
+		if p2_rect.intersects(bonus_rect):
+			apply_bonus(active_bonus.bonus_type, player2)
+			active_bonus.queue_free()
+			active_bonus = null
+			SoundManager.play_sound("tnkpowerup.wav")
+			return
 
 func check_enemy_bonus_collision() -> void:
 	# Matching Java checkCollisionEnemyWithBonus - enemies can collect bonuses
@@ -983,19 +1087,24 @@ func apply_enemy_bonus(bonus_type: int, enemy: Node2D) -> void:
 	# Matching Java Enemy.collidsWithBonus - reversed effects for enemy
 	match bonus_type:
 		GameData.BonusType.GRENADE:
-			# Enemy gets grenade → kills the player (matching Java P1.setDestroyed())
+			# Enemy gets grenade → kills both players
 			if player and is_instance_valid(player) and not player.is_respawning:
 				player.take_hit()
 				SoundManager.play_sound("tnkexplosion.wav")
 				if hud:
 					hud.update_lives(player.lives)
+			if player2 and is_instance_valid(player2) and not player2.is_respawning:
+				player2.take_hit()
+				SoundManager.play_sound("tnkexplosion.wav")
 		GameData.BonusType.HELMET:
 			# Enemy gets shield
 			enemy.activate_shield_if_available()
 		GameData.BonusType.CLOCK:
-			# Enemy gets clock → freezes the player (matching Java P1.freeze())
+			# Enemy gets clock → freezes both players
 			if player and is_instance_valid(player):
 				player.freeze()
+			if player2 and is_instance_valid(player2):
+				player2.freeze()
 		GameData.BonusType.SHOVEL:
 			# Enemy gets shovel → protects eagle (benefits enemy side)
 			protect_eagle()
@@ -1039,7 +1148,9 @@ func spawn_bonus() -> void:
 	active_bonus.init_bonus(tile_dim, bonus_type)
 	active_bonus.position = Vector2(bx, by)
 
-func apply_bonus(bonus_type: int) -> void:
+func apply_bonus(bonus_type: int, bonus_player: Node2D = null) -> void:
+	if bonus_player == null:
+		bonus_player = player
 	match bonus_type:
 		GameData.BonusType.GRENADE:
 			# Kill all enemies
@@ -1051,33 +1162,31 @@ func apply_bonus(bonus_type: int) -> void:
 					stage_score += score
 					total_score += score
 		GameData.BonusType.HELMET:
-			if player:
-				player.activate_shield()
+			if bonus_player:
+				bonus_player.activate_shield()
 		GameData.BonusType.CLOCK:
 			freeze_enemies()
 		GameData.BonusType.SHOVEL:
 			protect_eagle()
 		GameData.BonusType.TANK:
-			if player:
-				player.lives += 1
+			if bonus_player:
+				bonus_player.lives += 1
 				SoundManager.play_sound("tnk1up.wav")
-				if hud:
-					hud.update_lives(player.lives)
 		GameData.BonusType.STAR:
-			if player:
-				player.upgrade_star()
+			if bonus_player:
+				bonus_player.upgrade_star()
 		GameData.BonusType.GUN:
-			if player:
-				player.upgrade_gun()
+			if bonus_player:
+				bonus_player.upgrade_gun()
 		GameData.BonusType.BOAT:
-			if player:
-				player.has_boat = true
+			if bonus_player:
+				bonus_player.has_boat = true
 		GameData.BonusType.MINE:
-			if player:
-				player.mine_count += 1
+			if bonus_player:
+				bonus_player.mine_count += 1
 		GameData.BonusType.BUILDER:
-			if player:
-				player.builder_count += 1
+			if bonus_player:
+				bonus_player.builder_count += 1
 	
 	stage_score += 500
 
@@ -1183,6 +1292,9 @@ func update_hud() -> void:
 		hud.update_score(total_score)
 		if player:
 			hud.update_lives(player.lives)
+		if player2 and GameData.is_multiplayer:
+			var total_lives = (player.lives if player else 0) + player2.lives
+			hud.update_lives(total_lives)
 
 # Signal handlers
 func _on_player_bullet_fired(bullet: Node2D) -> void:
@@ -1223,6 +1335,8 @@ func _on_hud_next() -> void:
 	next_level()
 
 func _on_hud_quit() -> void:
+	if NetworkManager.is_multiplayer_mode:
+		NetworkManager.disconnect_from_game()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _draw() -> void:
@@ -1230,3 +1344,187 @@ func _draw() -> void:
 	var offset = GameData.board_offset
 	var border_rect = Rect2(offset, board_size)
 	draw_rect(border_rect, Color.GRAY, false, 2.0)
+
+# --- Multiplayer RPC functions ---
+
+@rpc("any_peer", "unreliable_ordered")
+func _receive_player_input(dir: int, mov: bool, firing: bool, mine_drop: bool) -> void:
+	if player2 and not player2.is_local:
+		player2.set_remote_input(dir, mov, firing, mine_drop)
+
+@rpc("authority", "unreliable_ordered")
+func _receive_game_state(data: Dictionary) -> void:
+	_apply_game_state(data)
+
+@rpc("authority", "reliable")
+func _receive_sound_event(sound_name: String) -> void:
+	SoundManager.play_sound(sound_name)
+
+func _build_game_state() -> Dictionary:
+	var data: Dictionary = {}
+	
+	# Player states
+	if player and is_instance_valid(player):
+		data["p1"] = player.get_sync_state()
+	if player2 and is_instance_valid(player2):
+		data["p2"] = player2.get_sync_state()
+	
+	# Enemy states
+	var e_states: Array = []
+	for enemy in enemies:
+		if is_instance_valid(enemy):
+			e_states.append(enemy.get_sync_state())
+	data["enemies"] = e_states
+	
+	# Player bullets (from both players)
+	var pb: Array = []
+	if player:
+		for b in player.bullets:
+			if is_instance_valid(b) and not b.is_destroyed:
+				pb.append([b.position.x, b.position.y, b.direction, b.from_player])
+	if player2:
+		for b in player2.bullets:
+			if is_instance_valid(b) and not b.is_destroyed:
+				pb.append([b.position.x, b.position.y, b.direction, b.from_player])
+	data["p_bullets"] = pb
+	
+	# Enemy bullets
+	var eb: Array = []
+	for b in enemy_bullets:
+		if is_instance_valid(b) and not b.is_destroyed:
+			eb.append([b.position.x, b.position.y, b.direction])
+	data["e_bullets"] = eb
+	
+	# Bonus
+	if active_bonus and is_instance_valid(active_bonus) and not active_bonus.is_expired:
+		data["bonus"] = [active_bonus.position.x, active_bonus.position.y, active_bonus.bonus_type]
+	
+	# Game state
+	data["score"] = total_score
+	data["stage_score"] = stage_score
+	data["enemy_lives"] = enemy_lives
+	data["frozen"] = is_frozen
+	data["state"] = state
+	
+	return data
+
+func _apply_game_state(data: Dictionary) -> void:
+	if not GameData.is_multiplayer or not NetworkManager.is_client():
+		return
+	
+	# Apply player states
+	if data.has("p1") and player and is_instance_valid(player):
+		player.apply_sync_state(data["p1"])
+	if data.has("p2") and player2 and is_instance_valid(player2):
+		player2.apply_sync_state(data["p2"])
+	
+	# Apply enemy states
+	if data.has("enemies"):
+		var server_enemies: Array = data["enemies"]
+		var seen_ids: Dictionary = {}
+		
+		for e_data in server_enemies:
+			if e_data.size() < 19:
+				continue
+			var eid = int(e_data[0])
+			seen_ids[eid] = true
+			
+			if client_enemies.has(eid):
+				var e_node = client_enemies[eid]
+				if is_instance_valid(e_node):
+					e_node.apply_sync_state(e_data)
+				else:
+					client_enemies.erase(eid)
+			else:
+				var e_node = EnemyScene.instantiate()
+				entity_layer.add_child(e_node)
+				var tank_t = int(e_data[6])
+				var grp = int(e_data[7])
+				var is_hve_flag = bool(e_data[8])
+				e_node.init_enemy(tile_dim, tank_t, grp, eid, is_hve_flag)
+				e_node.network_controlled = true
+				e_node.apply_sync_state(e_data)
+				client_enemies[eid] = e_node
+				var existing_ids = _get_enemy_ids()
+				if eid not in existing_ids:
+					enemies.append(e_node)
+		
+		# Remove enemies no longer on server
+		var to_erase: Array = []
+		for eid in client_enemies:
+			if not seen_ids.has(eid):
+				var e_node = client_enemies[eid]
+				if is_instance_valid(e_node):
+					enemies.erase(e_node)
+					e_node.queue_free()
+				to_erase.append(eid)
+		for eid in to_erase:
+			client_enemies.erase(eid)
+	
+	# Apply player bullet visuals
+	for b in client_p_bullets:
+		if is_instance_valid(b):
+			b.queue_free()
+	client_p_bullets.clear()
+	if data.has("p_bullets"):
+		for bd in data["p_bullets"]:
+			var b_node = BulletScene.instantiate()
+			entity_layer.add_child(b_node)
+			b_node.init_bullet(tile_dim, int(bd[2]), bool(bd[3]), false, false)
+			b_node.position = Vector2(bd[0], bd[1])
+			client_p_bullets.append(b_node)
+	
+	# Apply enemy bullet visuals
+	for b in client_e_bullets:
+		if is_instance_valid(b):
+			b.queue_free()
+	client_e_bullets.clear()
+	if data.has("e_bullets"):
+		for bd in data["e_bullets"]:
+			var b_node = BulletScene.instantiate()
+			entity_layer.add_child(b_node)
+			b_node.init_bullet(tile_dim, int(bd[2]), false, false, false)
+			b_node.position = Vector2(bd[0], bd[1])
+			client_e_bullets.append(b_node)
+	
+	# Apply bonus
+	if data.has("bonus"):
+		var bd = data["bonus"]
+		if active_bonus == null or not is_instance_valid(active_bonus):
+			active_bonus = BonusScene.instantiate()
+			entity_layer.add_child(active_bonus)
+			active_bonus.init_bonus(tile_dim, int(bd[2]))
+		active_bonus.position = Vector2(bd[0], bd[1])
+	else:
+		if active_bonus and is_instance_valid(active_bonus):
+			active_bonus.queue_free()
+			active_bonus = null
+	
+	# Apply game state
+	if data.has("score"):
+		total_score = int(data["score"])
+	if data.has("stage_score"):
+		stage_score = int(data["stage_score"])
+	if data.has("enemy_lives"):
+		enemy_lives = int(data["enemy_lives"])
+	if data.has("frozen"):
+		is_frozen = bool(data["frozen"])
+	if data.has("state"):
+		var server_state = int(data["state"])
+		if server_state == GameState.GAME_OVER and state == GameState.PLAYING:
+			do_game_over()
+		elif server_state == GameState.STAGE_COMPLETE and state == GameState.PLAYING:
+			state = GameState.STAGE_COMPLETE
+			show_score_timer = SHOW_SCORE_DELAY
+	
+	# Update HUD
+	update_hud()
+	if hud:
+		hud.update_enemy_count(enemy_lives)
+
+func _get_enemy_ids() -> Array:
+	var ids: Array = []
+	for e in enemies:
+		if is_instance_valid(e):
+			ids.append(e.enemy_id)
+	return ids
