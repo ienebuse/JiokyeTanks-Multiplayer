@@ -82,6 +82,10 @@ var client_e_bullets: Array = []
 var client_mines: Array = []
 var pending_terrain_changes: Array = []  # Queued terrain changes to sync to client
 var active_mines: Array = []  # Track all active mines for sync
+var mp_retry_confirmed: Array = []  # Track which peers confirmed retry in multiplayer
+var mp_waiting_retry: bool = false  # Whether we're waiting for the other player to retry
+var mp_peer_disconnected: bool = false  # Whether the other player has disconnected
+var mp_pending_action: String = ""  # "retry" or "next" - what this player chose
 
 # References
 var tile_dim: float = 0.0
@@ -115,9 +119,27 @@ func _ready() -> void:
 	entity_layer.position = offset
 	bush_layer.position = offset
 	
+	# Connect multiplayer disconnect signals
+	if GameData.is_multiplayer:
+		if not NetworkManager.player_disconnected.is_connected(_on_mp_peer_disconnected):
+			NetworkManager.player_disconnected.connect(_on_mp_peer_disconnected)
+		if not NetworkManager.is_server():
+			if not NetworkManager.server_disconnected.is_connected(_on_mp_server_disconnected):
+				NetworkManager.server_disconnected.connect(_on_mp_server_disconnected)
+	
+	# Connect dynamic HUD signals
+	if hud and not hud.continue_single_pressed.is_connected(_on_hud_continue_single):
+		hud.continue_single_pressed.connect(_on_hud_continue_single)
+	
 	setup_curtain()
 	level = GameData.current_level
 	start_level(level)
+
+func _exit_tree() -> void:
+	if NetworkManager.player_disconnected.is_connected(_on_mp_peer_disconnected):
+		NetworkManager.player_disconnected.disconnect(_on_mp_peer_disconnected)
+	if NetworkManager.server_disconnected.is_connected(_on_mp_server_disconnected):
+		NetworkManager.server_disconnected.disconnect(_on_mp_server_disconnected)
 
 func setup_curtain() -> void:
 	var vp_size = get_viewport_rect().size
@@ -154,6 +176,9 @@ func start_level(lvl: int) -> void:
 	eagle_protect_timer = 0.0
 	stage_score = 0
 	show_score_timer = SHOW_SCORE_DELAY
+	mp_retry_confirmed.clear()
+	mp_waiting_retry = false
+	mp_pending_action = ""
 	
 	# Reset kills
 	for key in kills:
@@ -187,6 +212,10 @@ func start_level(lvl: int) -> void:
 		hud.update_enemy_count(enemy_lives)
 		hud.update_lives(player.lives if player else 3)
 		hud.update_score(total_score)
+		hud.hide_waiting_retry()
+		hud.game_over_label.visible = false
+		hud.score_panel.visible = false
+		hud.score_anim_active = false
 		# Re-show touch controls for gameplay
 		if hud.touch_controls and DisplayServer.is_touchscreen_available():
 			hud.touch_controls.visible = true
@@ -1314,6 +1343,9 @@ func pause_game() -> void:
 		hud.show_pause_menu()
 		if hud.touch_controls:
 			hud.touch_controls.disable_controls()
+	# Sync pause to other player in multiplayer
+	if GameData.is_multiplayer:
+		_receive_pause_event.rpc()
 
 func resume_game() -> void:
 	state = GameState.PLAYING
@@ -1326,6 +1358,9 @@ func resume_game() -> void:
 		hud.hide_pause_menu()
 		if hud.touch_controls and DisplayServer.is_touchscreen_available():
 			hud.touch_controls.enable_controls()
+	# Sync resume to other player in multiplayer
+	if GameData.is_multiplayer:
+		_receive_resume_event.rpc()
 
 func next_level() -> void:
 	level += 1
@@ -1383,15 +1418,86 @@ func _on_hud_resume() -> void:
 	resume_game()
 
 func _on_hud_retry() -> void:
-	retry_level()
+	if GameData.is_multiplayer and not mp_peer_disconnected:
+		# In multiplayer, both players must confirm before restarting
+		mp_pending_action = "retry"
+		var my_id = multiplayer.get_unique_id()
+		if my_id not in mp_retry_confirmed:
+			mp_retry_confirmed.append(my_id)
+		_receive_retry_confirm.rpc(my_id)
+		if mp_retry_confirmed.size() >= 2:
+			mp_retry_confirmed.clear()
+			mp_waiting_retry = false
+			retry_level()
+		else:
+			mp_waiting_retry = true
+			if hud:
+				hud.show_waiting_retry()
+	else:
+		retry_level()
 
 func _on_hud_next() -> void:
-	next_level()
+	if GameData.is_multiplayer and not mp_peer_disconnected:
+		# In multiplayer, both players must confirm before next level
+		mp_pending_action = "next"
+		var my_id = multiplayer.get_unique_id()
+		if my_id not in mp_retry_confirmed:
+			mp_retry_confirmed.append(my_id)
+		_receive_retry_confirm.rpc(my_id)
+		if mp_retry_confirmed.size() >= 2:
+			mp_retry_confirmed.clear()
+			mp_waiting_retry = false
+			next_level()
+		else:
+			mp_waiting_retry = true
+			if hud:
+				hud.show_waiting_retry()
+	else:
+		next_level()
 
 func _on_hud_quit() -> void:
 	if NetworkManager.is_multiplayer_mode:
 		NetworkManager.disconnect_from_game()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+
+func _on_hud_continue_single() -> void:
+	# Continue as single player after peer disconnects
+	var was_client = NetworkManager.is_client()
+	GameData.is_multiplayer = false
+	mp_peer_disconnected = false
+	NetworkManager.disconnect_from_game()
+	# If we were the client, P1 was server-controlled; make it local.
+	# If P1 is dead but P2 is alive, transfer P2 state to P1.
+	if was_client and player2 and is_instance_valid(player2) and player2.lives > 0:
+		if not player or not is_instance_valid(player) or player.lives <= 0:
+			if player and is_instance_valid(player):
+				player.lives = player2.lives
+				player.position = player2.position
+				player.direction = player2.direction
+	if player2 and is_instance_valid(player2):
+		player2.queue_free()
+		player2 = null
+	if player and is_instance_valid(player):
+		player.is_local = true
+	if hud:
+		hud.hide_disconnect_panel()
+	# If we were paused, resume
+	if state == GameState.PAUSED:
+		resume_game()
+
+func _on_mp_peer_disconnected(_id: int) -> void:
+	mp_peer_disconnected = true
+	# If the game is running, show disconnect options
+	if hud:
+		hud.show_disconnect_panel()
+	# If waiting for retry confirmation, just proceed
+	if mp_waiting_retry:
+		mp_retry_confirmed.clear()
+		mp_waiting_retry = false
+		retry_level()
+
+func _on_mp_server_disconnected() -> void:
+	_on_mp_peer_disconnected(-1)
 
 func _draw() -> void:
 	# Draw a square border outline around the stage
@@ -1413,6 +1519,47 @@ func _receive_game_state(data: Dictionary) -> void:
 @rpc("authority", "reliable")
 func _receive_sound_event(sound_name: String) -> void:
 	SoundManager.play_sound(sound_name)
+
+@rpc("any_peer", "reliable")
+func _receive_pause_event() -> void:
+	# Remote player paused - apply pause locally without re-sending RPC
+	if state == GameState.PLAYING:
+		state = GameState.PAUSED
+		entity_layer.process_mode = Node.PROCESS_MODE_DISABLED
+		SoundManager.stop_sound("tnkgamestart.wav")
+		if current_scene_sound != "":
+			SoundManager.pause_sound(current_scene_sound)
+		SoundManager.play_sound("tnkpause.wav")
+		if hud:
+			hud.show_pause_menu()
+			if hud.touch_controls:
+				hud.touch_controls.disable_controls()
+
+@rpc("any_peer", "reliable")
+func _receive_resume_event() -> void:
+	# Remote player resumed - apply resume locally without re-sending RPC
+	if state == GameState.PAUSED:
+		state = GameState.PLAYING
+		entity_layer.process_mode = Node.PROCESS_MODE_INHERIT
+		if current_scene_sound != "":
+			SoundManager.resume_sound(current_scene_sound)
+		if hud:
+			hud.hide_pause_menu()
+			if hud.touch_controls and DisplayServer.is_touchscreen_available():
+				hud.touch_controls.enable_controls()
+
+@rpc("any_peer", "reliable")
+func _receive_retry_confirm(peer_id: int) -> void:
+	if peer_id not in mp_retry_confirmed:
+		mp_retry_confirmed.append(peer_id)
+	if mp_retry_confirmed.size() >= 2:
+		mp_retry_confirmed.clear()
+		mp_waiting_retry = false
+		if state == GameState.SHOWING_SCORE or state == GameState.GAME_OVER:
+			if mp_pending_action == "next":
+				next_level()
+			else:
+				retry_level()
 
 func _play_synced_sound(sound_name: String) -> void:
 	SoundManager.play_sound(sound_name)

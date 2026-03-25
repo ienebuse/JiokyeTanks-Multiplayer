@@ -6,6 +6,7 @@ signal resume_pressed
 signal retry_pressed
 signal next_pressed
 signal quit_pressed
+signal continue_single_pressed
 
 @onready var score_label: Label = $MarginContainer/TopBar/ScoreLabel
 @onready var lives_label: Label = $MarginContainer/TopBar/LivesLabel
@@ -19,6 +20,10 @@ signal quit_pressed
 
 # Touch controls
 @onready var touch_controls: Control = $TouchControls
+
+# Dynamically created panels for multiplayer
+var disconnect_panel: Panel = null
+var waiting_retry_label: Label = null
 
 var game_ref: Node2D = null
 
@@ -53,6 +58,8 @@ func _ready() -> void:
 	# Show touch controls on devices with touchscreen
 	if touch_controls:
 		touch_controls.visible = DisplayServer.is_touchscreen_available()
+	_create_disconnect_panel()
+	_create_waiting_retry_label()
 
 func _process(delta: float) -> void:
 	if score_anim_active:
@@ -192,3 +199,89 @@ func _on_next_btn_pressed() -> void:
 func _on_quit_btn_pressed() -> void:
 	score_anim_active = false
 	quit_pressed.emit()
+
+func _create_disconnect_panel() -> void:
+	# Overlay
+	var overlay = ColorRect.new()
+	overlay.name = "DisconnectOverlay"
+	overlay.anchors_preset = Control.PRESET_FULL_RECT
+	overlay.color = Color(0, 0, 0, 0.6)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.visible = false
+	add_child(overlay)
+
+	# Panel
+	disconnect_panel = Panel.new()
+	disconnect_panel.name = "DisconnectPanel"
+	disconnect_panel.anchors_preset = Control.PRESET_CENTER
+	disconnect_panel.offset_left = -140.0
+	disconnect_panel.offset_top = -80.0
+	disconnect_panel.offset_right = 140.0
+	disconnect_panel.offset_bottom = 80.0
+	disconnect_panel.visible = false
+	add_child(disconnect_panel)
+
+	var vbox = VBoxContainer.new()
+	vbox.anchors_preset = Control.PRESET_FULL_RECT
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 10)
+	disconnect_panel.add_child(vbox)
+
+	var label = Label.new()
+	label.text = "Other player disconnected"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(label)
+
+	var continue_btn = Button.new()
+	continue_btn.text = "CONTINUE SOLO"
+	continue_btn.pressed.connect(_on_continue_single_btn_pressed)
+	vbox.add_child(continue_btn)
+
+	var quit_btn = Button.new()
+	quit_btn.text = "QUIT"
+	quit_btn.pressed.connect(_on_quit_btn_pressed)
+	vbox.add_child(quit_btn)
+
+func _create_waiting_retry_label() -> void:
+	waiting_retry_label = Label.new()
+	waiting_retry_label.name = "WaitingRetryLabel"
+	waiting_retry_label.anchors_preset = Control.PRESET_CENTER
+	waiting_retry_label.offset_left = -150.0
+	waiting_retry_label.offset_top = 100.0
+	waiting_retry_label.offset_right = 150.0
+	waiting_retry_label.offset_bottom = 130.0
+	waiting_retry_label.text = "Waiting for other player..."
+	waiting_retry_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	waiting_retry_label.add_theme_color_override("font_color", Color(1, 1, 0, 1))
+	waiting_retry_label.visible = false
+	add_child(waiting_retry_label)
+
+func show_disconnect_panel() -> void:
+	if disconnect_panel:
+		var overlay = get_node_or_null("DisconnectOverlay")
+		if overlay:
+			overlay.visible = true
+		disconnect_panel.visible = true
+	# Hide other panels
+	if pause_panel:
+		pause_panel.visible = false
+	if pause_overlay:
+		pause_overlay.visible = false
+
+func hide_disconnect_panel() -> void:
+	if disconnect_panel:
+		disconnect_panel.visible = false
+	var overlay = get_node_or_null("DisconnectOverlay")
+	if overlay:
+		overlay.visible = false
+
+func show_waiting_retry() -> void:
+	if waiting_retry_label:
+		waiting_retry_label.visible = true
+
+func hide_waiting_retry() -> void:
+	if waiting_retry_label:
+		waiting_retry_label.visible = false
+
+func _on_continue_single_btn_pressed() -> void:
+	continue_single_pressed.emit()
