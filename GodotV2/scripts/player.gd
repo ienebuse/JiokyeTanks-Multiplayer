@@ -9,6 +9,7 @@ signal mine_dropped(mine_node: Node2D)
 var player_num: int = 1
 var lives: int = 3
 var is_respawning: bool = false
+var is_local: bool = true  # False for network-controlled player
 const BASE_SPEED_TILES_PER_SEC: float = 6.0  # Matches Java DEFAULT_SPEED = tile_dim*6/FPS (per-second equivalent)
 
 # Movement
@@ -41,6 +42,12 @@ var clear_bush: bool = false
 # Mine
 var mine_count: int = 0
 var builder_count: int = 0
+
+# Remote input (set by game.gd from network RPCs)
+var remote_direction: int = GameData.Direction.UP
+var remote_moving: bool = false
+var remote_fire: bool = false
+var remote_mine: bool = false
 
 # Visual
 var tank_size: float = 0.0
@@ -165,6 +172,12 @@ func handle_input(delta: float) -> void:
 	if not move_enabled:
 		return
 	
+	if is_local:
+		_handle_local_input(delta)
+	else:
+		_handle_remote_input(delta)
+
+func _handle_local_input(delta: float) -> void:
 	moving = false
 	var new_dir = direction
 	
@@ -202,8 +215,40 @@ func handle_input(delta: float) -> void:
 	if Input.is_action_just_pressed("drop_mine"):
 		drop_mine()
 
+func _handle_remote_input(delta: float) -> void:
+	moving = remote_moving
+	
+	if moving:
+		if remote_direction != direction:
+			direction = remote_direction
+			snap_to_grid()
+		
+		last_valid_position = position
+		var move_vec = direction_to_vector(direction) * speed * delta
+		position += move_vec
+		
+		if on_ice:
+			ice_sliding = true
+			ice_direction = direction
+	
+	if remote_fire:
+		fire()
+	
+	if remote_mine:
+		drop_mine()
+		remote_mine = false  # One-shot
+
+func set_remote_input(dir: int, mov: bool, firing: bool, mine_drop: bool) -> void:
+	remote_direction = dir
+	remote_moving = mov
+	remote_fire = firing
+	remote_mine = mine_drop
+
 func fire() -> void:
 	if not fire_enabled or is_respawning or lives <= 0:
+		return
+	# On multiplayer client, don't create bullets locally - server handles it
+	if GameData.is_multiplayer and NetworkManager.is_client():
 		return
 	if bullets.size() >= max_bullets:
 		return
@@ -234,6 +279,9 @@ func fire() -> void:
 
 func drop_mine() -> void:
 	if mine_count <= 0 or is_respawning:
+		return
+	# On multiplayer client, don't create mines locally - server handles it
+	if GameData.is_multiplayer and NetworkManager.is_client():
 		return
 	mine_count -= 1
 	var mine_node = preload("res://scenes/mine.tscn").instantiate()
@@ -269,8 +317,9 @@ func respawn() -> void:
 	spawn_frame = 0
 	spawn_frame_timer = 0.0
 	
-	# Reset position
-	var px = int(4.0 * GameData.GRID_SIZE / 13.0) * tile_dim
+	# Reset position (P1 at 4/13, P2 at 9/13 of grid width)
+	var col_frac = 4.0 if player_num == 1 else 9.0
+	var px = int(col_frac * GameData.GRID_SIZE / 13.0) * tile_dim
 	var py = (GameData.GRID_SIZE - 2) * tile_dim
 	position = Vector2(px, py)
 	
@@ -444,3 +493,38 @@ func _draw_procedural() -> void:
 		for i in range(armour):
 			var dot_pos = Vector2(tank_size / 2 - (armour - 1) * 3 + i * 6, tank_size - 4)
 			draw_circle(dot_pos, 2, Color.WHITE)
+
+# --- Network sync helpers ---
+const SYNC_STATE_SIZE: int = 19  # Number of fields in sync state array
+
+func get_sync_state() -> Array:
+	return [
+		position.x, position.y, direction, int(moving),
+		lives, armour, int(is_respawning), int(has_shield),
+		int(has_boat), star_count, anim_frame, spawn_frame,
+		int(break_wall), int(clear_bush), max_bullets,
+		bullet_speed_multiplier, speed, mine_count, builder_count,
+	]
+
+func apply_sync_state(data: Array) -> void:
+	if data.size() < SYNC_STATE_SIZE:
+		return
+	position = Vector2(data[0], data[1])
+	direction = int(data[2])
+	moving = bool(data[3])
+	lives = int(data[4])
+	armour = int(data[5])
+	is_respawning = bool(data[6])
+	has_shield = bool(data[7])
+	has_boat = bool(data[8])
+	star_count = int(data[9])
+	anim_frame = int(data[10])
+	spawn_frame = int(data[11])
+	break_wall = bool(data[12])
+	clear_bush = bool(data[13])
+	max_bullets = int(data[14])
+	bullet_speed_multiplier = data[15]
+	speed = data[16]
+	mine_count = int(data[17])
+	builder_count = int(data[18])
+	queue_redraw()
