@@ -426,6 +426,9 @@ func process_curtain_pause(delta: float) -> void:
 		SoundManager.play_sound("tnkgamestart.wav")
 		current_scene_sound = FIGHT_SCENES[randi() % FIGHT_SCENES.size()]
 		SoundManager.play_sound(current_scene_sound, true, -10.0)
+		# Sync the scene sound to client so both players hear the same music
+		if GameData.is_multiplayer and NetworkManager.is_server():
+			_receive_scene_sound.rpc(current_scene_sound)
 
 func process_curtain_open(delta: float) -> void:
 	curtain_progress += delta * curtain_speed
@@ -1539,6 +1542,14 @@ func _receive_game_state(data: Dictionary) -> void:
 func _receive_sound_event(sound_name: String) -> void:
 	SoundManager.play_sound(sound_name)
 
+@rpc("authority", "reliable")
+func _receive_scene_sound(sound_name: String) -> void:
+	# Server chose this scene sound - stop any locally chosen one and play the server's choice
+	if current_scene_sound != "" and current_scene_sound != sound_name:
+		SoundManager.stop_sound(current_scene_sound)
+	current_scene_sound = sound_name
+	SoundManager.play_sound(current_scene_sound, true, -10.0)
+
 @rpc("any_peer", "reliable")
 func _receive_pause_event() -> void:
 	# Remote player paused - apply pause locally without re-sending RPC
@@ -1578,11 +1589,10 @@ func _receive_retry_confirm(peer_id: int, action: String = "retry") -> void:
 		var final_action = mp_pending_action if mp_pending_action != "" else action
 		mp_retry_confirmed.clear()
 		mp_waiting_retry = false
-		if state == GameState.SHOWING_SCORE or state == GameState.GAME_OVER or state == GameState.PAUSED:
-			if final_action == "next":
-				next_level()
-			else:
-				retry_level()
+		if final_action == "next":
+			next_level()
+		else:
+			retry_level()
 
 func _play_synced_sound(sound_name: String) -> void:
 	SoundManager.play_sound(sound_name)
