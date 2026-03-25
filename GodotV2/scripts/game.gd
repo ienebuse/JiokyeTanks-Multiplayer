@@ -213,6 +213,8 @@ func start_level(lvl: int) -> void:
 		hud.update_lives(player.lives if player else 3)
 		hud.update_score(total_score)
 		hud.hide_waiting_retry()
+		hud.hide_pause_menu()
+		hud.hide_disconnect_panel()
 		hud.game_over_label.visible = false
 		hud.score_panel.visible = false
 		hud.score_anim_active = false
@@ -556,6 +558,10 @@ func do_stage_complete() -> void:
 	show_score_timer = SHOW_SCORE_DELAY
 	stage_completed.emit()
 	SoundManager.stop_all_sounds()
+	# Force immediate sync so client receives the state transition
+	if GameData.is_multiplayer and NetworkManager.is_server():
+		var game_state = _build_game_state()
+		_receive_game_state.rpc(game_state)
 
 func do_game_over() -> void:
 	state = GameState.GAME_OVER
@@ -565,6 +571,10 @@ func do_game_over() -> void:
 	_play_synced_sound("tnkgameover.wav")
 	if hud:
 		hud.show_game_over()
+	# Force immediate sync so client receives the state transition
+	if GameData.is_multiplayer and NetworkManager.is_server():
+		var game_state = _build_game_state()
+		_receive_game_state.rpc(game_state)
 
 func process_stage_complete(delta: float) -> void:
 	# Client: just count down to score screen
@@ -1686,6 +1696,7 @@ func _build_game_state() -> Dictionary:
 	data["enemy_lives"] = enemy_lives
 	data["frozen"] = is_frozen
 	data["state"] = state
+	data["kills"] = kills.duplicate()
 	
 	return data
 
@@ -1821,6 +1832,10 @@ func _apply_game_state(data: Dictionary) -> void:
 		enemy_lives = int(data["enemy_lives"])
 	if data.has("frozen"):
 		is_frozen = bool(data["frozen"])
+	if data.has("kills"):
+		var synced_kills = data["kills"]
+		for key in synced_kills:
+			kills[key] = int(synced_kills[key])
 	if data.has("state"):
 		var server_state = int(data["state"])
 		if server_state == GameState.GAME_OVER and state == GameState.PLAYING:

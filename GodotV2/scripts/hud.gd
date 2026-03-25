@@ -204,7 +204,7 @@ func _create_disconnect_panel() -> void:
 	# Overlay
 	var overlay = ColorRect.new()
 	overlay.name = "DisconnectOverlay"
-	overlay.anchors_preset = Control.PRESET_FULL_RECT
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.color = Color(0, 0, 0, 0.6)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	overlay.visible = false
@@ -213,16 +213,16 @@ func _create_disconnect_panel() -> void:
 	# Panel
 	disconnect_panel = Panel.new()
 	disconnect_panel.name = "DisconnectPanel"
-	disconnect_panel.anchors_preset = Control.PRESET_CENTER
+	add_child(disconnect_panel)
+	disconnect_panel.set_anchors_preset(Control.PRESET_CENTER)
 	disconnect_panel.offset_left = -140.0
 	disconnect_panel.offset_top = -80.0
 	disconnect_panel.offset_right = 140.0
 	disconnect_panel.offset_bottom = 80.0
 	disconnect_panel.visible = false
-	add_child(disconnect_panel)
 
 	var vbox = VBoxContainer.new()
-	vbox.anchors_preset = Control.PRESET_FULL_RECT
+	vbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 10)
 	disconnect_panel.add_child(vbox)
@@ -245,7 +245,8 @@ func _create_disconnect_panel() -> void:
 func _create_waiting_retry_label() -> void:
 	waiting_retry_label = Label.new()
 	waiting_retry_label.name = "WaitingRetryLabel"
-	waiting_retry_label.anchors_preset = Control.PRESET_CENTER
+	add_child(waiting_retry_label)
+	waiting_retry_label.set_anchors_preset(Control.PRESET_CENTER)
 	waiting_retry_label.offset_left = -150.0
 	waiting_retry_label.offset_top = 100.0
 	waiting_retry_label.offset_right = 150.0
@@ -254,7 +255,6 @@ func _create_waiting_retry_label() -> void:
 	waiting_retry_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	waiting_retry_label.add_theme_color_override("font_color", Color(1, 1, 0, 1))
 	waiting_retry_label.visible = false
-	add_child(waiting_retry_label)
 
 func show_disconnect_panel() -> void:
 	if disconnect_panel:
