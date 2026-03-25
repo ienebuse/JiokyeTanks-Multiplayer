@@ -1578,7 +1578,7 @@ func _receive_retry_confirm(peer_id: int, action: String = "retry") -> void:
 		var final_action = mp_pending_action if mp_pending_action != "" else action
 		mp_retry_confirmed.clear()
 		mp_waiting_retry = false
-		if state == GameState.SHOWING_SCORE or state == GameState.GAME_OVER:
+		if state == GameState.SHOWING_SCORE or state == GameState.GAME_OVER or state == GameState.PAUSED:
 			if final_action == "next":
 				next_level()
 			else:
