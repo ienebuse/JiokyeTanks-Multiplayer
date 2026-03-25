@@ -73,7 +73,7 @@ theme_override_constants/separation = 10
 [node name="IPInput" type="LineEdit" parent="VBoxContainer/JoinSection"]
 layout_mode = 2
 custom_minimum_size = Vector2(180, 40)
-placeholder_text = "Enter IP address"
+placeholder_text = "Room code or IP address"
 
 [node name="JoinBtn" type="Button" parent="VBoxContainer/JoinSection"]
 layout_mode = 2

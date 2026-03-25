@@ -79,7 +79,9 @@ const SYNC_RATE: float = 1.0 / 20.0
 var client_enemies: Dictionary = {}
 var client_p_bullets: Array = []
 var client_e_bullets: Array = []
+var client_mines: Array = []
 var pending_terrain_changes: Array = []  # Queued terrain changes to sync to client
+var active_mines: Array = []  # Track all active mines for sync
 
 # References
 var tile_dim: float = 0.0
@@ -225,6 +227,11 @@ func clear_level() -> void:
 		if is_instance_valid(b):
 			b.queue_free()
 	client_e_bullets.clear()
+	for m in client_mines:
+		if is_instance_valid(m):
+			m.queue_free()
+	client_mines.clear()
+	active_mines.clear()
 	pending_terrain_changes.clear()
 
 func build_level() -> void:
@@ -526,7 +533,7 @@ func do_game_over() -> void:
 	show_score_timer = SHOW_SCORE_DELAY
 	game_over.emit()
 	SoundManager.stop_all_sounds()
-	SoundManager.play_sound("tnkgameover.wav")
+	_play_synced_sound("tnkgameover.wav")
 	if hud:
 		hud.show_game_over()
 
@@ -912,7 +919,7 @@ func check_player_bullets_for(p: Node2D) -> void:
 										_record_terrain_change(r, c, "brick_destroy")
 									bullet.destroy()
 									hit_terrain = true
-									SoundManager.play_sound("tnkbrick.wav")
+									_play_synced_sound("tnkbrick.wav")
 								"stone":
 									if bullet.break_wall:
 										obj.queue_free()
@@ -920,7 +927,7 @@ func check_player_bullets_for(p: Node2D) -> void:
 										_record_terrain_change(r, c, "stone_destroy")
 									bullet.destroy()
 									hit_terrain = true
-									SoundManager.play_sound("tnksteel.wav")
+									_play_synced_sound("tnksteel.wav")
 								"bush":
 									if bullet.clear_bush:
 										obj.queue_free()
@@ -940,7 +947,7 @@ func check_player_bullets_for(p: Node2D) -> void:
 				var killed = enemy.take_hit(bullet)
 				bullet.destroy()
 				if killed:
-					SoundManager.play_sound("tnkexplosion.wav")
+					_play_synced_sound("tnkexplosion.wav")
 					var score = GameData.ENEMY_SCORES.get(enemy.tank_type, 100)
 					stage_score += score
 					total_score += score
@@ -1015,7 +1022,7 @@ func check_enemy_bullets_collision() -> void:
 				else:
 					player.take_hit()
 					bullet.destroy()
-					SoundManager.play_sound("tnkexplosion.wav")
+					_play_synced_sound("tnkexplosion.wav")
 					if hud:
 						hud.update_lives(player.lives)
 				continue
@@ -1029,7 +1036,7 @@ func check_enemy_bullets_collision() -> void:
 				else:
 					player2.take_hit()
 					bullet.destroy()
-					SoundManager.play_sound("tnkexplosion.wav")
+					_play_synced_sound("tnkexplosion.wav")
 				continue
 		
 		# Check against terrain
@@ -1096,7 +1103,7 @@ func check_player_bonus_collision() -> void:
 			apply_bonus(active_bonus.bonus_type, player)
 			active_bonus.queue_free()
 			active_bonus = null
-			SoundManager.play_sound("tnkpowerup.wav")
+			_play_synced_sound("tnkpowerup.wav")
 			return
 	
 	if player2 and is_instance_valid(player2) and not player2.is_respawning and player2.lives > 0:
@@ -1105,7 +1112,7 @@ func check_player_bonus_collision() -> void:
 			apply_bonus(active_bonus.bonus_type, player2)
 			active_bonus.queue_free()
 			active_bonus = null
-			SoundManager.play_sound("tnkpowerup.wav")
+			_play_synced_sound("tnkpowerup.wav")
 			return
 
 func check_enemy_bonus_collision() -> void:
@@ -1130,12 +1137,12 @@ func apply_enemy_bonus(bonus_type: int, enemy: Node2D) -> void:
 			# Enemy gets grenade → kills both players
 			if player and is_instance_valid(player) and not player.is_respawning:
 				player.take_hit()
-				SoundManager.play_sound("tnkexplosion.wav")
+				_play_synced_sound("tnkexplosion.wav")
 				if hud:
 					hud.update_lives(player.lives)
 			if player2 and is_instance_valid(player2) and not player2.is_respawning:
 				player2.take_hit()
-				SoundManager.play_sound("tnkexplosion.wav")
+				_play_synced_sound("tnkexplosion.wav")
 		GameData.BonusType.HELMET:
 			# Enemy gets shield
 			enemy.activate_shield_if_available()
@@ -1211,7 +1218,7 @@ func apply_bonus(bonus_type: int, bonus_player: Node2D = null) -> void:
 		GameData.BonusType.TANK:
 			if bonus_player:
 				bonus_player.lives += 1
-				SoundManager.play_sound("tnk1up.wav")
+				_play_synced_sound("tnk1up.wav")
 		GameData.BonusType.STAR:
 			if bonus_player:
 				bonus_player.upgrade_star()
@@ -1352,6 +1359,7 @@ func _on_enemy_destroyed(enemy: Node2D) -> void:
 
 func _on_mine_dropped(mine_node: Node2D) -> void:
 	entity_layer.add_child(mine_node)
+	active_mines.append(mine_node)
 
 func _on_pause_btn_pressed() -> void:
 	if state == GameState.PLAYING:
@@ -1402,6 +1410,11 @@ func _receive_game_state(data: Dictionary) -> void:
 @rpc("authority", "reliable")
 func _receive_sound_event(sound_name: String) -> void:
 	SoundManager.play_sound(sound_name)
+
+func _play_synced_sound(sound_name: String) -> void:
+	SoundManager.play_sound(sound_name)
+	if GameData.is_multiplayer and NetworkManager.is_server():
+		_receive_sound_event.rpc(sound_name)
 
 func _record_terrain_change(row: int, col: int, action: String, direction: int = -1) -> void:
 	if GameData.is_multiplayer and NetworkManager.is_server():
@@ -1462,24 +1475,43 @@ func _build_game_state() -> Dictionary:
 			e_states.append(enemy.get_sync_state())
 	data["enemies"] = e_states
 	
-	# Player bullets (from both players)
+	# Player bullets (from both players) - include exploding bullets for explosion visuals
 	var pb: Array = []
 	if player:
 		for b in player.bullets:
-			if is_instance_valid(b) and not b.is_destroyed:
-				pb.append([b.position.x, b.position.y, b.direction, b.from_player])
+			if is_instance_valid(b):
+				if b.is_destroyed and not b.exploding:
+					continue
+				pb.append([b.position.x, b.position.y, b.direction, b.from_player, int(b.exploding), b.explode_frame])
 	if player2:
 		for b in player2.bullets:
-			if is_instance_valid(b) and not b.is_destroyed:
-				pb.append([b.position.x, b.position.y, b.direction, b.from_player])
+			if is_instance_valid(b):
+				if b.is_destroyed and not b.exploding:
+					continue
+				pb.append([b.position.x, b.position.y, b.direction, b.from_player, int(b.exploding), b.explode_frame])
 	data["p_bullets"] = pb
 	
-	# Enemy bullets
+	# Enemy bullets - include exploding bullets
 	var eb: Array = []
 	for b in enemy_bullets:
-		if is_instance_valid(b) and not b.is_destroyed:
-			eb.append([b.position.x, b.position.y, b.direction])
+		if is_instance_valid(b):
+			if b.is_destroyed and not b.exploding:
+				continue
+			eb.append([b.position.x, b.position.y, b.direction, int(b.exploding), b.explode_frame])
 	data["e_bullets"] = eb
+	
+	# Mines
+	var mines: Array = []
+	var to_remove: Array = []
+	for mine in active_mines:
+		if not is_instance_valid(mine) or mine.explode_done:
+			to_remove.append(mine)
+			continue
+		mines.append([mine.position.x, mine.position.y, mine.direction, int(mine.is_moving), int(mine.is_exploding), mine.fuse_timer])
+	for mine in to_remove:
+		active_mines.erase(mine)
+	if mines.size() > 0:
+		data["mines"] = mines
 	
 	# Bonus
 	if active_bonus and is_instance_valid(active_bonus) and not active_bonus.is_expired:
@@ -1547,7 +1579,7 @@ func _apply_game_state(data: Dictionary) -> void:
 		for eid in to_erase:
 			client_enemies.erase(eid)
 	
-	# Apply player bullet visuals
+	# Apply player bullet visuals (with explosion support)
 	for b in client_p_bullets:
 		if is_instance_valid(b):
 			b.queue_free()
@@ -1558,9 +1590,14 @@ func _apply_game_state(data: Dictionary) -> void:
 			entity_layer.add_child(b_node)
 			b_node.init_bullet(tile_dim, int(bd[2]), bool(bd[3]), false, false)
 			b_node.position = Vector2(bd[0], bd[1])
+			# Apply explosion state if present
+			if bd.size() > 4 and bool(bd[4]):
+				b_node.is_destroyed = true
+				b_node.exploding = true
+				b_node.explode_frame = int(bd[5]) if bd.size() > 5 else 0
 			client_p_bullets.append(b_node)
 	
-	# Apply enemy bullet visuals
+	# Apply enemy bullet visuals (with explosion support)
 	for b in client_e_bullets:
 		if is_instance_valid(b):
 			b.queue_free()
@@ -1571,7 +1608,32 @@ func _apply_game_state(data: Dictionary) -> void:
 			entity_layer.add_child(b_node)
 			b_node.init_bullet(tile_dim, int(bd[2]), false, false, false)
 			b_node.position = Vector2(bd[0], bd[1])
+			# Apply explosion state if present
+			if bd.size() > 3 and bool(bd[3]):
+				b_node.is_destroyed = true
+				b_node.exploding = true
+				b_node.explode_frame = int(bd[4]) if bd.size() > 4 else 0
 			client_e_bullets.append(b_node)
+	
+	# Apply mine visuals
+	for m in client_mines:
+		if is_instance_valid(m):
+			m.queue_free()
+	client_mines.clear()
+	if data.has("mines"):
+		for md in data["mines"]:
+			var m_node = MineScene.instantiate()
+			entity_layer.add_child(m_node)
+			m_node.init_mine(tile_dim, Vector2(md[0], md[1]), int(md[2]))
+			m_node.position = Vector2(md[0], md[1])
+			m_node.is_moving = bool(md[3])
+			if not m_node.is_moving:
+				m_node.velocity = 0
+			m_node.is_exploding = bool(md[4])
+			m_node.fuse_timer = md[5]
+			# Stop _process movement on client mines since position is synced
+			m_node.is_dropped = not bool(md[4])
+			client_mines.append(m_node)
 	
 	# Apply bonus
 	if data.has("bonus"):
