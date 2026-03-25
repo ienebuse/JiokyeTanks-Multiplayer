@@ -1,7 +1,7 @@
 extends Node
 
 # Network manager for WiFi multiplayer using ENet (UDP-based, low latency)
-# Supports connection via room code (6 alphanumeric characters) or IP address
+# Supports connection via room code (6 letter characters) or IP address
 
 signal player_connected(peer_id: int)
 signal player_disconnected(peer_id: int)
@@ -12,7 +12,7 @@ signal server_disconnected()
 const DEFAULT_PORT: int = 7000
 const MAX_CONNECTIONS: int = 1  # 2-player only
 const ROOM_CODE_LENGTH: int = 6
-const ROOM_CODE_CHARS: String = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # No I/O/0/1 to avoid confusion
+const ROOM_CODE_CHARS: String = "ABCDEFGHJKLMNPQRSTUVWXYZ"  # Letters only (no I/O to avoid confusion)
 
 var peer: ENetMultiplayerPeer = null
 var is_host: bool = false
@@ -133,7 +133,7 @@ func resolve_room_code(code: String) -> String:
 	return ""
 
 func is_room_code(input: String) -> bool:
-	# A room code is exactly ROOM_CODE_LENGTH alphanumeric characters with no dots
+	# A room code is exactly ROOM_CODE_LENGTH letter characters with no dots
 	var upper = input.to_upper()
 	if upper.length() != ROOM_CODE_LENGTH:
 		return false

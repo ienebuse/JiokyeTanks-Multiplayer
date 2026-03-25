@@ -971,6 +971,7 @@ func check_player_bullets_for(p: Node2D) -> void:
 				else:
 					eagle_node.take_damage()
 					bullet.destroy()
+					_play_synced_sound("tnkexplosion.wav")
 					var ec = int(eagle_node.position.x / tile_dim)
 					var er = int(eagle_node.position.y / tile_dim)
 					_record_terrain_change(er, ec, "eagle_destroy")
@@ -1083,6 +1084,7 @@ func check_enemy_bullets_collision() -> void:
 				else:
 					eagle_node.take_damage()
 					bullet.destroy()
+					_play_synced_sound("tnkexplosion.wav")
 					var ec = int(eagle_node.position.x / tile_dim)
 					var er = int(eagle_node.position.y / tile_dim)
 					_record_terrain_change(er, ec, "eagle_destroy")
@@ -1208,6 +1210,7 @@ func apply_bonus(bonus_type: int, bonus_player: Node2D = null) -> void:
 					var score = GameData.ENEMY_SCORES.get(enemy.tank_type, 100)
 					stage_score += score
 					total_score += score
+			_play_synced_sound("tnkexplosion.wav")
 		GameData.BonusType.HELMET:
 			if bonus_player:
 				bonus_player.activate_shield()
