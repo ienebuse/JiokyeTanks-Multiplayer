@@ -73,9 +73,9 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 40.0
 grow_horizontal = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 20
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 30
 
 [node name="TopBar" type="HBoxContainer" parent="UILayer/HUD/MarginContainer"]
 layout_mode = 2

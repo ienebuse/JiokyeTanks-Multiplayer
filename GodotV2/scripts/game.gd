@@ -126,6 +126,9 @@ func start_level(lvl: int) -> void:
 	state = GameState.CURTAIN_CLOSE
 	curtain_progress = 0.0
 	
+	# Ensure entity processing is enabled (may have been disabled during pause)
+	entity_layer.process_mode = Node.PROCESS_MODE_INHERIT
+	
 	# Clear existing entities
 	clear_level()
 	
@@ -1136,10 +1139,14 @@ func remove_eagle_protection() -> void:
 
 func pause_game() -> void:
 	state = GameState.PAUSED
-	SoundManager.play_sound("tnkpause.wav")
+	# Stop all entity processing so bullets, player, enemies freeze
+	entity_layer.process_mode = Node.PROCESS_MODE_DISABLED
+	# Stop game start sound if still playing
+	SoundManager.stop_sound("tnkgamestart.wav")
 	# Pause fight scene music (matching Java pauseNoAds)
 	if current_scene_sound != "":
 		SoundManager.pause_sound(current_scene_sound)
+	SoundManager.play_sound("tnkpause.wav")
 	if hud:
 		hud.show_pause_menu()
 		if hud.touch_controls:
@@ -1147,6 +1154,8 @@ func pause_game() -> void:
 
 func resume_game() -> void:
 	state = GameState.PLAYING
+	# Resume entity processing
+	entity_layer.process_mode = Node.PROCESS_MODE_INHERIT
 	# Resume fight scene music (matching Java resumeNoAds)
 	if current_scene_sound != "":
 		SoundManager.resume_sound(current_scene_sound)
@@ -1190,6 +1199,17 @@ func _on_mine_dropped(mine_node: Node2D) -> void:
 func _on_pause_btn_pressed() -> void:
 	if state == GameState.PLAYING:
 		pause_game()
+
+func _input(event: InputEvent) -> void:
+	# Fallback touch detection for pause button (GUI buttons may not reliably
+	# receive emulated mouse events from touch on all devices/configurations)
+	if state == GameState.PLAYING and event is InputEventScreenTouch and event.pressed:
+		var pause_btn = $UILayer/HUD/MarginContainer/TopBar/PauseBtn
+		if pause_btn and pause_btn.visible:
+			var btn_rect = pause_btn.get_global_rect().grow(10.0)
+			if btn_rect.has_point(event.position):
+				pause_game()
+				get_viewport().set_input_as_handled()
 
 func _on_hud_resume() -> void:
 	resume_game()
