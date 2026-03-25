@@ -55,7 +55,9 @@ const DIR_INDICATOR_COLOR = Color(1, 1, 1, 0.3)
 const DIR_INDICATOR_ACTIVE_COLOR = Color(1, 1, 1, 0.7)
 
 func _ready() -> void:
-	mouse_filter = Control.MOUSE_FILTER_PASS
+	# IGNORE so this full-screen control doesn't block GUI events for PauseBtn etc.
+	# Touch handling uses _input(InputEventScreenTouch) which works regardless of mouse_filter.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_load_textures()
 	_calculate_layout()
 
@@ -140,8 +142,8 @@ func disable_controls() -> void:
 
 func enable_controls() -> void:
 	controls_enabled = true
-	# Restore mouse filter to pass events through
-	mouse_filter = Control.MOUSE_FILTER_PASS
+	# Keep IGNORE so PauseBtn and other GUI buttons remain clickable
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	queue_redraw()
 
 func _release_all() -> void:
