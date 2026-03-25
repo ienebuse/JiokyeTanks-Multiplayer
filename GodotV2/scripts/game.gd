@@ -1424,7 +1424,7 @@ func _on_hud_retry() -> void:
 		var my_id = multiplayer.get_unique_id()
 		if my_id not in mp_retry_confirmed:
 			mp_retry_confirmed.append(my_id)
-		_receive_retry_confirm.rpc(my_id)
+		_receive_retry_confirm.rpc(my_id, "retry")
 		if mp_retry_confirmed.size() >= 2:
 			mp_retry_confirmed.clear()
 			mp_waiting_retry = false
@@ -1443,7 +1443,7 @@ func _on_hud_next() -> void:
 		var my_id = multiplayer.get_unique_id()
 		if my_id not in mp_retry_confirmed:
 			mp_retry_confirmed.append(my_id)
-		_receive_retry_confirm.rpc(my_id)
+		_receive_retry_confirm.rpc(my_id, "next")
 		if mp_retry_confirmed.size() >= 2:
 			mp_retry_confirmed.clear()
 			mp_waiting_retry = false
@@ -1474,6 +1474,11 @@ func _on_hud_continue_single() -> void:
 				player.lives = player2.lives
 				player.position = player2.position
 				player.direction = player2.direction
+			else:
+				# P1 doesn't exist, promote P2 to be the main player
+				player = player2
+				player2 = null
+				player.is_local = true
 	if player2 and is_instance_valid(player2):
 		player2.queue_free()
 		player2 = null
@@ -1490,11 +1495,15 @@ func _on_mp_peer_disconnected(_id: int) -> void:
 	# If the game is running, show disconnect options
 	if hud:
 		hud.show_disconnect_panel()
-	# If waiting for retry confirmation, just proceed
+	# If waiting for retry confirmation, just proceed with the pending action
 	if mp_waiting_retry:
+		var action = mp_pending_action
 		mp_retry_confirmed.clear()
 		mp_waiting_retry = false
-		retry_level()
+		if action == "next":
+			next_level()
+		else:
+			retry_level()
 
 func _on_mp_server_disconnected() -> void:
 	_on_mp_peer_disconnected(-1)
@@ -1549,14 +1558,18 @@ func _receive_resume_event() -> void:
 				hud.touch_controls.enable_controls()
 
 @rpc("any_peer", "reliable")
-func _receive_retry_confirm(peer_id: int) -> void:
+func _receive_retry_confirm(peer_id: int, action: String = "retry") -> void:
 	if peer_id not in mp_retry_confirmed:
 		mp_retry_confirmed.append(peer_id)
+	# Use the remote player's action if we haven't chosen yet
+	if mp_pending_action == "":
+		mp_pending_action = action
 	if mp_retry_confirmed.size() >= 2:
+		var final_action = mp_pending_action if mp_pending_action != "" else action
 		mp_retry_confirmed.clear()
 		mp_waiting_retry = false
 		if state == GameState.SHOWING_SCORE or state == GameState.GAME_OVER:
-			if mp_pending_action == "next":
+			if final_action == "next":
 				next_level()
 			else:
 				retry_level()
