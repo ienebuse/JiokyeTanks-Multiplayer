@@ -650,7 +650,9 @@ func check_enemy_collision(enemy: Node2D) -> void:
 						obj_rect = Rect2(obj.position, Vector2(tile_dim, tile_dim))
 					if enemy_rect.intersects(obj_rect):
 						var obj_type = obj.get_meta("type") if obj.has_meta("type") else ""
-						if obj_type in ["brick", "stone", "water"]:
+						if obj_type in ["brick", "stone"]:
+							enemy.handle_collision()
+						elif obj_type == "water" and not enemy.has_boat:
 							enemy.handle_collision()
 	
 	# Check against board boundaries

@@ -68,6 +68,14 @@ const SHIELD_SRC_H: int = 32
 const SHIELD_FRAME_COUNT: int = 2
 const SHIELD_FRAME_TIME: float = 2.0 / 32.0  # 2 game ticks at 32 FPS
 
+# Boat sprite - ST_BOAT_P1/P2 from spritesheet
+# Position (944, 96) for P1, (976, 96) for P2, 32x32
+const BOAT_P1_SRC_X: int = 944
+const BOAT_P2_SRC_X: int = 976
+const BOAT_SRC_Y: int = 96
+const BOAT_SRC_W: int = 32
+const BOAT_SRC_H: int = 32
+
 # Animation
 var anim_frame: int = 0
 var anim_timer: float = 0.0
@@ -243,6 +251,9 @@ func update_bullets() -> void:
 func take_hit() -> void:
 	if has_shield:
 		return
+	if has_boat:
+		has_boat = false
+		return
 	if armour > 0:
 		armour -= 1
 		return
@@ -379,6 +390,12 @@ func _draw() -> void:
 	# Draw shield using ST_SHIELD sprite from spritesheet
 	if has_shield and tank_texture:
 		var src_rect = Rect2(SHIELD_SRC_X, SHIELD_SRC_Y + shield_frame * SHIELD_SRC_H, SHIELD_SRC_W, SHIELD_SRC_H)
+		draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
+	
+	# Draw boat sprite overlay (matching Java: Boat.draw() on top of tank)
+	if has_boat and tank_texture:
+		var boat_src_x = BOAT_P1_SRC_X if player_num == 1 else BOAT_P2_SRC_X
+		var src_rect = Rect2(boat_src_x, BOAT_SRC_Y, BOAT_SRC_W, BOAT_SRC_H)
 		draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
 
 func _draw_procedural() -> void:
