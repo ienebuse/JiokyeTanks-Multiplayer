@@ -66,6 +66,10 @@ func update_lives(lives: int) -> void:
 	if lives_label:
 		lives_label.text = "LIVES: " + str(lives)
 
+func update_lives_multiplayer(p1_lives: int, p2_lives: int) -> void:
+	if lives_label:
+		lives_label.text = "P1: " + str(p1_lives) + " | P2: " + str(p2_lives)
+
 func update_stage(stage: int) -> void:
 	if stage_label:
 		stage_label.text = "STAGE: " + str(stage)

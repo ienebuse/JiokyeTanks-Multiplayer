@@ -420,10 +420,26 @@ func process_game(delta: float) -> void:
 	if GameData.is_multiplayer and NetworkManager.is_client():
 		if player2 and player2.is_local:
 			var dir = player2.direction
-			var mov = player2.moving
+			var mov = false
+			if Input.is_action_pressed("move_up"):
+				dir = GameData.Direction.UP
+				mov = true
+			elif Input.is_action_pressed("move_down"):
+				dir = GameData.Direction.DOWN
+				mov = true
+			elif Input.is_action_pressed("move_left"):
+				dir = GameData.Direction.LEFT
+				mov = true
+			elif Input.is_action_pressed("move_right"):
+				dir = GameData.Direction.RIGHT
+				mov = true
 			var firing = Input.is_action_pressed("fire")
-			var mine_pressed = Input.is_action_just_pressed("mine")
+			var mine_pressed = Input.is_action_just_pressed("drop_mine")
 			_receive_player_input.rpc_id(1, dir, mov, firing, mine_pressed)
+			# Run local collision for player2 so it doesn't visually walk through walls
+			if player2.lives > 0:
+				check_player_collision_for(player2)
+		update_hud()
 		return
 	
 	# Freeze timer
@@ -509,6 +525,13 @@ func do_game_over() -> void:
 		hud.show_game_over()
 
 func process_stage_complete(delta: float) -> void:
+	# Client: just count down to score screen
+	if GameData.is_multiplayer and NetworkManager.is_client():
+		show_score_timer -= delta
+		if show_score_timer <= 0:
+			show_scores()
+		return
+	
 	# Game continues to run during stage complete delay (player can still move, collect bonuses)
 	# Freeze timer
 	if is_frozen:
@@ -1290,11 +1313,12 @@ func retry_level() -> void:
 func update_hud() -> void:
 	if hud:
 		hud.update_score(total_score)
-		if player:
+		if GameData.is_multiplayer:
+			var p1_lives = player.lives if player else 0
+			var p2_lives = player2.lives if player2 else 0
+			hud.update_lives_multiplayer(p1_lives, p2_lives)
+		elif player:
 			hud.update_lives(player.lives)
-		if player2 and GameData.is_multiplayer:
-			var total_lives = (player.lives if player else 0) + player2.lives
-			hud.update_lives(total_lives)
 
 # Signal handlers
 func _on_player_bullet_fired(bullet: Node2D) -> void:

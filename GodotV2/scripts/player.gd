@@ -247,6 +247,9 @@ func set_remote_input(dir: int, mov: bool, firing: bool, mine_drop: bool) -> voi
 func fire() -> void:
 	if not fire_enabled or is_respawning or lives <= 0:
 		return
+	# On multiplayer client, don't create bullets locally - server handles it
+	if GameData.is_multiplayer and NetworkManager.is_client():
+		return
 	if bullets.size() >= max_bullets:
 		return
 	if reload_timer > 0 and bullets.size() > 0:
@@ -276,6 +279,9 @@ func fire() -> void:
 
 func drop_mine() -> void:
 	if mine_count <= 0 or is_respawning:
+		return
+	# On multiplayer client, don't create mines locally - server handles it
+	if GameData.is_multiplayer and NetworkManager.is_client():
 		return
 	mine_count -= 1
 	var mine_node = preload("res://scenes/mine.tscn").instantiate()
