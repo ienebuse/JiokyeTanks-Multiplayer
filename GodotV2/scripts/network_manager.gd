@@ -134,12 +134,13 @@ func resolve_room_code(code: String) -> String:
 
 func is_room_code(input: String) -> bool:
 	# A room code is exactly ROOM_CODE_LENGTH alphanumeric characters with no dots
-	if input.length() != ROOM_CODE_LENGTH:
+	var upper = input.to_upper()
+	if upper.length() != ROOM_CODE_LENGTH:
 		return false
-	if "." in input:
+	if "." in upper:
 		return false
-	for ch in input:
-		if ch not in ROOM_CODE_CHARS and ch.to_upper() not in ROOM_CODE_CHARS:
+	for ch in upper:
+		if ch not in ROOM_CODE_CHARS:
 			return false
 	return true
 

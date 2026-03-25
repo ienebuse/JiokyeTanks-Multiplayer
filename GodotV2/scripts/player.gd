@@ -495,6 +495,7 @@ func _draw_procedural() -> void:
 			draw_circle(dot_pos, 2, Color.WHITE)
 
 # --- Network sync helpers ---
+const SYNC_STATE_SIZE: int = 19  # Number of fields in sync state array
 
 func get_sync_state() -> Array:
 	return [
@@ -506,7 +507,7 @@ func get_sync_state() -> Array:
 	]
 
 func apply_sync_state(data: Array) -> void:
-	if data.size() < 19:
+	if data.size() < SYNC_STATE_SIZE:
 		return
 	position = Vector2(data[0], data[1])
 	direction = int(data[2])

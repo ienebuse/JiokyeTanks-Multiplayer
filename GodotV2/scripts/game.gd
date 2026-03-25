@@ -1540,6 +1540,7 @@ func _apply_game_state(data: Dictionary) -> void:
 	if data.has("enemies"):
 		var server_enemies: Array = data["enemies"]
 		var seen_ids: Dictionary = {}
+		var existing_ids = _get_enemy_ids()
 		
 		for e_data in server_enemies:
 			if e_data.size() < 19:
@@ -1563,9 +1564,9 @@ func _apply_game_state(data: Dictionary) -> void:
 				e_node.network_controlled = true
 				e_node.apply_sync_state(e_data)
 				client_enemies[eid] = e_node
-				var existing_ids = _get_enemy_ids()
 				if eid not in existing_ids:
 					enemies.append(e_node)
+					existing_ids.append(eid)
 		
 		# Remove enemies no longer on server
 		var to_erase: Array = []
@@ -1631,8 +1632,8 @@ func _apply_game_state(data: Dictionary) -> void:
 				m_node.velocity = 0
 			m_node.is_exploding = bool(md[4])
 			m_node.fuse_timer = md[5]
-			# Stop _process movement on client mines since position is synced
-			m_node.is_dropped = not bool(md[4])
+			# Mine is either actively dropped (waiting/moving) or exploding
+			m_node.is_dropped = not m_node.is_exploding
 			client_mines.append(m_node)
 	
 	# Apply bonus
