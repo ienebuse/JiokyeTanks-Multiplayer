@@ -1418,7 +1418,9 @@ func _receive_terrain_changes(changes: Array) -> void:
 		var c = int(change[1])
 		var action = str(change[2])
 		var dir = int(change[3])
-		if r < 0 or r >= level_objects.size() or c < 0 or c >= level_objects[r].size():
+		if r < 0 or r >= level_objects.size() or level_objects.size() == 0:
+			continue
+		if c < 0 or c >= level_objects[r].size():
 			continue
 		match action:
 			"brick_damage":
