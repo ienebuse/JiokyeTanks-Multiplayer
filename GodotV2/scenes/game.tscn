@@ -73,9 +73,9 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 40.0
 grow_horizontal = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 15
 
 [node name="TopBar" type="HBoxContainer" parent="UILayer/HUD/MarginContainer"]
 layout_mode = 2
@@ -111,9 +111,9 @@ size_flags_horizontal = 3
 
 [node name="PauseBtn" type="Button" parent="UILayer/HUD/MarginContainer/TopBar"]
 layout_mode = 2
-custom_minimum_size = Vector2(60, 28)
-text = "| |"
-theme_override_font_sizes/font_size = 12
+custom_minimum_size = Vector2(80, 36)
+text = "PAUSE"
+theme_override_font_sizes/font_size = 14
 
 [node name="GameOverLabel" type="Label" parent="UILayer/HUD"]
 layout_mode = 1

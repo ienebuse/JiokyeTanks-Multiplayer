@@ -1010,8 +1010,10 @@ func apply_enemy_bonus(bonus_type: int, enemy: Node2D) -> void:
 			enemy.has_boat = true
 
 func spawn_bonus() -> void:
+	# Replace existing bonus if one is active (matching Java setBonus() behavior)
 	if active_bonus != null and is_instance_valid(active_bonus):
-		return
+		active_bonus.queue_free()
+		active_bonus = null
 	
 	# Determine bonus type based on probabilities
 	var r = randf()

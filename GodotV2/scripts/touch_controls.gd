@@ -81,7 +81,7 @@ func _calculate_layout() -> void:
 	# Joystick - bottom left, inset from edges (matching Java layout)
 	joystick_outer_radius = 95.0 * scale_factor
 	stick_radius = 32.0 * scale_factor
-	var joy_margin = 55.0 * scale_factor
+	var joy_margin = 65.0 * scale_factor
 	joystick_center = Vector2(
 		joy_margin + joystick_outer_radius,
 		vp.y - joy_margin - joystick_outer_radius
@@ -93,9 +93,9 @@ func _calculate_layout() -> void:
 	)
 
 	# Shoot button - bottom right (large, matching Java marginEnd/marginBottom)
-	var shoot_size = 110.0 * scale_factor
-	var shoot_margin_x = 60.0 * scale_factor
-	var shoot_margin_y = 50.0 * scale_factor
+	var shoot_size = 120.0 * scale_factor
+	var shoot_margin_x = 70.0 * scale_factor
+	var shoot_margin_y = 60.0 * scale_factor
 	shoot_rect = Rect2(
 		vp.x - shoot_margin_x - shoot_size,
 		vp.y - shoot_margin_y - shoot_size,

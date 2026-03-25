@@ -6,8 +6,6 @@ extends Node2D
 var tile_dim: float = 0.0
 var bonus_type: int = GameData.BonusType.GRENADE
 var is_expired: bool = false
-var lifetime: float = 0.0
-const MAX_LIFETIME: float = 6.0  # seconds
 
 # Visual
 var blink_timer: float = 0.0
@@ -33,7 +31,6 @@ const BONUS_SPRITE_PATHS: Dictionary = {
 func init_bonus(td: float, type: int) -> void:
 	tile_dim = td
 	bonus_type = type
-	lifetime = 0.0
 	is_expired = false
 	
 	# Load the sprite for this bonus type
@@ -42,18 +39,9 @@ func init_bonus(td: float, type: int) -> void:
 		bonus_texture = load(path)
 
 func update_bonus(delta: float) -> void:
-	lifetime += delta
-	if lifetime >= MAX_LIFETIME:
-		is_expired = true
-		return
-	
-	# Blink faster near end
-	var speed = BLINK_SPEED
-	if lifetime > MAX_LIFETIME * 0.7:
-		speed = BLINK_SPEED * 0.5
-	
+	# Bonus stays visible until collected or replaced (matching Java)
 	blink_timer += delta
-	if blink_timer >= speed:
+	if blink_timer >= BLINK_SPEED:
 		blink_visible = not blink_visible
 		blink_timer = 0.0
 	
