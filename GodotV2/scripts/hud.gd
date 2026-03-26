@@ -178,8 +178,8 @@ func _build_kill_rows() -> void:
 			var atlas = AtlasTexture.new()
 			atlas.atlas = hve_texture
 			# HVE layout: 4 columns (directions) × 2 rows (anim frames)
-			var frame_w = hve_texture.get_width() / 4.0
-			var frame_h = hve_texture.get_height() / 2.0
+			var frame_w = int(hve_texture.get_width() / 4)
+			var frame_h = int(hve_texture.get_height() / 2)
 			# Use direction DOWN (2), anim_frame 0
 			atlas.region = Rect2(2 * frame_w, 0, frame_w, frame_h)
 			tank_textures.append(atlas)

@@ -1404,7 +1404,7 @@ func retry_level() -> void:
 	start_level(level)
 
 func _save_player_state(p: Node2D) -> Dictionary:
-	if not p or not is_instance_valid(p) or not p.has_method("fire") or p.lives <= 0:
+	if not p or not is_instance_valid(p) or not ("player_num" in p) or p.lives <= 0:
 		return {}
 	return {
 		"lives": p.lives,
