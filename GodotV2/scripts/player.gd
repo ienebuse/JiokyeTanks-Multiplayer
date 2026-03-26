@@ -22,6 +22,13 @@ var ice_sliding: bool = false
 var ice_direction: int = GameData.Direction.UP
 var move_enabled: bool = true
 
+# Freeze (matching Java Player freeze behavior)
+var is_frozen: bool = false
+var freeze_timer: float = 0.0
+var freeze_blink_on: bool = false
+var freeze_blink_timer: float = 0.0
+const FREEZE_BLINK_TIME: float = 5.0 / 32.0  # Match Java freezBlinkTime = 5 ticks at 32 FPS
+
 # Shooting
 var max_bullets: int = 1
 var bullets: Array = []
@@ -129,6 +136,16 @@ func _process(delta: float) -> void:
 	if lives <= 0:
 		return
 	
+	# Freeze timer countdown and blink (matching Java Player.move() + Player.draw())
+	if is_frozen:
+		freeze_timer -= delta
+		freeze_blink_timer += delta
+		if freeze_blink_timer >= FREEZE_BLINK_TIME:
+			freeze_blink_on = not freeze_blink_on
+			freeze_blink_timer = 0.0
+		if freeze_timer <= 0:
+			unfreeze()
+	
 	# Handle input
 	handle_input(delta)
 	
@@ -169,9 +186,6 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func handle_input(delta: float) -> void:
-	if not move_enabled:
-		return
-	
 	if is_local:
 		_handle_local_input(delta)
 	else:
@@ -181,33 +195,37 @@ func _handle_local_input(delta: float) -> void:
 	moving = false
 	var new_dir = direction
 	
-	if Input.is_action_pressed("move_up"):
-		new_dir = GameData.Direction.UP
-		moving = true
-	elif Input.is_action_pressed("move_down"):
-		new_dir = GameData.Direction.DOWN
-		moving = true
-	elif Input.is_action_pressed("move_left"):
-		new_dir = GameData.Direction.LEFT
-		moving = true
-	elif Input.is_action_pressed("move_right"):
-		new_dir = GameData.Direction.RIGHT
-		moving = true
-	
-	if moving:
-		if new_dir != direction:
-			direction = new_dir
-			snap_to_grid()
+	# Movement blocked when frozen (matching Java: freeze blocks move + direction change)
+	if not is_frozen:
+		if Input.is_action_pressed("move_up"):
+			new_dir = GameData.Direction.UP
+			moving = true
+		elif Input.is_action_pressed("move_down"):
+			new_dir = GameData.Direction.DOWN
+			moving = true
+		elif Input.is_action_pressed("move_left"):
+			new_dir = GameData.Direction.LEFT
+			moving = true
+		elif Input.is_action_pressed("move_right"):
+			new_dir = GameData.Direction.RIGHT
+			moving = true
 		
-		last_valid_position = position
-		var move_vec = direction_to_vector(direction) * speed * delta
-		position += move_vec
-		
-		if on_ice:
-			ice_sliding = true
-			ice_direction = direction
+		if moving:
+			if new_dir != direction:
+				direction = new_dir
+				snap_to_grid()
+				if GameData.vibrate_enabled:
+					Input.vibrate_handheld(40)
+			
+			last_valid_position = position
+			var move_vec = direction_to_vector(direction) * speed * delta
+			position += move_vec
+			
+			if on_ice:
+				ice_sliding = true
+				ice_direction = direction
 	
-	# Fire - continuous while held (matching Java's startShooting/stopShooting)
+	# Fire - continuous while held (matching Java: shooting allowed even when frozen)
 	if Input.is_action_pressed("fire"):
 		fire()
 	
@@ -216,9 +234,11 @@ func _handle_local_input(delta: float) -> void:
 		drop_mine()
 
 func _handle_remote_input(delta: float) -> void:
-	moving = remote_moving
+	moving = false
 	
-	if moving:
+	# Movement blocked when frozen (matching Java: freeze blocks move + direction change)
+	if not is_frozen and remote_moving:
+		moving = true
 		if remote_direction != direction:
 			direction = remote_direction
 			snap_to_grid()
@@ -231,6 +251,7 @@ func _handle_remote_input(delta: float) -> void:
 			ice_sliding = true
 			ice_direction = direction
 	
+	# Shooting allowed even when frozen (matching Java)
 	if remote_fire:
 		fire()
 	
@@ -276,6 +297,8 @@ func fire() -> void:
 	reload_timer = RELOAD_TIME
 	bullet_fired.emit(bullet)
 	SoundManager.play_sound("tnkfire.wav")
+	if is_local and GameData.vibrate_enabled:
+		Input.vibrate_handheld(40)
 
 func drop_mine() -> void:
 	if mine_count <= 0 or is_respawning:
@@ -307,6 +330,8 @@ func take_hit() -> void:
 		return
 	
 	lives -= 1
+	if GameData.vibrate_enabled:
+		Input.vibrate_handheld(500)
 	if lives > 0:
 		respawn()
 	else:
@@ -333,6 +358,10 @@ func respawn() -> void:
 	max_bullets = 1
 	bullet_speed_multiplier = 1.0
 	speed = tile_dim * BASE_SPEED_TILES_PER_SEC
+	# Clear freeze on respawn
+	is_frozen = false
+	freeze_timer = 0.0
+	freeze_blink_on = false
 	activate_shield()
 
 func activate_shield() -> void:
@@ -342,12 +371,15 @@ func activate_shield() -> void:
 	shield_frame_timer = 0.0
 
 func freeze() -> void:
-	move_enabled = false
-	fire_enabled = false
+	is_frozen = true
+	freeze_timer = GameData.FREEZE_TIME
+	freeze_blink_timer = 0.0
+	freeze_blink_on = false
 
 func unfreeze() -> void:
-	move_enabled = true
-	fire_enabled = true
+	is_frozen = false
+	freeze_timer = 0.0
+	freeze_blink_on = false
 
 func upgrade_star() -> void:
 	# Matching Java Player.applyStar():
@@ -414,6 +446,10 @@ func _draw() -> void:
 		if tank_texture and spawn_frame < SPAWN_FRAME_COUNT:
 			var src_rect = Rect2(SPAWN_SRC_X, SPAWN_SRC_Y + spawn_frame * SPAWN_SRC_H, SPAWN_SRC_W, SPAWN_SRC_H)
 			draw_texture_rect_region(tank_texture, Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), src_rect)
+		return
+	
+	# Freeze blink: skip drawing tank when blink is off (matching Java Player.draw())
+	if is_frozen and not freeze_blink_on:
 		return
 	
 	# Draw using tank sprite from tanktexture.png (1216x512)
@@ -495,7 +531,7 @@ func _draw_procedural() -> void:
 			draw_circle(dot_pos, 2, Color.WHITE)
 
 # --- Network sync helpers ---
-const SYNC_STATE_SIZE: int = 19  # Number of fields in sync state array
+const SYNC_STATE_SIZE: int = 21  # Number of fields in sync state array
 
 func get_sync_state() -> Array:
 	return [
@@ -504,10 +540,11 @@ func get_sync_state() -> Array:
 		int(has_boat), star_count, anim_frame, spawn_frame,
 		int(break_wall), int(clear_bush), max_bullets,
 		bullet_speed_multiplier, speed, mine_count, builder_count,
+		int(is_frozen), freeze_timer,
 	]
 
 func apply_sync_state(data: Array) -> void:
-	if data.size() < SYNC_STATE_SIZE:
+	if data.size() < 19:
 		return
 	position = Vector2(data[0], data[1])
 	direction = int(data[2])
@@ -527,4 +564,7 @@ func apply_sync_state(data: Array) -> void:
 	speed = data[16]
 	mine_count = int(data[17])
 	builder_count = int(data[18])
+	if data.size() >= SYNC_STATE_SIZE:
+		is_frozen = bool(data[19])
+		freeze_timer = data[20]
 	queue_redraw()

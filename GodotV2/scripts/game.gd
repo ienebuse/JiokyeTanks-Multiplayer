@@ -87,6 +87,10 @@ var mp_waiting_retry: bool = false  # Whether we're waiting for the other player
 var mp_peer_disconnected: bool = false  # Whether the other player has disconnected
 var mp_pending_action: String = ""  # "retry" or "next" - what this player chose
 
+# Saved player state for next-level transitions (matching Java: upgrades persist between stages)
+var _saved_p1_state: Dictionary = {}
+var _saved_p2_state: Dictionary = {}
+
 # References
 var tile_dim: float = 0.0
 var board_size: Vector2 = Vector2.ZERO
@@ -199,9 +203,14 @@ func start_level(lvl: int) -> void:
 	
 	# Create player
 	create_player()
+	# Restore saved player state from previous stage (next-level transitions)
+	_restore_player_state(player, _saved_p1_state)
+	_saved_p1_state = {}
 	
 	if GameData.is_multiplayer:
 		create_player2()
+		_restore_player_state(player2, _saved_p2_state)
+		_saved_p2_state = {}
 	
 	# Create bonus holder
 	active_bonus = null
@@ -1376,6 +1385,10 @@ func resume_game() -> void:
 		_receive_resume_event.rpc()
 
 func next_level() -> void:
+	# Save player upgrade state before clearing the level (matching Java: player
+	# object persists across nextRound, upgrades retained if player wasn't killed)
+	_saved_p1_state = _save_player_state(player)
+	_saved_p2_state = _save_player_state(player2)
 	level += 1
 	if level > GameData.NUM_LEVELS:
 		level = 1
@@ -1385,7 +1398,40 @@ func next_level() -> void:
 	start_level(level)
 
 func retry_level() -> void:
+	# On retry, players start fresh (matching Java: retryStage creates new Player)
+	_saved_p1_state = {}
+	_saved_p2_state = {}
 	start_level(level)
+
+func _save_player_state(p: Node2D) -> Dictionary:
+	if not p or not is_instance_valid(p) or p.lives <= 0:
+		return {}
+	return {
+		"lives": p.lives,
+		"armour": p.armour,
+		"star_count": p.star_count,
+		"speed": p.speed,
+		"bullet_speed_multiplier": p.bullet_speed_multiplier,
+		"break_wall": p.break_wall,
+		"clear_bush": p.clear_bush,
+		"max_bullets": p.max_bullets,
+		"mine_count": p.mine_count,
+		"builder_count": p.builder_count,
+	}
+
+func _restore_player_state(p: Node2D, saved: Dictionary) -> void:
+	if saved.is_empty() or not p or not is_instance_valid(p):
+		return
+	p.lives = saved["lives"]
+	p.armour = saved["armour"]
+	p.star_count = saved["star_count"]
+	p.speed = saved["speed"]
+	p.bullet_speed_multiplier = saved["bullet_speed_multiplier"]
+	p.break_wall = saved["break_wall"]
+	p.clear_bush = saved["clear_bush"]
+	p.max_bullets = saved["max_bullets"]
+	p.mine_count = saved["mine_count"]
+	p.builder_count = saved["builder_count"]
 
 func update_hud() -> void:
 	if hud:

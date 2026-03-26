@@ -108,6 +108,12 @@ func show_score_screen(kills: Dictionary, stage_score: int, total_score: int, st
 	
 	score_panel.visible = true
 	
+	# Disable "Next" button on game over (matching Java: nxtBtn.setAlpha(0.2f))
+	var next_btn = score_panel.get_node_or_null("VBoxContainer/HBoxContainer/NextBtn")
+	if next_btn:
+		next_btn.disabled = not is_complete
+		next_btn.modulate.a = 1.0 if is_complete else 0.4
+	
 	# Initialize animated score display
 	score_actual_kills = kills.duplicate()
 	score_stage = stage
