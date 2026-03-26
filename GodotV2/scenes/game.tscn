@@ -213,7 +213,6 @@ theme_override_constants/separation = 10
 
 [node name="ScoreDetail" type="Label" parent="UILayer/HUD/ScorePanel/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
 text = "SCORE DETAILS"
 horizontal_alignment = 1
 

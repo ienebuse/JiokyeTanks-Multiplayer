@@ -376,10 +376,6 @@ func _draw() -> void:
 		var health_pct = float(hve_health) / float(hve_max_health)
 		draw_rect(Rect2(0, -6, bar_width, bar_height), Color.RED)
 		draw_rect(Rect2(0, -6, bar_width * health_pct, bar_height), Color.GREEN)
-	
-	# Frozen indicator
-	if is_frozen:
-		draw_rect(Rect2(Vector2.ZERO, Vector2(tank_size, tank_size)), Color(0, 0.5, 1, 0.3))
 
 func _draw_procedural() -> void:
 	var body_color = color

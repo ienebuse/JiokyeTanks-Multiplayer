@@ -57,6 +57,7 @@ var kills: Dictionary = {
 	GameData.ObjectType.ST_TANK_B: 0,
 	GameData.ObjectType.ST_TANK_C: 0,
 	GameData.ObjectType.ST_TANK_D: 0,
+	GameData.ObjectType.ST_HVE: 0,
 }
 
 # Show score timer
@@ -86,6 +87,10 @@ var mp_retry_confirmed: Array = []  # Track which peers confirmed retry in multi
 var mp_waiting_retry: bool = false  # Whether we're waiting for the other player to retry
 var mp_peer_disconnected: bool = false  # Whether the other player has disconnected
 var mp_pending_action: String = ""  # "retry" or "next" - what this player chose
+
+# Saved player state for next-level transitions (matching Java: upgrades persist between stages)
+var _saved_p1_state: Dictionary = {}
+var _saved_p2_state: Dictionary = {}
 
 # References
 var tile_dim: float = 0.0
@@ -199,9 +204,14 @@ func start_level(lvl: int) -> void:
 	
 	# Create player
 	create_player()
+	# Restore saved player state from previous stage (next-level transitions)
+	_restore_player_state(player, _saved_p1_state)
+	_saved_p1_state = {}
 	
 	if GameData.is_multiplayer:
 		create_player2()
+		_restore_player_state(player2, _saved_p2_state)
+		_saved_p2_state = {}
 	
 	# Create bonus holder
 	active_bonus = null
@@ -379,7 +389,7 @@ func create_player() -> void:
 func create_player2() -> void:
 	player2 = Node2D.new()
 	player2.set_script(preload("res://scripts/player.gd"))
-	var px = int(9.0 * GameData.GRID_SIZE / 13.0) * tile_dim
+	var px = int(8.0 * GameData.GRID_SIZE / 13.0) * tile_dim
 	var py = (GameData.GRID_SIZE - 2) * tile_dim
 	player2.position = Vector2(px, py)
 	entity_layer.add_child(player2)
@@ -1376,6 +1386,9 @@ func resume_game() -> void:
 		_receive_resume_event.rpc()
 
 func next_level() -> void:
+	# Save player upgrade state before clearing (matching Java: upgrades retained unless player was killed)
+	_saved_p1_state = _save_player_state(player)
+	_saved_p2_state = _save_player_state(player2)
 	level += 1
 	if level > GameData.NUM_LEVELS:
 		level = 1
@@ -1385,7 +1398,40 @@ func next_level() -> void:
 	start_level(level)
 
 func retry_level() -> void:
+	# On retry, players start fresh (matching Java: retryStage creates new Player)
+	_saved_p1_state = {}
+	_saved_p2_state = {}
 	start_level(level)
+
+func _save_player_state(p: Node2D) -> Dictionary:
+	if not p or not is_instance_valid(p) or not ("player_num" in p) or p.lives <= 0:
+		return {}
+	return {
+		"lives": p.lives,
+		"armour": p.armour,
+		"star_count": p.star_count,
+		"speed": p.speed,
+		"bullet_speed_multiplier": p.bullet_speed_multiplier,
+		"break_wall": p.break_wall,
+		"clear_bush": p.clear_bush,
+		"max_bullets": p.max_bullets,
+		"mine_count": p.mine_count,
+		"builder_count": p.builder_count,
+	}
+
+func _restore_player_state(p: Node2D, saved: Dictionary) -> void:
+	if saved.is_empty() or not p or not is_instance_valid(p):
+		return
+	p.lives = saved["lives"]
+	p.armour = saved["armour"]
+	p.star_count = saved["star_count"]
+	p.speed = saved["speed"]
+	p.bullet_speed_multiplier = saved["bullet_speed_multiplier"]
+	p.break_wall = saved["break_wall"]
+	p.clear_bush = saved["clear_bush"]
+	p.max_bullets = saved["max_bullets"]
+	p.mine_count = saved["mine_count"]
+	p.builder_count = saved["builder_count"]
 
 func update_hud() -> void:
 	if hud:
@@ -1853,6 +1899,8 @@ func _apply_game_state(data: Dictionary) -> void:
 		elif server_state == GameState.STAGE_COMPLETE and state == GameState.PLAYING:
 			state = GameState.STAGE_COMPLETE
 			show_score_timer = SHOW_SCORE_DELAY
+			# Stop scene music on client (matching server's do_stage_complete)
+			SoundManager.stop_all_sounds()
 	
 	# Update HUD
 	update_hud()

@@ -39,15 +39,31 @@ var score_stage_score: int = 0
 var score_total_score: int = 0
 var score_is_complete: bool = false
 
-# Tank type order for animation
+# Tank type order for animation (including HVE)
 const SCORE_TYPES = [
 	GameData.ObjectType.ST_TANK_A,
 	GameData.ObjectType.ST_TANK_B,
 	GameData.ObjectType.ST_TANK_C,
 	GameData.ObjectType.ST_TANK_D,
+	GameData.ObjectType.ST_HVE,
 ]
-const SCORE_VALUES = [100, 200, 300, 400]
-const TYPE_NAMES = ["TANK A", "TANK B", "TANK C", "TANK D"]
+const SCORE_VALUES = [100, 200, 300, 400, 400]
+
+# Tank sprite regions from tanktexture.png for scoreboard display
+# Each entry: [src_x, src_y, src_w, src_h] for a single frame (facing DOWN, group 1, anim 0)
+# Col = 4 * group + direction; Row = 2 * type_val + anim_frame
+const TANK_SPRITE_REGIONS = [
+	Rect2(6 * 32, 0 * 32, 32, 32),   # Tank A: col=4*1+2=6, row=2*0+0=0
+	Rect2(6 * 32, 2 * 32, 32, 32),   # Tank B: col=6, row=2*1+0=2
+	Rect2(6 * 32, 4 * 32, 32, 32),   # Tank C: col=6, row=2*2+0=4
+	Rect2(6 * 32, 6 * 32, 32, 32),   # Tank D: col=6, row=2*3+0=6
+]
+
+# Dynamic score row nodes
+var kills_container: VBoxContainer = null
+var kill_row_labels: Array = []  # Array of Labels for each kill row's text
+var total_kills_label: Label = null
+var tank_textures: Array = []  # Pre-created AtlasTextures for tank images
 
 func _ready() -> void:
 	game_over_label.visible = false
@@ -108,6 +124,12 @@ func show_score_screen(kills: Dictionary, stage_score: int, total_score: int, st
 	
 	score_panel.visible = true
 	
+	# Disable "Next" button on game over (matching Java: nxtBtn.setAlpha(0.2f))
+	var next_btn = score_panel.get_node_or_null("VBoxContainer/HBoxContainer/NextBtn")
+	if next_btn:
+		next_btn.disabled = not is_complete
+		next_btn.modulate.a = 1.0 if is_complete else 0.4
+	
 	# Initialize animated score display
 	score_actual_kills = kills.duplicate()
 	score_stage = stage
@@ -123,8 +145,93 @@ func show_score_screen(kills: Dictionary, stage_score: int, total_score: int, st
 	for type in SCORE_TYPES:
 		score_display_kills[type] = 0
 	
+	# Build the image-based kill rows
+	_build_kill_rows()
+	
 	# Show initial text (header only, kills will animate in)
 	_update_score_text()
+
+func _build_kill_rows() -> void:
+	# Remove previous kills container if it exists (total_kills_label is a child, freed with it)
+	if kills_container and is_instance_valid(kills_container):
+		kills_container.get_parent().remove_child(kills_container)
+		kills_container.free()
+	kills_container = null
+	total_kills_label = null
+	kill_row_labels.clear()
+	tank_textures.clear()
+	
+	# Load the tank spritesheet
+	var tank_texture = load("res://assets/sprites/tanktexture.png")
+	var hve_texture = load("res://assets/sprites/hve.png")
+	
+	# Create atlas textures for each tank type
+	for i in range(SCORE_TYPES.size()):
+		if i < TANK_SPRITE_REGIONS.size():
+			# Standard tank from tanktexture.png
+			var atlas = AtlasTexture.new()
+			atlas.atlas = tank_texture
+			atlas.region = TANK_SPRITE_REGIONS[i]
+			tank_textures.append(atlas)
+		else:
+			# HVE from hve.png
+			var atlas = AtlasTexture.new()
+			atlas.atlas = hve_texture
+			# HVE layout: 4 columns (directions) × 2 rows (anim frames)
+			var frame_w = int(hve_texture.get_width() / 4)
+			var frame_h = int(hve_texture.get_height() / 2)
+			# Use direction DOWN (2), anim_frame 0
+			atlas.region = Rect2(2 * frame_w, 0, frame_w, frame_h)
+			tank_textures.append(atlas)
+	
+	# Get the VBoxContainer inside ScorePanel
+	var vbox = score_panel.get_node_or_null("VBoxContainer")
+	if not vbox:
+		return
+	
+	# Create kills container and insert it before the buttons HBoxContainer
+	kills_container = VBoxContainer.new()
+	kills_container.name = "KillsContainer"
+	kills_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	kills_container.add_theme_constant_override("separation", 2)
+	# Insert before the last child (HBoxContainer with buttons)
+	var btn_container = vbox.get_node_or_null("HBoxContainer")
+	if btn_container:
+		vbox.add_child(kills_container)
+		vbox.move_child(kills_container, btn_container.get_index())
+	else:
+		vbox.add_child(kills_container)
+	
+	# Create a row for each enemy type
+	for i in range(SCORE_TYPES.size()):
+		var row = HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 8)
+		row.visible = false  # Hidden until animation reaches this type
+		
+		# Tank image
+		var tex_rect = TextureRect.new()
+		tex_rect.texture = tank_textures[i]
+		tex_rect.custom_minimum_size = Vector2(24, 24)
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		row.add_child(tex_rect)
+		
+		# Kill count and score label
+		var label = Label.new()
+		label.text = "  0 x " + str(SCORE_VALUES[i]) + " = 0"
+		label.add_theme_font_size_override("font_size", 14)
+		row.add_child(label)
+		
+		kills_container.add_child(row)
+		kill_row_labels.append(label)
+	
+	# Total kills label (shown after animation completes)
+	total_kills_label = Label.new()
+	total_kills_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	total_kills_label.add_theme_font_size_override("font_size", 14)
+	total_kills_label.visible = false
+	kills_container.add_child(total_kills_label)
 
 func _update_score_animation(delta: float) -> void:
 	score_anim_timer -= delta
@@ -154,6 +261,7 @@ func _update_score_animation(delta: float) -> void:
 		_update_score_text()
 
 func _update_score_text() -> void:
+	# Update header label with title and scores only
 	var text = ""
 	if score_is_complete:
 		text += "STAGE " + str(score_stage) + " COMPLETE!\n\n"
@@ -161,9 +269,12 @@ func _update_score_text() -> void:
 		text += "GAME OVER\n\n"
 	
 	text += "STAGE SCORE: " + str(score_stage_score) + "\n"
-	text += "TOTAL SCORE: " + str(score_total_score) + "\n\n"
+	text += "TOTAL SCORE: " + str(score_total_score)
 	
-	# Show kills animated per type (only show types that have been reached)
+	if score_detail_label:
+		score_detail_label.text = text
+	
+	# Update image-based kill rows
 	var total_kills = 0
 	for i in range(SCORE_TYPES.size()):
 		if i > score_enemy_frame:
@@ -172,14 +283,21 @@ func _update_score_text() -> void:
 		var count = score_display_kills.get(type, 0)
 		var score = count * SCORE_VALUES[i]
 		total_kills += count
-		text += TYPE_NAMES[i] + ":  " + str(count) + " x " + str(SCORE_VALUES[i]) + " = " + str(score) + "\n"
+		
+		# Show the row and update its label
+		if kills_container and i < kills_container.get_child_count():
+			var row = kills_container.get_child(i)
+			row.visible = true
+		if i < kill_row_labels.size():
+			kill_row_labels[i].text = "  " + str(count) + " x " + str(SCORE_VALUES[i]) + " = " + str(score)
 	
 	# Show total line once animation is complete
-	if score_enemy_frame >= SCORE_TYPES.size():
-		text += "\nTOTAL KILLS: " + str(total_kills) + "\n"
-	
-	if score_detail_label:
-		score_detail_label.text = text
+	if total_kills_label and is_instance_valid(total_kills_label):
+		if score_enemy_frame >= SCORE_TYPES.size():
+			total_kills_label.text = "TOTAL KILLS: " + str(total_kills)
+			total_kills_label.visible = true
+		else:
+			total_kills_label.visible = false
 
 func _on_resume_btn_pressed() -> void:
 	resume_pressed.emit()
