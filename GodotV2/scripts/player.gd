@@ -342,8 +342,8 @@ func respawn() -> void:
 	spawn_frame = 0
 	spawn_frame_timer = 0.0
 	
-	# Reset position (P1 at 4/13, P2 at 9/13 of grid width)
-	var col_frac = 4.0 if player_num == 1 else 9.0
+	# Reset position (P1 at 4/13, P2 at 8/13 of grid width - matching Java)
+	var col_frac = 4.0 if player_num == 1 else 8.0
 	var px = int(col_frac * GameData.GRID_SIZE / 13.0) * tile_dim
 	var py = (GameData.GRID_SIZE - 2) * tile_dim
 	position = Vector2(px, py)

@@ -57,6 +57,7 @@ var kills: Dictionary = {
 	GameData.ObjectType.ST_TANK_B: 0,
 	GameData.ObjectType.ST_TANK_C: 0,
 	GameData.ObjectType.ST_TANK_D: 0,
+	GameData.ObjectType.ST_HVE: 0,
 }
 
 # Show score timer
@@ -388,7 +389,7 @@ func create_player() -> void:
 func create_player2() -> void:
 	player2 = Node2D.new()
 	player2.set_script(preload("res://scripts/player.gd"))
-	var px = int(9.0 * GameData.GRID_SIZE / 13.0) * tile_dim
+	var px = int(8.0 * GameData.GRID_SIZE / 13.0) * tile_dim
 	var py = (GameData.GRID_SIZE - 2) * tile_dim
 	player2.position = Vector2(px, py)
 	entity_layer.add_child(player2)
@@ -1898,6 +1899,8 @@ func _apply_game_state(data: Dictionary) -> void:
 		elif server_state == GameState.STAGE_COMPLETE and state == GameState.PLAYING:
 			state = GameState.STAGE_COMPLETE
 			show_score_timer = SHOW_SCORE_DELAY
+			# Stop scene music on client (matching server's do_stage_complete)
+			SoundManager.stop_all_sounds()
 	
 	# Update HUD
 	update_hud()
