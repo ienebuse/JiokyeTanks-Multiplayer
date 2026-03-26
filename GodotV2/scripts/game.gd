@@ -1385,8 +1385,7 @@ func resume_game() -> void:
 		_receive_resume_event.rpc()
 
 func next_level() -> void:
-	# Save player upgrade state before clearing the level (matching Java: player
-	# object persists across nextRound, upgrades retained if player wasn't killed)
+	# Save player upgrade state before clearing (matching Java: upgrades retained unless player was killed)
 	_saved_p1_state = _save_player_state(player)
 	_saved_p2_state = _save_player_state(player2)
 	level += 1
@@ -1404,7 +1403,7 @@ func retry_level() -> void:
 	start_level(level)
 
 func _save_player_state(p: Node2D) -> Dictionary:
-	if not p or not is_instance_valid(p) or p.lives <= 0:
+	if not p or not is_instance_valid(p) or not p.has_method("fire") or p.lives <= 0:
 		return {}
 	return {
 		"lives": p.lives,

@@ -27,7 +27,7 @@ var is_frozen: bool = false
 var freeze_timer: float = 0.0
 var freeze_blink_on: bool = false
 var freeze_blink_timer: float = 0.0
-const FREEZE_BLINK_TIME: float = 5.0 / 32.0  # Match Java freezBlinkTime = 5 ticks at 32 FPS
+const FREEZE_BLINK_TIME: float = 5.0 / 32.0  # ~0.156s per blink toggle, matching Java freezBlinkTime = 5 game ticks
 
 # Shooting
 var max_bullets: int = 1
@@ -532,6 +532,7 @@ func _draw_procedural() -> void:
 
 # --- Network sync helpers ---
 const SYNC_STATE_SIZE: int = 21  # Number of fields in sync state array
+const LEGACY_SYNC_STATE_SIZE: int = 19  # Sync state size before freeze fields were added
 
 func get_sync_state() -> Array:
 	return [
@@ -544,7 +545,7 @@ func get_sync_state() -> Array:
 	]
 
 func apply_sync_state(data: Array) -> void:
-	if data.size() < 19:
+	if data.size() < LEGACY_SYNC_STATE_SIZE:
 		return
 	position = Vector2(data[0], data[1])
 	direction = int(data[2])
